@@ -4,15 +4,15 @@ from MAAccessor_class import MAAccessor
 class MADictAccessor(MAAccessor):
 
     def __init__(self, aSymbol):
-        self.key = aSymbol
+        self._key = aSymbol
 
     @property
-    def getKey(self):
-        return self.key
+    def key(self):
+        return self._key
 
-    @getKey.setter
-    def setKey(self, newKey):
-        self.key = newKey
+    @key.setter
+    def key(self, newKey):
+        self._key = newKey
 
     @classmethod
     def isAbstract(cls):
@@ -25,10 +25,7 @@ class MADictAccessor(MAAccessor):
         return True
 
     def read(self, aModel):
-        if (self.key in aModel):
-            return aModel[self.key]
-        else:
-            return False
+        return aModel.get(self._key)
 
     def write(self, aModel, anObject):
-        aModel[self.key] = anObject
+        aModel[self._key] = anObject
