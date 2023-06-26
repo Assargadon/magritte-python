@@ -29,6 +29,3 @@ class MADictAccessor(MAAccessor):
 
     def write(self, aModel, anObject):
         aModel[self._key] = anObject
-
-
-print("hello")
