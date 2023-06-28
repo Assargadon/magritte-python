@@ -3,9 +3,9 @@ from MAAccessor_class import MAAccessor
 
 class MAPluggableAccessor(MAAccessor):
 
-    def __init__(self, aReadBlock, aWRiteBlock):
-        self._readBlock = aReadBlock
-        self._writeBlock = aWRiteBlock
+    def __init__(self, aReadBlock, aWriteBlock):
+        self._readBlock = lambda aReadBlock: aReadBlock
+        self._writeBlock = lambda aReadBlock, aWriteBlock: aReadBlock, aWriteBlock
 
     @classmethod
     def isAbstract(cls):
@@ -28,19 +28,27 @@ class MAPluggableAccessor(MAAccessor):
         return self._readBlock
 
     @readBlock.setter
-    def readBlock(self, newReadBlock):
-        self._readBlock = newReadBlock
+    def readBlock(self, aBlock):
+        self._readBlock = aBlock
 
     @property
     def writeBlock(self):
         return self._writeBlock
 
     @writeBlock.setter
-    def writeBlock(self, newWriteBlock):
-        self._writeBlock = newWriteBlock
+    def writeBlock(self, aBlock):
+        self._writeBlock = aBlock
 
+    # def read(self, aModel):
+    #     return aModel.get(self.readBlock)
     def read(self, aModel):
-        return aModel.get(self.readBlock)
+        return self.readBlock(aModel)
 
     def write(self, aModel, anObject):
-        aModel[self.writeBlock] = anObject
+        self.writeBlock(aModel, anObject)
+
+# d = {1: 10, 2: 11, 3: 13}
+# m = MAPluggableAccessor({}, 3)
+# # m.write(d, 4)
+# print(m.read(d))
+# print(m.writeBlock)
