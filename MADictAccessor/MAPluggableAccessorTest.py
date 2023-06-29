@@ -1,72 +1,123 @@
-from unittest import TestCase, main
-from MADictAccessor.MAPluggableAccessor_class import MAPluggableAccessor as map
+from unittest import TestCase
+from MADictAccessor.MAPluggableAccessor_class import MAPluggableAccessor
 
 
 class MAPluggableAccessorTest(TestCase):
 
     def test_canRead_plus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(2, 3)
-        self.assertEqual(m.canRead(d), 2)
+        f_read = lambda model: model['price'] * model['amount']
+
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
+
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        self.assertEqual(total_accessor.canRead(d), f_read)
 
     def test_canRead_minus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(4, 5)
-        self.assertEqual(m.canRead(d), 4)
+        f_read = None
+
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
+
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        self.assertEqual(total_accessor.canRead(d), None)
 
     def test_canWrite_plus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(2, 3)
-        self.assertEqual(m.canWrite(d), 3)
+        f_read = lambda model: model['price'] * model['amount']
+
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
+
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        self.assertEqual(total_accessor.canWrite(d), f_write)
 
     def test_canWrite_minus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(4, 5)
-        self.assertEqual(m.canWrite(d), 5)
+        f_read = lambda model: model['price'] * model['amount']
+        f_write = None
 
-    def test_read_plus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(2, 3)
-        self.assertEqual(m.read(d), 11)
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        self.assertEqual(total_accessor.canWrite(d), None)
 
-    def test_read_minus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(4, 5)
-        self.assertEqual(m.read(d), None)
+    def test_read(self):
+        f_read = lambda model: model['price'] * model['amount']
 
-    def test_write_plus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(3, 3)
-        m.write(d, 7)
-        self.assertEqual(m.read(d), 7)
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
 
-    def test_write_minus(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(5, 5)
-        m.write(d, 7)
-        self.assertEqual(m.read(d), 7)
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        self.assertEqual(total_accessor.read(d), 110)
 
-    def test_getReadBlock(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(2, 3)
-        self.assertEqual(m.readBlock, 2)
+    def test_write(self):
+        f_read = lambda model: model['price'] * model['amount']
 
-    def test_setReadBlock(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(4, 5)
-        m.readBlock = 3
-        self.assertEqual(m.readBlock, 3)
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
 
-    def test_getWriteBlock(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(2, 3)
-        self.assertEqual(m.writeBlock, 3)
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        total = 130
+        total_accessor.write(d, total)
+        self.assertEqual(d['amount'], 13)
 
-    def test_setWriteBlock(self):
-        d = {1: 10, 2: 11, 3: 13}
-        m = map(4, 5)
-        m.writeBlock = 6
-        self.assertEqual(m.writeBlock, 6)
+    def test_getReadFunc(self):
+        f_read = lambda model: model['price'] * model['amount']
+
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
+
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        self.assertEqual(total_accessor.readFunc, f_read)
+
+    def test_setReadFunc(self):
+        f_read = lambda model: model['price'] * model['amount']
+        f_read2 = lambda model: model
+
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
+
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        total_accessor.readFunc = f_read2
+        self.assertEqual(total_accessor.readFunc, f_read2)
+
+    def test_getWriteFunc(self):
+        f_read = lambda model: model['price'] * model['amount']
+
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
+
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        self.assertEqual(total_accessor.writeFunc, f_write)
+
+    def test_setWriteFunc(self):
+        f_read = lambda model: model['price'] * model['amount']
+
+        def f_write(model, value):
+            amount = value / model['price']
+            model['amount'] = amount
+
+        def f_write2(model, value):
+            return value
+
+        total_accessor = MAPluggableAccessor(f_read, f_write)
+        d = {'price': 10, 'amount': 11}
+        total_accessor.writeFunc = f_write2
+        self.assertEqual(total_accessor.writeFunc, f_write2)
 
     def test_isAbstract(self):
-        self.assertEqual(map.isAbstract(), False)
+        self.assertEqual(MAPluggableAccessor.isAbstract(), False)
