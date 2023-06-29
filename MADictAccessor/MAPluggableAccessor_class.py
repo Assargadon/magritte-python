@@ -5,7 +5,7 @@ class MAPluggableAccessor(MAAccessor):
 
     def __init__(self, aReadBlock, aWriteBlock):
         self._readBlock = lambda aReadBlock: aReadBlock
-        self._writeBlock = lambda aReadBlock, aWriteBlock: aReadBlock, aWriteBlock
+        self._writeBlock = lambda aReadBlock, aWriteBlock: aReadBlock.setdefault('new', aWriteBlock)
 
     @classmethod
     def isAbstract(cls):
@@ -42,13 +42,22 @@ class MAPluggableAccessor(MAAccessor):
     # def read(self, aModel):
     #     return aModel.get(self.readBlock)
     def read(self, aModel):
-        return self.readBlock(aModel)
+        return self._readBlock(aModel)
 
     def write(self, aModel, anObject):
-        self.writeBlock(aModel, anObject)
+        self._writeBlock(aModel, anObject)
 
-# d = {1: 10, 2: 11, 3: 13}
-# m = MAPluggableAccessor({}, 3)
-# # m.write(d, 4)
-# print(m.read(d))
-# print(m.writeBlock)
+
+d = {1: 10, 2: 11, 3: 13}
+m = MAPluggableAccessor(d, 3)
+m.write(d, 4)
+print(m.read(d))
+print(m.writeBlock)
+# def multiply(num1):
+#     var = 10
+#     def inner(num2):
+#         return num1 * num2
+#     return inner
+#
+# mult = multiply(9)
+# print(mult(3))
