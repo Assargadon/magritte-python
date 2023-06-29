@@ -1,5 +1,5 @@
 from unittest import TestCase
-from MADictAccessor.MAPluggableAccessor_class import MAPluggableAccessor
+from Magritte.MAPluggableAccessor_class import MAPluggableAccessor
 
 
 class MAPluggableAccessorTest(TestCase):

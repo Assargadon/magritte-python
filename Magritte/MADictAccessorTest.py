@@ -1,5 +1,5 @@
 from unittest import TestCase
-from MADictAccessor.MADictAccessor_class import MADictAccessor
+from Magritte.MADictAccessor_class import MADictAccessor
 
 
 class MADictAccessorTest(TestCase):
