@@ -24,11 +24,3 @@ class MANullAccessor(MAAccessor):
 
     def write(self, aModel, anObject):
         return Exception("This message is not appropriate for this object")
-
-
-# m = MANullAccessor()
-# d = {1:1, 2:2, 3:3}
-# print(m.uuid)
-# print(m.read(d))
-# print(m.write(d, 3))
-# print(type(m.uuid))
