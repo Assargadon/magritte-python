@@ -16,5 +16,5 @@ class MAAccessor:
     def read(self, aModel):
         return None
 
-    def write(self, anObject, aModel):
+    def write(self, aModel, anObject):
         pass
