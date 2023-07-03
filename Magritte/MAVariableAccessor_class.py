@@ -19,28 +19,19 @@ class MAVariableAccessor(MAAccessor):
         self._name = aString
 
     def canRead(self, aModel):
-        all_attrs = dir(aModel)
-        prop_attrs = [attr for attr in all_attrs if isinstance(getattr(type(aModel), attr, None), property)]
-        if (self._name in prop_attrs):
-            return True
-        else:
-            return False
+        return hasattr(aModel, self._name)
 
     def canWrite(self, aModel):
         return self.canRead(aModel)
 
     def read(self, aModel):
-        all_attrs = dir(aModel)
-        prop_attrs = [attr for attr in all_attrs if isinstance(getattr(type(aModel), attr, None), property)]
-        if (self._name in prop_attrs):
+        if (self.canRead(aModel)):
             return object.__getattribute__(aModel, self._name)
         else:
             return None
 
     def write(self, aModel, anObject):
-        all_attrs = dir(aModel)
-        prop_attrs = [attr for attr in all_attrs if isinstance(getattr(type(aModel), attr, None), property)]
-        if (self._name in prop_attrs):
+        if (self.canRead(aModel)):
             setattr(aModel, self._name, anObject)
         else:
             return None

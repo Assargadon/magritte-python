@@ -2,70 +2,83 @@ from unittest import TestCase
 from Magritte.MAVariableAccessor_class import MAVariableAccessor
 
 
+class Person:
+
+    def __init__(self, aName, aSurname, aAge, aGender):
+        self.name = aName
+        self.surname = aSurname
+        self.age = aAge
+        self.gender = aGender
+
+    def information(self):
+        print(self.name + " " + self.surname + " " + self.age + " " + self.gender)
+
+
+
 class MAVariableAccessorTest(TestCase):
 
     def test_canRead_plus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("name")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("name")
 
-        self.assertEqual(m.canRead(d), True)
+        self.assertEqual(inst.canRead(aModel), True)
 
     def test_canRead_minus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("canWrite")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("canWrite")
 
-        self.assertEqual(m.canRead(d), False)
+        self.assertEqual(inst.canRead(aModel), False)
 
     def test_canWrite_plus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("name")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("surname")
 
-        self.assertEqual(m.canWrite(d), True)
+        self.assertEqual(inst.canWrite(aModel), True)
 
     def test_canWrite_minus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("canWrite")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("canWrite")
 
-        self.assertEqual(m.canWrite(d), False)
+        self.assertEqual(inst.canWrite(aModel), False)
 
     def test_read_plus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("name")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("name")
 
-        self.assertEqual(m.read(d), "asd")
+        self.assertEqual(inst.read(aModel), "Aleks")
 
     def test_read_minus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("canWrite")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("canWrite")
 
-        self.assertEqual(m.read(d), None)
+        self.assertEqual(inst.read(aModel), None)
 
     def test_write_plus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("name")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("name")
 
-        m.write(d, "123")
+        inst.write(aModel, "Sam")
 
-        self.assertEqual(m.read(d), "123")
+        self.assertEqual(inst.read(aModel), "Sam")
 
     def test_write_minus(self):
-        d = MAVariableAccessor("asd")
-        m = MAVariableAccessor("canWrite")
+        aModel = Person("Aleks", "Hofman", 23, "man")
+        inst = MAVariableAccessor("canWrite")
 
-        m.write(d, "123")
+        inst.write(aModel, "Sam")
 
-        self.assertEqual(m.read(d), None)
+        self.assertEqual(inst.read(aModel), None)
 
     def test_getName(self):
-        m = MAVariableAccessor("name")
+        inst = MAVariableAccessor("name")
 
-        self.assertEqual(m.name, "name")
+        self.assertEqual(inst.name, "name")
 
     def test_setName(self):
-        m = MAVariableAccessor("name")
-        m.name = "12345"
+        inst = MAVariableAccessor("name")
+        inst.name = "12345"
 
-        self.assertEqual(m.name, "12345")
+        self.assertEqual(inst.name, "12345")
 
     def test_isAbstract(self):
         self.assertEqual(MAVariableAccessor.isAbstract(), False)
