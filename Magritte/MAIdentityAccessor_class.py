@@ -14,4 +14,4 @@ class MAIdentityAccessor(MAAccessor):
         return aModel
 
     def write(self, aModel, anObject):
-        raise Exception("Not supposed to write to " + str(aModel) + ".")
+        raise Exception(f"Not supposed to write to {aModel}.")
