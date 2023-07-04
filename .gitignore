@@ -1,3 +1,9 @@
 /venv/
 /.idea/
 __pycache__
+MAIdentityAccessor_class.py
+MAIdentityAccessorTest.py
+MANullAccessor_class.py
+MANullAccessorTest.py
+MAVariableAccessor_class.py
+MAVariableAccessorTest.py
