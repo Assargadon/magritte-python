@@ -29,5 +29,5 @@ class MAVariableAccessor(MAAccessor):
             return getattr(aModel, self._name)
 
     def write(self, aModel, anObject):
-        if (self.canRead(aModel)):
+        if (self.canWrite(aModel)):
             setattr(aModel, self._name, anObject)
