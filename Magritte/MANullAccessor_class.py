@@ -19,8 +19,11 @@ class MANullAccessor(MAAccessor):
     def uuid(self, anObject):
         self._uuid = anObject
 
+    def __eq__(self, other):
+        return self._uuid == other._uuid
+
     def read(self, aModel):
-        return Exception("This message is not appropriate for this object")
+        raise Exception("This method is not appropriate for this object")
 
     def write(self, aModel, anObject):
-        return Exception("This message is not appropriate for this object")
+        raise Exception("This method is not appropriate for this object")
