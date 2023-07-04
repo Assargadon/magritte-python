@@ -22,44 +22,44 @@ class Person:
 
 class MASelectorAccessorTest(TestCase):
 
-    def test_canRead_plus(self):
+    def test_canRead_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MASelectorAccessor("get_age", "set_age")
 
         self.assertEqual(inst.canRead(aModel), True)
 
-    def test_canRead_minus(self):
+    def test_canRead_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MASelectorAccessor("read", "set_age")
 
         self.assertEqual(inst.canRead(aModel), False)
 
-    def test_canWrite_plus(self):
+    def test_canWrite_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MASelectorAccessor("get_age", "set_age")
 
         self.assertEqual(inst.canWrite(aModel), True)
 
-    def test_canWrite_minus(self):
+    def test_canWrite_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MASelectorAccessor("get_age", "read")
+        inst = MASelectorAccessor("get_age", "write")
 
         self.assertEqual(inst.canWrite(aModel), False)
 
-    def test_read_plus(self):
+    def test_read_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MASelectorAccessor("get_age", "set_age")
 
         self.assertEqual(inst.read(aModel), 23)
 
-    def test_read_minus(self):
+    def test_read_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MASelectorAccessor("read", "set_age")
 
         with self.assertRaises(Exception):
             inst.read(aModel)
 
-    def test_write_plus(self):
+    def test_write_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MASelectorAccessor("get_age", "set_age")
 
@@ -67,9 +67,9 @@ class MASelectorAccessorTest(TestCase):
 
         self.assertEqual(aModel.get_age(), 25)
 
-    def test_write_minus(self):
+    def test_write_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MASelectorAccessor("get_age", "read")
+        inst = MASelectorAccessor("get_age", "write")
 
         with self.assertRaises(Exception):
             inst.write(aModel, 25)
@@ -92,9 +92,9 @@ class MASelectorAccessorTest(TestCase):
 
     def test_setWriteSelector(self):
         inst = MASelectorAccessor("get_age", "set_age")
-        inst.writeSelector = "read"
+        inst.writeSelector = "write"
 
-        self.assertEqual(inst.writeSelector, "read")
+        self.assertEqual(inst.writeSelector, "write")
 
     def test_isAbstract(self):
         self.assertEqual(MASelectorAccessor.isAbstract(), False)

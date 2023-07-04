@@ -36,11 +36,11 @@ class MASelectorAccessor(MAAccessor):
     def read(self, aModel):
         try:
             return getattr(aModel, self._readSelector)()
-        except Exception:
-            raise Exception("There is no such function")
+        except:
+            raise Exception("There is no such method")
 
     def write(self, aModel, anObject):
         try:
             return getattr(aModel, self._writeSelector)(anObject)
-        except Exception:
-            raise Exception("There is no such function")
+        except:
+            raise Exception("There is no such method")
