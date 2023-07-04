@@ -21,43 +21,43 @@ class Person:
 
 class MAVariableAccessorTest(TestCase):
 
-    def test_canRead_plus(self):
+    def test_canRead_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("name")
 
         self.assertEqual(inst.canRead(aModel), True)
 
-    def test_canRead_minus(self):
+    def test_canRead_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("canWrite")
 
         self.assertEqual(inst.canRead(aModel), False)
 
-    def test_canWrite_plus(self):
+    def test_canWrite_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("name")
 
         self.assertEqual(inst.canWrite(aModel), True)
 
-    def test_canWrite_minus(self):
+    def test_canWrite_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("canWrite")
 
         self.assertEqual(inst.canWrite(aModel), False)
 
-    def test_read_plus(self):
+    def test_read_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("name")
 
         self.assertEqual(inst.read(aModel), "Aleks")
 
-    def test_read_minus(self):
+    def test_read_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("canWrite")
 
         self.assertEqual(inst.read(aModel), None)
 
-    def test_write_plus(self):
+    def test_write_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("name")
 
@@ -65,7 +65,7 @@ class MAVariableAccessorTest(TestCase):
 
         self.assertEqual(inst.read(aModel), "Sam")
 
-    def test_write_minus(self):
+    def test_write_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAVariableAccessor("canWrite")
 
