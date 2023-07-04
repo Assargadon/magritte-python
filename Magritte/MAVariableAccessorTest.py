@@ -10,6 +10,10 @@ class Person:
         self.age = aAge
         self.gender = aGender
 
+    @property
+    def get_name(self):
+        return self.name
+
     def information(self):
         print(self.name + " " + self.surname + " " + self.age + " " + self.gender)
 
@@ -31,7 +35,7 @@ class MAVariableAccessorTest(TestCase):
 
     def test_canWrite_plus(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAVariableAccessor("surname")
+        inst = MAVariableAccessor("name")
 
         self.assertEqual(inst.canWrite(aModel), True)
 
