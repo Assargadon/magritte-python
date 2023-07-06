@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Magritte.MANullAccessor_class import MANullAccessor
+from MANullAccessor_class import MANullAccessor
 
 
 class MANullAccessorTest(TestCase):
@@ -9,45 +9,45 @@ class MANullAccessorTest(TestCase):
 
     def test_read(self):
         aModel = {1: 10, 2: 11, 3: 12}
-        inst = MANullAccessor()
-        self.assertRaises(Exception, inst.read, aModel)
+        nullAccessor = MANullAccessor()
+        self.assertRaises(Exception, nullAccessor.read, aModel)
 
     def test_write(self):
         aModel = {1: 10, 2: 11, 3: 12}
-        inst = MANullAccessor()
-        self.assertRaises(Exception, inst.write, aModel, 3)
+        nullAccessor = MANullAccessor()
+        self.assertRaises(Exception, nullAccessor.write, aModel, 3)
 
     def test_getUuid(self):
-        inst = MANullAccessor()
-        self.assertEqual(type(inst.uuid), list)
+        nullAccessor = MANullAccessor()
+        self.assertEqual(type(nullAccessor.uuid), list)
 
     def test_setUuid(self):
-        inst = MANullAccessor()
-        inst.uuid = 3
-        self.assertEqual(inst.uuid, 3)
+        nullAccessor = MANullAccessor()
+        nullAccessor.uuid = 3
+        self.assertEqual(nullAccessor.uuid, 3)
 
     def test_comparison_positive(self):
-        inst1 = MANullAccessor()
-        inst2 = MANullAccessor()
+        nullAccessor1 = MANullAccessor()
+        nullAccessor2 = MANullAccessor()
 
-        inst1.uuid = inst2.uuid
+        nullAccessor1.uuid = nullAccessor2.uuid
 
-        self.assertEqual(inst1 == inst2, True)
+        self.assertEqual(nullAccessor1 == nullAccessor2, True)
 
     def test_comparison_negative(self):
-        inst1 = MANullAccessor()
-        inst2 = MANullAccessor()
+        nullAccessor1 = MANullAccessor()
+        nullAccessor2 = MANullAccessor()
 
-        self.assertEqual(inst1 == inst2, False)
+        self.assertEqual(nullAccessor1 == nullAccessor2, False)
 
     def test_canRead(self):
         aModel = {1: 11, 2: 12, 3: 13}
-        inst = MANullAccessor()
+        nullAccessor = MANullAccessor()
 
-        self.assertEqual(inst.canRead(aModel), False)
+        self.assertEqual(nullAccessor.canRead(aModel), False)
 
     def test_canWrite(self):
         aModel = {1: 11, 2: 12, 3: 13}
-        inst = MANullAccessor()
+        nullAccessor = MANullAccessor()
 
-        self.assertEqual(inst.canWrite(aModel), False)
+        self.assertEqual(nullAccessor.canWrite(aModel), False)
