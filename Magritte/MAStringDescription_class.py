@@ -1,4 +1,5 @@
 
+from sys import intern
 from MAElementDescription_class import MAElementDescription
 
 class MAStringDescription(MAElementDescription):
@@ -11,7 +12,7 @@ class MAStringDescription(MAElementDescription):
         return str
 
     def label(self):
-        return 'String'
+        return intern('str')
 
     def isSortable(self):
         return True

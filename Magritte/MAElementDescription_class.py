@@ -1,15 +1,16 @@
 
+from sys import intern
 from MADescription_class import MADescription
 
 class MAElementDescription(MADescription):
 
+    @property
     def default(self):
-        default_attr = 'default'
-        if hasattr(self, default_attr):
-            return getattr(self, default_attr)
-        else:
-            return self.defaultDefault()
+        return self._getOrDefaultIfAbsent(intern('default'), self.defaultDefault)
 
-    def default(self, aDefault):
-        default_attr = 'default'
-        setattr(self, default_attr, aDefault)
+    @default.setter
+    def default(self, anObject):
+        self._set(intern('default'), anObject)
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitElementDescription(self)
