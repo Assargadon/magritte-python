@@ -1,0 +1,37 @@
+from MAAccessor_class import MAAccessor
+
+
+class MAAttrAccessor(MAAccessor):
+
+    def __init__(self, aAttrName):
+        self._attrName = aAttrName
+
+    @classmethod
+    def isAbstract(cls):
+        return False
+
+    def canRead(self, aModel):
+        attr = getattr(aModel, self._attrName, None)
+        if attr:
+            if isinstance(attr, property):
+                return attr.fget is not None
+            else:
+                return True
+        return False
+
+    def canWrite(self, aModel):
+        attr = getattr(aModel, self._attrName, None)
+        if attr:
+            if isinstance(attr, property):
+                return attr.fset is not None
+            else:
+                return True
+        return False
+
+    def read(self, aModel):
+        if (self.canRead(aModel)):
+            return getattr(aModel, self._attrName)
+
+    def write(self, aModel, anObject):
+        if (self.canWrite(aModel)):
+            setattr(aModel, self._attrName, anObject)
