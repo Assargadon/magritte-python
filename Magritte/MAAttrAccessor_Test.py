@@ -18,9 +18,9 @@ class Person:
     def age(self):
         return self._age
 
-        @age.setter
-        def age(self, aAge):
-            self._age = aAge
+    @age.setter
+    def age(self, aAge):
+        self._age = aAge
 
 
 class MAAttrAccessorTest(TestCase):
