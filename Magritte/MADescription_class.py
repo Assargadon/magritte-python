@@ -25,9 +25,7 @@ class MADescription:
         return prop_name in self._propertyDict
 
     def get(self, prop_name, default_value):
-        if prop_name in self:
-            return self[prop_name]
-        return default_value
+        return self._propertyDict.get(prop_name, default_value)
 
 
 
