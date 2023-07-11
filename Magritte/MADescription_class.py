@@ -15,22 +15,20 @@ class MADescription:
     def __eq__(self, other):
         return self._propertyDict == other._propertyDict and self.accessor == other.accessor
 
+    def __getitem__(self, prop_name):
+        return self._propertyDict[prop_name]
+
     def __setitem__(self, prop_name, value):
         self._propertyDict[prop_name] = value
 
     def __contains__(self, prop_name):
         return prop_name in self._propertyDict
 
-    def _getOrDefaultIfAbsent(self, prop_name, default_getter):
-        if prop_name in self._propertyDict:
-            return self._propertyDict[prop_name]
-        return default_getter()
+    def get(self, prop_name, default_value):
+        if prop_name in self:
+            return self[prop_name]
+        return default_value
 
-    def _getOrDefaultIfAbsentOrNone(self, prop_name, default_getter):
-        if prop_name in self._propertyDict:
-            value = self._propertyDict[prop_name]
-            if value is not None: return value
-        return default_getter()
 
 
     @property
@@ -50,7 +48,7 @@ class MADescription:
 
     @property
     def kind(self):
-        return self._getOrDefaultIfAbsent(intern('kind'), self.defaultKind)
+        return self.get(intern('kind'), self.defaultKind())
 
     @kind.setter
     def kind(self, aClass):
@@ -65,7 +63,7 @@ class MADescription:
 
     @property
     def kindErrorMessage(self):
-        return self._getOrDefaultIfAbsent(intern('kindErrorMessage'), lambda: 'Invalid input given')
+        return self.get(intern('kindErrorMessage'), 'Invalid input given')
 
     @kindErrorMessage.setter
     def kindErrorMessage(self, aStr):
@@ -74,7 +72,7 @@ class MADescription:
 
     @property
     def readOnly(self):
-        return self._getOrDefaultIfAbsent(intern('readOnly'), self.defaultReadOnly)
+        return self.get(intern('readOnly'), self.defaultReadOnly())
 
     @readOnly.setter
     def readOnly(self, aBool):
@@ -96,7 +94,7 @@ class MADescription:
 
     @property
     def required(self):
-        return self._getOrDefaultIfAbsent(intern('required'), self.defaultRequired)
+        return self.get(intern('required'), self.defaultRequired())
 
     @required.setter
     def required(self, aBool):
@@ -130,7 +128,8 @@ class MADescription:
 
     @property
     def undefinedValue(self):
-        return self._getOrDefaultIfAbsentOrNone(intern('undefinedValue'), self.defaultUndefinedValue)
+        result = self.get(intern('undefinedValue'), self.defaultUndefinedValue())
+        return self.defaultUndefinedValue() if result is None else result
 
     @undefinedValue.setter
     def undefinedValue(self, anObject):
@@ -143,7 +142,7 @@ class MADescription:
 
     @property
     def name(self):
-        return self._getOrDefaultIfAbsent(intern('name'), lambda: self.accessor.name)
+        return self.get(intern('name'), self.accessor.name)
 
     @name.setter
     def name(self, aSymbol):
@@ -152,7 +151,7 @@ class MADescription:
 
     @property
     def comment(self):
-        return self._getOrDefaultIfAbsent(intern('comment'), self.defaultComment)
+        return self.get(intern('comment'), self.defaultComment())
 
     @comment.setter
     def comment(self, aStr):
@@ -169,7 +168,7 @@ class MADescription:
 
     @property
     def group(self):
-        return self._getOrDefaultIfAbsent(intern('group'), self.defaultGroup)
+        return self.get(intern('group'), self.defaultGroup())
 
     @group.setter
     def group(self, aStr):
@@ -182,7 +181,7 @@ class MADescription:
 
     @property
     def label(self):
-        return self._getOrDefaultIfAbsent(intern('label'), self.defaultLabel)
+        return self.get(intern('label'), self.defaultLabel())
 
     @label.setter
     def label(self, aStr):
@@ -200,7 +199,7 @@ class MADescription:
 
     @property
     def priority(self):
-        return self._getOrDefaultIfAbsent(intern('priority'), self.defaultPriority)
+        return self.get(intern('priority'), self.defaultPriority())
 
     @priority.setter
     def priority(self, aNumber):
@@ -213,7 +212,7 @@ class MADescription:
 
     @property
     def visible(self):
-        return self._getOrDefaultIfAbsent(intern('visible'), self.defaultVisible)
+        return self.get(intern('visible'), self.defaultVisible())
 
     @visible.setter
     def visible(self, aBool):
@@ -236,7 +235,8 @@ class MADescription:
 
     @property
     def undefined(self):
-        return self._getOrDefaultIfAbsentOrNone(intern('undefined'), self.defaultUndefined)
+        result = self.get(intern('undefined'), self.defaultUndefined())
+        return self.defaultUndefined() if result is None else result
 
     @undefined.setter
     def undefined(self, aStr):
