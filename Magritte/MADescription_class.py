@@ -15,6 +15,9 @@ class MADescription:
     def __eq__(self, other):
         return self._propertyDict == other._propertyDict and self.accessor == other.accessor
 
+    def __setitem__(self, prop_name, value):
+        self._propertyDict[prop_name] = value
+
     def _getOrDefaultIfAbsent(self, prop_name, default_getter):
         if prop_name in self._propertyDict:
             return self._propertyDict[prop_name]
@@ -25,9 +28,6 @@ class MADescription:
             value = self._propertyDict[prop_name]
             if value is not None: return value
         return default_getter()
-
-    def _set(self, prop_name, value):
-        self._propertyDict[prop_name] = value
 
     def _isPresent(self, prop_name):
         return prop_name in self._propertyDict
@@ -54,7 +54,7 @@ class MADescription:
 
     @kind.setter
     def kind(self, aClass):
-        self._set(intern('kind'), aClass)
+        self[intern('kind')] = aClass
 
     @classmethod
     def defaultKind(cls):
@@ -69,7 +69,7 @@ class MADescription:
 
     @kindErrorMessage.setter
     def kindErrorMessage(self, aStr):
-        self._set(intern('kindErrorMessage'), aStr)
+        self[intern('kindErrorMessage')] = aStr
 
 
     @property
@@ -78,7 +78,7 @@ class MADescription:
 
     @readOnly.setter
     def readOnly(self, aBool):
-        self._set(intern('readOnly'), aBool)
+        self[intern('readOnly')] = aBool
 
     @classmethod
     def defaultReadOnly(cls):
@@ -100,7 +100,7 @@ class MADescription:
 
     @required.setter
     def required(self, aBool):
-        self._set(intern('required'), aBool)
+        self[intern('required')] = aBool
 
     @classmethod
     def defaultRequired(cls):
@@ -134,7 +134,7 @@ class MADescription:
 
     @undefinedValue.setter
     def undefinedValue(self, anObject):
-        self._set(intern('undefinedValue'), anObject)
+        self[intern('undefinedValue')] = anObject
 
     @classmethod
     def defaultUndefinedValue(cls):
@@ -147,7 +147,7 @@ class MADescription:
 
     @name.setter
     def name(self, aStr):
-        self._set(intern('name'), aStr)
+        self[intern('name')] = aStr
 
 
     @property
@@ -156,7 +156,7 @@ class MADescription:
 
     @comment.setter
     def comment(self, aStr):
-        self._set(intern('comment'), aStr)
+        self[intern('comment')] = aStr
 
     @classmethod
     def defaultComment(cls):
@@ -173,7 +173,7 @@ class MADescription:
 
     @group.setter
     def group(self, aStr):
-        self._set(intern('group'), aStr)
+        self[intern('group')] = aStr
 
     @classmethod
     def defaultGroup(cls):
@@ -186,7 +186,7 @@ class MADescription:
 
     @label.setter
     def label(self, aStr):
-        self._set(intern('label'), aStr)
+        self[intern('label')] = aStr
 
     @classmethod
     def defaultLabel(cls):
@@ -204,7 +204,7 @@ class MADescription:
 
     @priority.setter
     def priority(self, aNumber):
-        self._set(intern('priority'), aNumber)
+        self[intern('priority')] = aNumber
 
     @classmethod
     def defaultPriority(cls):
@@ -217,7 +217,7 @@ class MADescription:
 
     @visible.setter
     def visible(self, aBool):
-        self._set(intern('visible'), aBool)
+        self[intern('visible')] = aBool
 
     @classmethod
     def defaultVisible(cls):
@@ -240,7 +240,7 @@ class MADescription:
 
     @undefined.setter
     def undefined(self, aStr):
-        self._set(intern('undefined'), aStr)
+        self[intern('undefined')] = aStr
 
     @classmethod
     def defaultUndefined(cls):
