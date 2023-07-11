@@ -247,6 +247,3 @@ class MADescription:
 
     def isSortable(self):
         return False
-
-    def acceptMagritte(self, aVisitor):
-        aVisitor.visitDescription(self)
