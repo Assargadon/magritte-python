@@ -18,6 +18,9 @@ class MADescription:
     def __setitem__(self, prop_name, value):
         self._propertyDict[prop_name] = value
 
+    def __contains__(self, prop_name):
+        return prop_name in self._propertyDict
+
     def _getOrDefaultIfAbsent(self, prop_name, default_getter):
         if prop_name in self._propertyDict:
             return self._propertyDict[prop_name]
@@ -28,9 +31,6 @@ class MADescription:
             value = self._propertyDict[prop_name]
             if value is not None: return value
         return default_getter()
-
-    def _isPresent(self, prop_name):
-        return prop_name in self._propertyDict
 
 
     @property
@@ -61,7 +61,7 @@ class MADescription:
         return object
 
     def isKindDefined(self):
-        return self._isPresent(intern('kind'))
+        return intern('kind') in self
 
     @property
     def kindErrorMessage(self):
