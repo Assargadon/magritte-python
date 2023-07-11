@@ -146,8 +146,8 @@ class MADescription:
         return self._getOrDefaultIfAbsent(intern('name'), lambda: self.accessor.name)
 
     @name.setter
-    def name(self, aStr):
-        self[intern('name')] = aStr
+    def name(self, aSymbol):
+        self[intern('name')] = intern(aSymbol)
 
 
     @property
