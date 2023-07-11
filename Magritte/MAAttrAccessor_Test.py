@@ -59,7 +59,8 @@ class MAAttrAccessorTest(TestCase):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAAttrAccessor("read")
 
-        self.assertEqual(inst.read(aModel), None)
+        with self.assertRaises(Exception):
+            inst.read(aModel)
 
     def test_write_positive(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
@@ -72,9 +73,9 @@ class MAAttrAccessorTest(TestCase):
     def test_write_negative(self):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAAttrAccessor("write")
-        inst.write(aModel, 25)
 
-        self.assertEqual(inst.read(aModel), None)
+        with self.assertRaises(Exception):
+            inst.write(aModel, 25)
 
     def test_isAbstract(self):
         self.assertEqual(MAAttrAccessor.isAbstract(), False)
