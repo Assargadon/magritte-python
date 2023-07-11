@@ -79,4 +79,3 @@ class MAAttrAccessorTest(TestCase):
 
     def test_isAbstract(self):
         self.assertEqual(MAAttrAccessor.isAbstract(), False)
-        # fgkjhjfkjhgkjfh
