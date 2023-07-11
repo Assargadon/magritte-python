@@ -11,6 +11,7 @@ class MAStringDescription(MAElementDescription):
     def defaultKind(self):
         return str
 
+    @classmethod
     def label(self):
         return intern('str')
 
