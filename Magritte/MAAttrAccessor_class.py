@@ -39,3 +39,5 @@ class MAAttrAccessor(MAAccessor):
             setattr(aModel, self._attrName, anObject)
         except:
             raise Exception("There is no such method")
+
+# Тестовый push номер 2
