@@ -29,15 +29,7 @@ class MAAttrAccessor(MAAccessor):
         return False
 
     def read(self, aModel):
-        try:
-            return getattr(aModel, self._attrName)
-        except:
-            raise Exception("There is no such method")
+        return getattr(aModel, self._attrName)
 
     def write(self, aModel, anObject):
-        try:
-            setattr(aModel, self._attrName, anObject)
-        except:
-            raise Exception("There is no such method")
-
-# Тестовый push номер 2
+        setattr(aModel, self._attrName, anObject)

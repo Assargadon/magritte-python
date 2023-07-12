@@ -74,9 +74,9 @@ class MAAttrAccessorTest(TestCase):
         aModel = Person("Aleks", "Hofman", 23, "man")
         inst = MAAttrAccessor("write")
 
-        with self.assertRaises(Exception):
-            inst.write(aModel, 25)
+        inst.write(aModel, 30)
+
+        self.assertEqual(inst.read(aModel), 30)
 
     def test_isAbstract(self):
         self.assertEqual(MAAttrAccessor.isAbstract(), False)
-# jghdkfjghdkjfgk
