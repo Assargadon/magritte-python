@@ -24,6 +24,10 @@ class MADictAccessor(MAAccessor):
     def canWrite(self, aModel):
         return True
 
+    @property
+    def name(self):
+        return self._key
+
     def read(self, aModel):
         return aModel.get(self._key)
 

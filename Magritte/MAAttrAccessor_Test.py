@@ -78,5 +78,10 @@ class MAAttrAccessorTest(TestCase):
 
         self.assertEqual(inst.read(aModel), 30)
 
+    def test_name(self):
+        inst = MAAttrAccessor("age")
+
+        self.assertEqual(inst.name, "age")
+
     def test_isAbstract(self):
         self.assertEqual(MAAttrAccessor.isAbstract(), False)

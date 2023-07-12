@@ -28,6 +28,11 @@ class MAAttrAccessor(MAAccessor):
                 return True
         return False
 
+
+    @property
+    def name(self):
+        return self._attrName
+
     def read(self, aModel):
         return getattr(aModel, self._attrName)
 
