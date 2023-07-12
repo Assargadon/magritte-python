@@ -5,7 +5,7 @@ from Magritte.MAAttrAccessor_class import MAAttrAccessor
 class Person:
 
     def __init__(self, aName, aSurname, aAge, aGender):
-        self.name = aName
+        self._name = aName
         self.surname = aSurname
         self._age = None
         self.age = aAge
@@ -18,6 +18,10 @@ class Person:
     def age(self):
         return self._age
 
+    @property
+    def name(self):
+        return self._name
+
     @age.setter
     def age(self, aAge):
         self._age = aAge
@@ -25,63 +29,48 @@ class Person:
 
 class MAAttrAccessorTest(TestCase):
 
-    def test_canRead_positive(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("age")
+    def setUp(self):
+        self.aModel = Person("Aleks", "Hofman", 23, "man")
+        self.accessor_field = MAAttrAccessor("surname")
+        self.accessor_property = MAAttrAccessor("age")
+        self.accessor_readOnly = MAAttrAccessor("name")
+        self.accessor_missingAttr = MAAttrAccessor("read")
 
-        self.assertEqual(inst.canRead(aModel), True)
+    def test_canRead(self):
+        self.assertEqual(self.accessor_field.canRead(self.aModel), True)
+        self.assertEqual(self.accessor_property.canRead(self.aModel), True)
+        self.assertEqual(self.accessor_readOnly.canRead(self.aModel), True)
+        self.assertEqual(self.accessor_missingAttr.canRead(self.aModel), False)
 
-    def test_canRead_negative(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("read")
+    def test_canWrite(self):
+        self.assertEqual(self.accessor_field.canWrite(self.aModel), True)
+        self.assertEqual(self.accessor_property.canWrite(self.aModel), True)
+        self.assertEqual(self.accessor_readOnly.canWrite(self.aModel), False)
+        self.assertEqual(self.accessor_missingAttr.canWrite(self.aModel), False)
 
-        self.assertEqual(inst.canRead(aModel), False)
-
-    def test_canWrite_positive(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("age")
-
-        self.assertEqual(inst.canWrite(aModel), True)
-
-    def test_canWrite_negative(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("write")
-
-        self.assertEqual(inst.canWrite(aModel), False)
-
-    def test_read_positive(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("age")
-
-        self.assertEqual(inst.read(aModel), 23)
-
-    def test_read_negative(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("read")
-
+    def test_read(self):
+        self.assertEqual(self.accessor_field.read(self.aModel), "Hofman")
+        self.assertEqual(self.accessor_property.read(self.aModel), 23)
+        self.assertEqual(self.accessor_readOnly.read(self.aModel), "Aleks")
         with self.assertRaises(Exception):
-            inst.read(aModel)
+            self.accessor_missingAttr.read(self.aModel)
 
     def test_write_positive(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("age")
+        self.accessor_field.write(self.aModel, "Butcher")
+        self.accessor_property.write(self.aModel, 25)
 
-        inst.write(aModel, 25)
+        with self.assertRaises(Exception):
+            self.accessor_readOnly.write(self.aModel, "Billy")
 
-        self.assertEqual(inst.read(aModel), 25)
+        self.accessor_missingAttr.write(self.aModel, 30)
 
-    def test_write_negative(self):
-        aModel = Person("Aleks", "Hofman", 23, "man")
-        inst = MAAttrAccessor("write")
-
-        inst.write(aModel, 30)
-
-        self.assertEqual(inst.read(aModel), 30)
+        self.assertEqual(self.accessor_field.read(self.aModel), "Butcher")
+        self.assertEqual(self.accessor_property.read(self.aModel), 25)
+        self.assertEqual(self.accessor_missingAttr.read(self.aModel), 30)
 
     def test_name(self):
-        inst = MAAttrAccessor("age")
 
-        self.assertEqual(inst.name, "age")
+        self.assertEqual(self.accessor_field.name, "surname")
 
     def test_isAbstract(self):
         self.assertEqual(MAAttrAccessor.isAbstract(), False)
