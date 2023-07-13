@@ -1,4 +1,5 @@
 
+import types
 from sys import intern
 from MANullAccessor_class import MANullAccessor
 
@@ -8,12 +9,22 @@ class MADescription:
     def isAbstract(cls):
         return True
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._propertyDict = {}
-        self._accessor = None
+        self._accessor = self.defaultAccessor()
+        for key, value in kwargs.items():
+            attr = getattr(self.__class__, key)
+            if isinstance(attr, property) and attr.fset is not None:
+                attr.fset(self, value)
+            elif isinstance(attr, types.FunctionType):
+                if attr.__code__.co_argcount == 1:
+                    attr(self)
 
     def __eq__(self, other):
         return self._propertyDict == other._propertyDict and self.accessor == other.accessor
+
+    def __lt__(self, other):
+        return self.priority < other.priority
 
     def __getitem__(self, prop_name):
         return self._propertyDict[prop_name]
@@ -31,8 +42,6 @@ class MADescription:
 
     @property
     def accessor(self):
-        if self._accessor is None:
-            self._accessor = self.defaultAccessor()
         return self._accessor
 
     @accessor.setter
