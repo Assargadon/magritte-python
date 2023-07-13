@@ -14,11 +14,11 @@ class MADescription:
         self._accessor = self.defaultAccessor()
         for key, value in kwargs.items():
             attr = getattr(self.__class__, key)
-            if isinstance(attr, property) and attr.fset is not None:
+            if isinstance(attr, property):
                 attr.fset(self, value)
-            elif isinstance(attr, types.FunctionType):
-                if attr.__code__.co_argcount == 1:
-                    attr(self)
+            #elif isinstance(attr, types.FunctionType):
+            #    if attr.__code__.co_argcount == 1:
+            #        attr(self)
 
     def __eq__(self, other):
         return self._propertyDict == other._propertyDict and self.accessor == other.accessor
