@@ -36,6 +36,28 @@ class Host:
     def ports(self, newPorts):
         self._ports = newPorts
 
+class Port:
+
+    def __init__(self, Host):
+        self._host = Host
+        self._numofport = Host.ports[random.randint(0, 41)]
+
+    @property
+    def host(self):
+        return self._host
+
+    @host.setter
+    def host(self, newHost):
+        self._host = newHost
+
+    @property
+    def numofports(self):
+        return self._numofport
+
+    @numofports.setter
+    def numofports(self, newNumofports):
+        self._numofport = newNumofports
+
 
 class User:
 
@@ -51,7 +73,7 @@ class User:
         self._setofaccounts = SetOfAccounts
 
     def work(self):
-        return self._dateofdeparture != None
+        return ((datetime.datetime.strptime(self._dateofdeparture, '%Y-%m-%d')).timestamp() - (datetime.datetime.now()).timestamp()) > 0
 
 
 class Organization:
@@ -92,4 +114,3 @@ class Account:
     @property
     def ntlm(self):
         return self._ntlm
-
