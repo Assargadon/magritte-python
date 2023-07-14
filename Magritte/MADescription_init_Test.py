@@ -9,7 +9,7 @@ class MADescriptionWithReadonlyAttribute(MADescription):
         
 
 
-class MAPluggableAccessorTest(TestCase):
+class MADescription_init_Test(TestCase):
 
     def test_correct_init(self):
         description = MADescriptionWithReadonlyAttribute(priority=10, label="TestField")
