@@ -15,7 +15,8 @@ class MADescription:
         for key, value in kwargs.items():
             attr = getattr(self.__class__, key)
             if isinstance(attr, property):
-                attr.fset(self, value)
+                setattr(self, key, value)
+                #attr.fset(self, value)
             #elif isinstance(attr, types.FunctionType):
             #    if attr.__code__.co_argcount == 1:
             #        attr(self)
