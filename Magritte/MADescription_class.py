@@ -1,4 +1,5 @@
 
+from copy import copy
 from sys import intern
 from MANullAccessor_class import MANullAccessor
 
@@ -23,6 +24,12 @@ class MADescription:
 
     def __contains__(self, prop_name):
         return prop_name in self._propertyDict
+
+    def __copy__(self):
+        clone = self.__class__()
+        clone.__dict__.update(self.__dict__)
+        clone.accessor = copy(self.accessor)
+        return clone
 
     def get(self, prop_name, default_value):
         return self._propertyDict.get(prop_name, default_value)
