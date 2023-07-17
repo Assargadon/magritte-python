@@ -17,7 +17,7 @@ class MAContainer(MADescription):
         return super == other and self._children == other.children
 
     def __iadd__(self, anItem):
-        self._children += anItem
+        self.append(anItem)
 
     def __contains__(self, item):
         return item in self._children
