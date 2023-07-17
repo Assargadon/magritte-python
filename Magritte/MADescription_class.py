@@ -262,5 +262,8 @@ class MADescription:
         return intern('')
 
 
+    def isContainer(self):
+        return False
+
     def isSortable(self):
         return False
