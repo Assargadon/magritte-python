@@ -3,7 +3,7 @@ from bisect import insort
 from copy import copy
 from MAContainer_class import MAContainer
 
-class MAPriorityContainerDescription(MAContainer):
+class MAPriorityContainer(MAContainer):
 
     def append(self, aDescription):
         insort(self.children, aDescription)
@@ -11,12 +11,6 @@ class MAPriorityContainerDescription(MAContainer):
     def extend(self, aCollection):
         for item in aCollection:
             self.append(item)
-
-    def moveDown(self, aDescription):
-        raise NotImplementedError()
-
-    def moveUp(self, aDescription):
-        raise NotImplementedError()
 
     def resort(self):
         self.setChildren(copy(self.children))
