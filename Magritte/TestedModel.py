@@ -4,12 +4,22 @@ import random
 
 class Host:
 
-    def __init__(self):
-        self._ip = self.generate_ip()
-        self._ports = [20, 21, 22, 23, 25, 42, 43, 53, 67, 69, 80, 110, 115, 123,
-                       137, 138, 139, 143, 161, 179, 443, 445, 514, 515, 993, 995,
-                       1080, 1194, 1433, 1702, 1723, 3128, 3268, 3306, 3389, 5432,
-                       5060, 5900, 5938, 8080, 10000, 20000]
+    def __init__(self, IP):
+        if IP is not None:
+            self._ip = IP
+        else:
+            self._ip = self.generate_ip()
+        self._ports = [Port('Name1', 20), Port('Name2', 21), Port('Name3', 22), Port('Name4', 23),
+                       Port('Name5', 25), Port('Name6', 42), Port('Name7', 43), Port('Name8', 53),
+                       Port('Name9', 67), Port('Name10', 69), Port('Name11', 80), Port('Name12', 110),
+                       Port('Name13', 115), Port('Name14', 123), Port('Name15', 137), Port('Name16', 138),
+                       Port('Name17', 139), Port('Name18', 143), Port('Name19', 161), Port('Name20', 179),
+                       Port('Name21', 443), Port('Name22', 445), Port('Name23', 514), Port('Name24', 515),
+                       Port('Name25', 993), Port('Name26', 995), Port('Name27', 1080), Port('Name28', 1194),
+                       Port('Name29', 1433), Port('Name30', 1702), Port('Name31', 1723), Port('Name32', 3128),
+                       Port('Name33', 3268), Port('Name34', 3306), Port('Name35', 3389), Port('Name36', 5432),
+                       Port('Name37', 5060), Port('Name38', 5900), Port('Name39', 5938), Port('Name40', 8080),
+                       Port('Name41', 10000), Port('Name42', 20000)]
 
     def generate_ip(self):
         block1 = random.randint(0, 255)
@@ -38,9 +48,12 @@ class Host:
 
 class Port:
 
-    def __init__(self, Host):
+    def __init__(self, Host, NumOfPort):
         self._host = Host
-        self._numofport = Host.ports[random.randint(0, 41)]
+        if NumOfPort is not None:
+            self._numofport = NumOfPort
+        else:
+            self._numofport = Host.ports[random.randint(0, 41)]
 
     @property
     def host(self):
@@ -51,11 +64,11 @@ class Port:
         self._host = newHost
 
     @property
-    def numofports(self):
+    def numofport(self):
         return self._numofport
 
-    @numofports.setter
-    def numofports(self, newNumofports):
+    @numofport.setter
+    def numofport(self, newNumofports):
         self._numofport = newNumofports
 
 
@@ -78,12 +91,12 @@ class User:
 
 class Organization:
 
-    def __init__(self, Name, Address, Active, DictUsers, DictComp):
+    def __init__(self, Name, Address, Active, ListUsers, ListComp):
         self._name = Name
         self._address = Address
         self._active = Active
-        self._dictusers = DictUsers
-        self._dictcomp = DictComp
+        self._dictusers = ListUsers
+        self._dictcomp = ListComp
 
     def amount_users(self):
         return len(self._dictusers)
@@ -114,3 +127,7 @@ class Account:
     @property
     def ntlm(self):
         return self._ntlm
+
+    @ntlm.setter
+    def ntlm(self, newNtlm):
+        self._ntlm = newNtlm
