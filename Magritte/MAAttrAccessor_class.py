@@ -11,27 +11,32 @@ class MAAttrAccessor(MAAccessor):
         return False
 
     def canRead(self, aModel):
-        attr = getattr(aModel, self._attrName, None)
+        attr = getattr(aModel.__class__, self._attrName, None)
         if attr:
             if isinstance(attr, property):
                 return attr.fget is not None
             else:
-                return True
-        return False
+                return False
+        attr = getattr(aModel, self._attrName, None)
+        return attr is not None
 
     def canWrite(self, aModel):
-        attr = getattr(aModel, self._attrName, None)
+        attr = getattr(aModel.__class__, self._attrName, None)
         if attr:
             if isinstance(attr, property):
                 return attr.fset is not None
             else:
-                return True
-        return False
+                return False
+        attr = getattr(aModel, self._attrName, None)
+        return attr is not None
+
+
+    @property
+    def name(self):
+        return self._attrName
 
     def read(self, aModel):
-        if (self.canRead(aModel)):
-            return getattr(aModel, self._attrName)
+        return getattr(aModel, self._attrName)
 
     def write(self, aModel, anObject):
-        if (self.canWrite(aModel)):
-            setattr(aModel, self._attrName, anObject)
+        setattr(aModel, self._attrName, anObject)
