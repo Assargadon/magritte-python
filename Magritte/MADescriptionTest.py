@@ -1,5 +1,4 @@
 from unittest import TestCase
-import TestedModel
 from Magritte.MADescription_class import MADescription
 from MANullAccessor_class import MANullAccessor
 
