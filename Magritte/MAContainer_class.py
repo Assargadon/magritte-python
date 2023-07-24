@@ -98,16 +98,19 @@ class MAContainer(MADescription):
         result = copy(self)
         items = [aBlock(item) for _, item in enumerate(self.children)]
         result.setChildren(items)
+        return result
 
     def select(self, aBlock):
         result = copy(self)
         items = [item for _, item in enumerate(self.children) if aBlock(item)]
         result.setChildren(items)
+        return result
 
     def reject(self, aBlock):
         result = copy(self)
         items = [item for _, item in enumerate(self.children) if not aBlock(item)]
         result.setChildren(items)
+        return result
 
 
     def copyEmpty(self):

@@ -12,7 +12,7 @@ class MAStringDescription(MAElementDescription):
         return str
 
     @classmethod
-    def label(self):
+    def defaultLabel(self):
         return intern('str')
 
     def isSortable(self):
