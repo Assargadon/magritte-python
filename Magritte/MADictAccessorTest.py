@@ -57,5 +57,9 @@ class MADictAccessorTest(TestCase):
         m.key = 3
         self.assertEqual(m.key, 3)
 
+    def test_name(self):
+        m = MADictAccessor(2)
+        self.assertEqual(m.name, 2)
+
     def test_isAbstract(self):
         self.assertEqual(MADictAccessor.isAbstract(), False)
