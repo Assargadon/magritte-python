@@ -14,7 +14,7 @@ class MAContainer(MADescription):
         self._children = self.defaultCollection()
 
     def __eq__(self, other):
-        return super == other and self._children == other.children
+        return super().__eq__(other) and self._children == other.children
 
     def __iadd__(self, anItem):
         self.append(anItem)
