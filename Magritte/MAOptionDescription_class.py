@@ -79,3 +79,6 @@ class MAOptionDescription(MAReferenceDescription):
         if self.reference is not None:
             self.reference.undefined = aStr
 
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitOptionDescription(self)

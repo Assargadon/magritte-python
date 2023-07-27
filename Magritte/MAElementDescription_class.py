@@ -11,3 +11,7 @@ class MAElementDescription(MADescription):
     @default.setter
     def default(self, anObject):
         self[intern('default')] = anObject
+
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitElementDescription(self)

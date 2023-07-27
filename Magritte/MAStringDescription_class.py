@@ -17,3 +17,7 @@ class MAStringDescription(MAElementDescription):
 
     def isSortable(self):
         return True
+
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitStringDescription(self)

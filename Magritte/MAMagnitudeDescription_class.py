@@ -62,3 +62,6 @@ class MAMagnitudeDescription(MAElementDescription):
     def rangeErrorMessage(self, aString):
         self[intern('rangeErrorMessage')] = aString
 
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitMagnitudeDescription(self)
