@@ -1,5 +1,6 @@
 
 from MAValidationError_class import MAValidationError
+from MAMultipleErrors_class import MAMultipleErrors
 
 
 class MAVisitor:
@@ -10,6 +11,9 @@ class MAVisitor:
             anObject.acceptMagritte(self)
         except MAValidationError as err:
             errors.append(err)
+        if len(errors) > 0:
+            multipleErrors = MAMultipleErrors(errors=errors, message=anObject.label)
+            raise multipleErrors
 
     def visitAll(self, aCollection):
         for element in aCollection:
