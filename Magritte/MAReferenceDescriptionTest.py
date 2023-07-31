@@ -13,7 +13,7 @@ class MAReferenceDescriptionTest(TestCase):
         self.assertEqual(copy_test, self.inst1)
 
     def test_defaultReference(self):
-        self.assertEqual(isinstance(MAReferenceDescription.defaultReference, MAStringDescription), True)
+        self.assertEqual(isinstance(MAReferenceDescription.defaultReference(), MAStringDescription), True)
 
     def test_getInitializer(self):
         self.assertEqual(self.inst1.initializer, self.inst1)
