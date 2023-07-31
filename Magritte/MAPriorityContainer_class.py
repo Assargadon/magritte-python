@@ -16,5 +16,5 @@ class MAPriorityContainer(MAContainer):
         self.setChildren(copy(self.children))
 
     def setChildren(self, aCollection):
-        super().setChildren(aCollection.sort())
+        super().setChildren(sorted(aCollection))
 
