@@ -4,20 +4,6 @@ from MANullAccessor_class import MANullAccessor
 from MAAccessor_class import MAAccessor
 
 class TestProperties_of_MADescription(TestCase):
-    properties = { 
-            'kind': type,
-            'kindErrorMessage': str,
-            'accessor': MAAccessor,
-            'readOnly': bool,
-            'required': bool,
-            'undefinedValue': None,
-            'name': str,
-            'comment': str,
-            'group': str,
-            'label': str,
-            'priority': int,
-            'visible': bool
-        }
 
     def get_test_value(self, prop_name, prop_type):
         if prop_type == type:
@@ -40,6 +26,23 @@ class TestProperties_of_MADescription(TestCase):
 
     def get_description_instance_to_test(self):
         return MADescription()
+
+# ====================================================================
+
+    properties = { 
+            'kind': type,
+            'kindErrorMessage': str,
+            'accessor': MAAccessor,
+            'readOnly': bool,
+            'required': bool,
+            'undefinedValue': None,
+            'name': str,
+            'comment': str,
+            'group': str,
+            'label': str,
+            'priority': int,
+            'visible': bool
+        }
 
 
     def check_default_value(self, prop, prop_type):
@@ -77,6 +80,8 @@ class TestProperties_of_MADescription(TestCase):
                 self.setUp()
                 self.check_assigning_null(prop)
 
+# ====================================================================
+
     flag_properties = [
         ('visible', 'beVisible', 'beHidden', 'isVisible'),
         ('readOnly', 'beReadOnly', 'beWriteable', 'isReadOnly'),
@@ -113,6 +118,8 @@ class TestProperties_of_MADescription(TestCase):
         ('label', 'hasLabel')
         # Add more properties and their corresponding check methods here...
     ]
+
+# ====================================================================
 
     def check_property_defined(self, prop, check_method):
         # Check if the property is initially reported as not defined
