@@ -142,38 +142,42 @@ class TestProperties_of_MADescription(TestCase):
 class MADescriptionTest(TestCase):
 
     def setUp(self):
-        self.inst1 = MADescription()
-        self.inst2 = MADescription()
+        self.desc1 = MADescription()
+        self.desc2 = MADescription()
 
 
     def test_eq(self):
-        self.assertEqual(self.inst1 == self.inst1, True)
-        self.assertEqual(self.inst1 == self.inst2, False)
+        self.assertEqual(self.desc1 == self.desc1, True)
+        self.assertEqual(self.desc1 == self.desc2, False)
 
     def test_setitem_and_getitem(self):
-        self.assertEqual(self.inst1['accessor'], 3)
+        self.assertEqual(self.desc1['accessor'], 3)
 
     def test_contains(self):
-        self.assertEqual(self.inst1.__contains__(self.accessorTrue), True)
-        self.assertEqual(self.inst1.__contains__(self.accessorFalse), False)
+        self.assertEqual(self.desc1.__contains__(self.accessorTrue), True)
+        self.assertEqual(self.desc1.__contains__(self.accessorFalse), False)
 
     def test_get(self):
-        self.assertEqual(self.inst1.get('accessor', 0), 3)
-        self.assertEqual(self.inst1.get('property', 0), 0)
+        self.assertEqual(self.desc1.get('accessor', 0), 3)
+        self.assertEqual(self.desc1.get('property', 0), 0)
+
+
 
     def test_undefined_default(self):
-        self.assertIsInstance(self.inst1.undefined, str)
+        self.assertIsInstance(self.desc1.undefined, str)
 
     def test_undefined_readWrite(self):
-        self.inst1.undefined = 'no value'
-        self.assertEqual(self.inst1.undefined, 'no value')
+        self.desc1.undefined = 'no value'
+        self.assertEqual(self.desc1.undefined, 'no value')
         
     def test_undefined_assignNone(self):
-        self.inst1.undefined = None
-        self.assertIsInstance(self.inst1.undefined, str, "After assigning None to .undefined it should be defaultUndefined, not None")
+        self.desc1.undefined = None
+        self.assertIsInstance(self.desc1.undefined, str, "After assigning None to .undefined it should be defaultUndefined, not None")
+
+
 
     def test_isAbstract(self):
-        self.assertEqual(self.inst1.isAbstract(), True)
+        self.assertEqual(self.desc1.isAbstract(), True)
 
     def test_isSortable(self):
-        self.assertEqual(self.inst1.isSortable(), False)
+        self.assertEqual(self.desc1.isSortable(), False)
