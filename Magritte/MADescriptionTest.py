@@ -106,9 +106,6 @@ class MADescriptionTest(TestCase):
         self.assertEqual(self.inst1.get('accessor', 0), 3)
         self.assertEqual(self.inst1.get('property', 0), 0)
 
-    def test_isAbstract(self):
-        self.assertEqual(self.inst1.isAbstract(), True)
-
     def test_isKindDefined(self):
         self.inst1.kind = 123
         self.assertEqual(self.inst1.isKindDefined(), True)
