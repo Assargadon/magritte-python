@@ -1,17 +1,16 @@
-from unittest import TestCase
-from Magritte.MAElementDescription_class import MAElementDescription
+from MAElementDescription_class import MAElementDescription
+import MADescriptionTest
 
+class TestProperties_of_MAElementDescription(MADescriptionTest.TestProperties_of_MADescription):
 
-class MAElementDescriptionTest(TestCase):
+    def get_description_instance_to_test(self):
+        return MAElementDescription()
 
-    def setUp(self):
-        self.inst1 = MAElementDescription()
-        self.inst2 = MAElementDescription()
-
-
-    def test_getDefault(self):
-        self.assertEqual(self.inst1.default, None)
-
-    def test_setDefault(self):
-        self.inst2.default = 'anObject'
-        self.assertEqual(self.inst2.default, 'anObject')
+    def _properties(self):
+        #{**dict1, **dict2} is actually a merge of two dictionaries
+        return {
+            **super()._properties(),
+            **{ 
+                'default': None
+            }
+        }
