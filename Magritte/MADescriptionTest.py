@@ -152,7 +152,8 @@ class MADescriptionTest(TestCase):
         self.assertNotEqual(self.desc1, self.desc2, "Inequality check failed for comparing two independent description instances")
 
     def test_setitem_and_getitem(self):
-        self.assertEqual(self.desc1['accessor'], 3)
+        self.desc1['id'] = 13
+        self.assertEqual(self.desc1['id'], 13, "Failed to set or retrieve the value using item access")
 
     def test_contains(self):
         self.assertEqual(self.desc1.__contains__(self.accessorTrue), True)
