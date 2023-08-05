@@ -254,6 +254,10 @@ class MADescription:
     def undefined(self):
         result = self.get(intern('undefined'), self.defaultUndefined())
         return self.defaultUndefined() if result is None else result
+        # The idea behind this double defaultUndefined() call is (I believe) as follows:
+        # even if you manually assign None to the `undefined` (i.e. not just left it unmentioned),
+        # it still be treated as non-set and return default value.
+        # I believe it's to guarantee that `undefined` always returns string...or I don't know 
 
     @undefined.setter
     def undefined(self, aStr):

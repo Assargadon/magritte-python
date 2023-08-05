@@ -16,8 +16,7 @@ class TestProperties_of_MADescription(TestCase):
             'group': str,
             'label': str,
             'priority': int,
-            'visible': bool,
-            'undefined': str
+            'visible': bool
         }
 
     def get_test_value(self, prop_name, prop_type):
@@ -163,6 +162,17 @@ class MADescriptionTest(TestCase):
     def test_beHidden(self):
         self.inst1.beHidden()
         self.assertEqual(self.inst1.isVisible(), False)
+
+    def test_undefined_default(self):
+        self.assertIsInstance(self.inst1.undefined, str)
+
+    def test_undefined_readWrite(self):
+        self.inst1.undefined = 'no value'
+        self.assertEqual(self.inst1.undefined, 'no value')
+        
+    def test_undefined_assignNone(self):
+        self.inst1.undefined = None
+        self.assertIsInstance(self.inst1.undefined, str, "After assigning None to .undefined it should be defaultUndefined, not None")
 
     def test_isAbstract(self):
         self.assertEqual(self.inst1.isAbstract(), True)
