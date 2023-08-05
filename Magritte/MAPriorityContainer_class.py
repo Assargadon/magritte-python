@@ -18,3 +18,6 @@ class MAPriorityContainer(MAContainer):
     def setChildren(self, aCollection):
         super().setChildren(sorted(aCollection))
 
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitPriorityContainer(self)

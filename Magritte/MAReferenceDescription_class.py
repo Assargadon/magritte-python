@@ -35,3 +35,7 @@ class MAReferenceDescription(MAElementDescription):
     @reference.setter
     def reference(self, aDescription):
         self._reference = aDescription
+
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitReferenceDescription(self)

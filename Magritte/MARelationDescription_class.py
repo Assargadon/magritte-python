@@ -44,3 +44,6 @@ class MARelationDescription(MAReferenceDescription):
             reference = self.commonClass().magritteTemplate.magritteDescription
         return reference
 
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitRelationDescription(self)
