@@ -37,15 +37,13 @@ class TestProperties_of_MADescription(TestCase):
 
     def setUp(self):
         self.my_desc = self.get_description_instance_to_test()
-        self.counter = 0
-        print("setUp invoked!")
 
     def get_description_instance_to_test(self):
         return MADescription()
 
 
     def check_default_value(self, prop, prop_type):
-        print(f"prop to test: {prop} of type: {prop_type}")
+        #print(f"prop to test: {prop} of type: {prop_type}")
         default_val = getattr(self.my_desc, prop)
         if prop_type is None:
             # No type check is required; only ensuring that reading does not crash
