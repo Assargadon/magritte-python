@@ -12,6 +12,3 @@ class MAFloatDescription(MANumberDescription):
     def defaultKind(cls):
         return float
 
-    @property
-    def label(self):
-        return 'float'

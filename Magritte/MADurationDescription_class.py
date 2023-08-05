@@ -12,6 +12,3 @@ class MADurationDescription(MAMagnitudeDescription):
     def isAbstract(cls):
         return False
 
-    @property
-    def label(self):
-        return "Duration"

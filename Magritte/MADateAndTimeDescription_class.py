@@ -12,6 +12,3 @@ class MADateAndTimeDescription(MAMagnitudeDescription):
     def isAbstract(cls):
         return False
 
-    @property
-    def label(self):
-        return "Date and Time"
