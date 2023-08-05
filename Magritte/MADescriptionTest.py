@@ -155,9 +155,10 @@ class MADescriptionTest(TestCase):
         self.desc1['id'] = 13
         self.assertEqual(self.desc1['id'], 13, "Failed to set or retrieve the value using item access")
 
-    def test_contains(self):
-        self.assertEqual(self.desc1.__contains__(self.accessorTrue), True)
-        self.assertEqual(self.desc1.__contains__(self.accessorFalse), False)
+    def test_in(self):
+        self.desc1['fieldname'] = {'meaning': 'some object just to assign a value (because something like `3` is not explanatory)'}
+        self.assertTrue("fieldname" in self.desc1)
+        self.assertFalse("fieldname" in self.desc2)
 
     def test_get(self):
         self.assertEqual(self.desc1.get('accessor', 0), 3)
