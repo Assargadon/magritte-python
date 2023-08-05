@@ -23,13 +23,18 @@ class TestProperties_of_MADescription(TestCase):
 
     def setUp(self):
         self.my_desc = self.get_description_instance_to_test()
-
+        
     def get_description_instance_to_test(self):
         return MADescription()
 
 # ====================================================================
 
-    properties = { 
+    @property
+    def properties(self):
+        return self._properties()
+
+    def _properties(self):
+        return { 
             'kind': type,
             'kindErrorMessage': str,
             'accessor': MAAccessor,
@@ -45,8 +50,9 @@ class TestProperties_of_MADescription(TestCase):
         }
 
 
+
+
     def check_default_value(self, prop, prop_type):
-        #print(f"prop to test: {prop} of type: {prop_type}")
         default_val = getattr(self.my_desc, prop)
         if prop_type is None:
             # No type check is required; only ensuring that reading does not crash
@@ -73,6 +79,7 @@ class TestProperties_of_MADescription(TestCase):
     def test_properties(self):
         for prop, prop_type in self.properties.items():
             with self.subTest(property=prop, type=prop_type):
+                # print(f"{prop} => {prop_type}")
                 self.setUp()
                 self.check_default_value(prop, prop_type)
                 self.setUp()
@@ -82,12 +89,16 @@ class TestProperties_of_MADescription(TestCase):
 
 # ====================================================================
 
-    flag_properties = [
-        ('visible', 'beVisible', 'beHidden', 'isVisible'),
-        ('readOnly', 'beReadOnly', 'beWriteable', 'isReadOnly'),
-        ('required', 'beRequired', 'beOptional', 'isRequired'),
-        # Add more flag-like properties here...
-    ]
+    @property
+    def flag_properties(self):
+        return self._flag_properties()
+
+    def _flag_properties(self):
+        return [
+            ('visible', 'beVisible', 'beHidden', 'isVisible'),
+            ('readOnly', 'beReadOnly', 'beWriteable', 'isReadOnly'),
+            ('required', 'beRequired', 'beOptional', 'isRequired'),
+        ]
     
     def check_flag_property(self, prop, set_true, set_false, test):
         # Test setting to True via set_true method
@@ -109,17 +120,23 @@ class TestProperties_of_MADescription(TestCase):
     def test_flag_properties(self):
         for prop_tuple in self.flag_properties:
             with self.subTest(property=prop_tuple[0]):
+                # print(f"flag: {prop_tuple}")
                 self.setUp()
                 self.check_flag_property(*prop_tuple)
 
-    check_properties = [
-        ('kind', 'isKindDefined'),
-        ('comment', 'hasComment'),
-        ('label', 'hasLabel')
-        # Add more properties and their corresponding check methods here...
-    ]
 
 # ====================================================================
+
+    @property
+    def checkable_properties(self):
+        return self._checkable_properties()
+
+    def _checkable_properties(self):
+        return [
+            ('kind', 'isKindDefined'),
+            ('comment', 'hasComment'),
+            ('label', 'hasLabel')
+        ]
 
     def check_property_defined(self, prop, check_method):
         # Check if the property is initially reported as not defined
@@ -132,9 +149,10 @@ class TestProperties_of_MADescription(TestCase):
         # Check if the property is now reported as defined
         self.assertTrue(getattr(self.my_desc, check_method)(), f"'{check_method}' should return True when '{prop}' is set")
 
-    def test_check_properties(self):
-        for prop_tuple in self.check_properties:
+    def test_checkable_properties(self):
+        for prop_tuple in self.checkable_properties:
             with self.subTest(property=prop_tuple[0]):
+                # print(f"checkable prop: {prop_tuple}")
                 self.setUp()
                 self.check_property_defined(*prop_tuple)
 
