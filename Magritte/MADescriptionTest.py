@@ -157,8 +157,8 @@ class MADescriptionTest(TestCase):
 
     def test_in(self):
         self.desc1['fieldname'] = {'meaning': 'some object just to assign a value (because something like `3` is not explanatory)'}
-        self.assertTrue("fieldname" in self.desc1)
-        self.assertFalse("fieldname" in self.desc2)
+        self.assertTrue("fieldname" in self.desc1, "Field 'fieldname' WAS assigned, and therefore should be `in` desc1, but it was not found")
+        self.assertFalse("fieldname" in self.desc2, "Field 'fieldname' was NOT assigned, and therefore it should NOT be `in` desc2, but it was found")
 
     def test_get(self):
         self.desc1['id'] = 13
