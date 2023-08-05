@@ -161,8 +161,9 @@ class MADescriptionTest(TestCase):
         self.assertFalse("fieldname" in self.desc2)
 
     def test_get(self):
-        self.assertEqual(self.desc1.get('accessor', 0), 3)
-        self.assertEqual(self.desc1.get('property', 0), 0)
+        self.desc1['id'] = 13
+        self.assertEqual(self.desc1.get('id', -7), 13, "`.get` method failed to retrieve assigned value for 'id'")
+        self.assertEqual(self.desc2.get('id', -7), -7, "`.get` method did not return the default value when 'id' was not found")
 
 
 
