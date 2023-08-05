@@ -146,9 +146,10 @@ class MADescriptionTest(TestCase):
         self.desc2 = MADescription()
 
 
+
     def test_eq(self):
-        self.assertEqual(self.desc1 == self.desc1, True)
-        self.assertEqual(self.desc1 == self.desc2, False)
+        self.assertEqual(self.desc1, self.desc1, "Equality check failed for comparing Description instance with itself")
+        self.assertNotEqual(self.desc1, self.desc2, "Inequality check failed for comparing two independent description instances")
 
     def test_setitem_and_getitem(self):
         self.assertEqual(self.desc1['accessor'], 3)
