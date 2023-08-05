@@ -12,6 +12,3 @@ class MAIntDescription(MANumberDescription):
     def defaultKind(cls):
         return int
 
-    @property
-    def label(self):
-        return 'int'
