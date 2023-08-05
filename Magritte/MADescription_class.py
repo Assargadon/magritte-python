@@ -161,8 +161,10 @@ class MADescription:
 
     @name.setter
     def name(self, aSymbol):
-        self[intern('name')] = intern(aSymbol)
-
+        if aSymbol is None:
+            self[intern('name')] = None
+        else:
+            self[intern('name')] = intern(aSymbol)
 
     @property
     def comment(self):
