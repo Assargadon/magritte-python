@@ -107,6 +107,30 @@ class TestProperties_of_MADescription(TestCase):
                 self.setUp()
                 self.check_flag_property(*prop_tuple)
 
+    check_properties = [
+        ('kind', 'isKindDefined'),
+        ('comment', 'hasComment'),
+        ('label', 'hasLabel')
+        # Add more properties and their corresponding check methods here...
+    ]
+
+    def check_property_defined(self, prop, check_method):
+        # Check if the property is initially reported as not defined
+        self.assertFalse(getattr(self.my_desc, check_method)(), f"'{check_method}' should return False when '{prop}' is not set")
+
+        # Assign a value to the property
+        new_val = self.get_test_value(prop, self.properties[prop]) # Assuming `self.properties` has the type info
+        setattr(self.my_desc, prop, new_val)
+
+        # Check if the property is now reported as defined
+        self.assertTrue(getattr(self.my_desc, check_method)(), f"'{check_method}' should return True when '{prop}' is set")
+
+    def test_check_properties(self):
+        for prop_tuple in self.check_properties:
+            with self.subTest(property=prop_tuple[0]):
+                self.setUp()
+                self.check_property_defined(*prop_tuple)
+
 
 class MADescriptionTest(TestCase):
 
@@ -132,22 +156,6 @@ class MADescriptionTest(TestCase):
     def test_get(self):
         self.assertEqual(self.inst1.get('accessor', 0), 3)
         self.assertEqual(self.inst1.get('property', 0), 0)
-
-    def test_isKindDefined(self):
-        self.inst1.kind = 123
-        self.assertEqual(self.inst1.isKindDefined(), True)
-        self.assertEqual(self.inst2.isKindDefined(), False)
-
-    def test_hasComment(self):
-        self.assertEqual(self.inst1.hasComment(), False)
-        self.inst1.comment = 'comment'
-        self.assertEqual(self.inst1.hasComment(), True)
-
-    def test_hasLabel(self):
-        self.assertEqual(self.inst1.hasLabel(), False)
-        self.inst1.label = 'label'
-        self.assertEqual(self.inst1.hasLabel(), True)
-
 
     def test_undefined_default(self):
         self.assertIsInstance(self.inst1.undefined, str)
