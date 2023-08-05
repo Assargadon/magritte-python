@@ -240,10 +240,10 @@ class MADescription:
         return True
 
     def isVisible(self):
-        return self.readOnly
+        return self.visible
 
     def beVisible(self):
-        self.readOnly = True
+        self.visible = True
 
     def beHidden(self):
         self.visible = False
