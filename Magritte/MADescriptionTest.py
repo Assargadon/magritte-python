@@ -79,6 +79,36 @@ class TestProperties_of_MADescription(TestCase):
                 self.setUp()
                 self.check_assigning_null(prop)
 
+    flag_properties = [
+        ('visible', 'beVisible', 'beHidden', 'isVisible'),
+        ('readOnly', 'beReadOnly', 'beWriteable', 'isReadOnly'),
+        ('required', 'beRequired', 'beOptional', 'isRequired'),
+        # Add more flag-like properties here...
+    ]
+    
+    def check_flag_property(self, prop, set_true, set_false, test):
+        # Test setting to True via set_true method
+        getattr(self.my_desc, set_true)()
+        self.assertTrue(getattr(self.my_desc, prop), f"'{set_true}' did not set '{prop}' to True correctly")
+
+        # Test setting to False via set_false method
+        getattr(self.my_desc, set_false)()
+        self.assertFalse(getattr(self.my_desc, prop), f"'{set_false}' did not set '{prop}' to False correctly")
+
+        # Test proper retrieval via `test` method (True)
+        setattr(self.my_desc, prop, True)
+        self.assertTrue(getattr(self.my_desc, test)(), f"'{test}' did not return True correctly")
+
+        # Test proper retrieval via `test` method (False)
+        setattr(self.my_desc, prop, False)
+        self.assertFalse(getattr(self.my_desc, test)(), f"'{test}' did not return False correctly")
+
+    def test_flag_properties(self):
+        for prop_tuple in self.flag_properties:
+            with self.subTest(property=prop_tuple[0]):
+                self.setUp()
+                self.check_flag_property(*prop_tuple)
+
 
 class MADescriptionTest(TestCase):
 
@@ -110,32 +140,6 @@ class MADescriptionTest(TestCase):
         self.assertEqual(self.inst1.isKindDefined(), True)
         self.assertEqual(self.inst2.isKindDefined(), False)
 
-    def test_isReadOnly(self):
-        self.inst1.readOnly = True
-        self.assertEqual(self.inst1.isReadOnly(), True)
-        self.assertEqual(self.inst2.isReadOnly(), False)
-
-    def test_beReadOnly(self):
-        self.inst1.beReadOnly()
-        self.assertEqual(self.inst1.readOnly, True)
-
-    def test_beWriteable(self):
-        self.inst1.beWriteable()
-        self.assertEqual(self.inst1.readOnly, False)
-
-    def test_isRequired(self):
-        self.inst1.required = True
-        self.assertEqual(self.inst1.isRequired(), True)
-        self.assertEqual(self.inst2.isRequired(), False)
-
-    def test_beRequired(self):
-        self.inst1.beRequired()
-        self.assertEqual(self.inst1.required, True)
-
-    def test_beOptional(self):
-        self.inst1.beOptional()
-        self.assertEqual(self.inst1.required, False)
-
     def test_hasComment(self):
         self.assertEqual(self.inst1.hasComment(), False)
         self.inst1.comment = 'comment'
@@ -146,18 +150,6 @@ class MADescriptionTest(TestCase):
         self.inst1.label = 'label'
         self.assertEqual(self.inst1.hasLabel(), True)
 
-    def test_isVisible(self):
-        self.assertEqual(self.inst1.isVisible(), False)
-        self.inst1.readOnly = True
-        self.assertEqual(self.inst1.isVisible(), True)
-
-    def test_beVisible(self):
-        self.inst1.beVisible()
-        self.assertEqual(self.inst1.isVisible(), True)
-
-    def test_beHidden(self):
-        self.inst1.beHidden()
-        self.assertEqual(self.inst1.isVisible(), False)
 
     def test_undefined_default(self):
         self.assertIsInstance(self.inst1.undefined, str)
