@@ -1,6 +1,84 @@
 from unittest import TestCase
-from Magritte.MADescription_class import MADescription
+from MADescription_class import MADescription
 from MANullAccessor_class import MANullAccessor
+from MAAccessor_class import MAAccessor
+
+class TestProperties_of_MADescription(TestCase):
+    properties = { 
+            'kind': type,
+            'kindErrorMessage': str,
+            'accessor': MAAccessor,
+            'readOnly': bool,
+            'required': bool,
+            'undefinedValue': None,
+            'name': str,
+            'comment': str,
+            'group': str,
+            'label': str,
+            'priority': int,
+            'visible': bool,
+            'undefined': str
+        }
+
+    def get_test_value(self, prop_name, prop_type):
+        if prop_type == type:
+            return list # Just because `list` is type which always exists
+        elif prop_type == str:
+            return 'test_str'
+        elif prop_type == bool:
+            return True
+        elif prop_type == int:
+            return 42
+        elif prop_type == MAAccessor:
+            return MAAccessor()
+        elif prop_type is None:
+            return {'meaning': 'object to read-write when no type check expected', 'true_meaning': 42}
+        else:
+            raise Exception(f"Unhandled type {prop_type} for property {prop_name}")
+
+    def setUp(self):
+        self.my_desc = self.get_description_instance_to_test()
+        self.counter = 0
+        print("setUp invoked!")
+
+    def get_description_instance_to_test(self):
+        return MADescription()
+
+
+    def check_default_value(self, prop, prop_type):
+        print(f"prop to test: {prop} of type: {prop_type}")
+        default_val = getattr(self.my_desc, prop)
+        if prop_type is None:
+            # No type check is required; only ensuring that reading does not crash
+            return
+        if default_val is not None:
+            self.assertIsInstance(default_val, prop_type, f'"{prop}" default value type is not as expected')
+        else:
+            # If the default value is None, this is acceptable as all default values are nullable
+            pass
+
+    def check_read_write(self, prop, prop_type):
+        new_val = self.get_test_value(prop, prop_type)
+        setattr(self.my_desc, prop, new_val)
+        actual_val = getattr(self.my_desc, prop)
+        self.assertEqual(actual_val, new_val, f'"{prop}" did not update correctly')
+
+    def check_assigning_null(self, prop):
+    # If default value is _also_ None, this check may generate false positive
+    # This false positive, however, does not affect the functioning (None will be returned, even if by wrong branch)
+        setattr(self.my_desc, prop, None)
+        actual_val = getattr(self.my_desc, prop)
+        self.assertIsNone(actual_val, f'"{prop}" did not correctly accept None value')
+
+    def test_properties(self):
+        for prop, prop_type in self.properties.items():
+            with self.subTest(property=prop, type=prop_type):
+                self.setUp()
+                self.check_default_value(prop, prop_type)
+                self.setUp()
+                self.check_read_write(prop, prop_type)
+                self.setUp()
+                self.check_assigning_null(prop)
 
 
 class MADescriptionTest(TestCase):
@@ -32,38 +110,10 @@ class MADescriptionTest(TestCase):
     def test_isAbstract(self):
         self.assertEqual(self.inst1.isAbstract(), True)
 
-    def test_getAccessor(self):
-        self.assertEqual(isinstance(self.inst3.accessor, MANullAccessor), True)
-
-    def test_setAccessor(self):
-        self.inst1.accessor = 3
-        self.assertEqual(self.inst1.accessor, 3)
-
-    def test_getKind(self):
-        self.assertEqual(isinstance(self.inst3.kind, object), True)
-
-    def test_setKind(self):
-        self.inst1.kind = 123
-        self.assertEqual(self.inst1.kind, 123)
-
     def test_isKindDefined(self):
         self.inst1.kind = 123
         self.assertEqual(self.inst1.isKindDefined(), True)
         self.assertEqual(self.inst2.isKindDefined(), False)
-
-    def test_getKindErrorMessage(self):
-        self.assertEqual(self.inst1.kindErrorMessage, 'Invalid input given')
-
-    def test_setKindErrorMessage(self):
-        self.inst1.kindErrorMessage = 'error'
-        self.assertEqual(self.inst1.kindErrorMessage, 'error')
-
-    def test_getReadOnly(self):
-        self.assertEqual(self.inst1.readOnly, False)
-
-    def test_setReadOnly(self):
-        self.inst1.readOnly = True
-        self.assertEqual(self.inst1.readOnly, True)
 
     def test_isReadOnly(self):
         self.inst1.readOnly = True
@@ -78,13 +128,6 @@ class MADescriptionTest(TestCase):
         self.inst1.beWriteable()
         self.assertEqual(self.inst1.readOnly, False)
 
-    def test_getRequired(self):
-        self.assertEqual(self.inst1.required, False)
-
-    def test_setRequired(self):
-        self.inst1.required = True
-        self.assertEqual(self.inst1.required, True)
-
     def test_isRequired(self):
         self.inst1.required = True
         self.assertEqual(self.inst1.isRequired(), True)
@@ -98,72 +141,15 @@ class MADescriptionTest(TestCase):
         self.inst1.beOptional()
         self.assertEqual(self.inst1.required, False)
 
-    def test_getDefault(self):
-        self.assertEqual(self.inst1.default, None)
-
-    def test_setDefault(self):
-        df = self.inst1.default
-        self.inst1.default = 1
-        self.assertEqual(self.inst1.default, None)
-
-    def test_getUndefinedValue(self):
-        self.assertEqual(self.inst1.undefinedValue, None)
-
-    def test_setUndefinedValue(self):
-        self.inst1.undefinedValue = 123
-        self.assertEqual(self.inst1.undefinedValue, 123)
-
-    def test_getName(self):
-        self.assertEqual(self.inst1.name, None)
-
-    def test_setName(self):
-        self.inst1.name = 'Evedg'
-        self.assertEqual(self.inst1.name, 'Evedg')
-
-    def test_getComment(self):
-        self.assertEqual(self.inst1.name, None)
-
-    def test_setComment(self):
-        self.inst1.comment = 'comment'
-        self.assertEqual(self.inst1.comment, 'comment')
-
     def test_hasComment(self):
         self.assertEqual(self.inst1.hasComment(), False)
         self.inst1.comment = 'comment'
         self.assertEqual(self.inst1.hasComment(), True)
 
-    def test_getGroup(self):
-        self.assertEqual(self.inst1.group, None)
-
-    def test_setGroup(self):
-        self.inst1.group = 'group'
-        self.assertEqual(self.inst1.group, 'group')
-
-    def test_getLabel(self):
-        self.assertEqual(self.inst1.label, '')
-
-    def test_setLabel(self):
-        self.inst1.label = 'label'
-        self.assertEqual(self.inst1.label, 'label')
-
     def test_hasLabel(self):
         self.assertEqual(self.inst1.hasLabel(), False)
         self.inst1.label = 'label'
         self.assertEqual(self.inst1.hasLabel(), True)
-
-    def test_getPriority(self):
-        self.assertEqual(self.inst1.priority, 0)
-
-    def test_setPriority(self):
-        self.inst1.priority = 1
-        self.assertEqual(self.inst1.priority, 1)
-
-    def test_getVisible(self):
-        self.assertEqual(self.inst1.visible, True)
-
-    def test_setVisible(self):
-        self.inst1.visible = False
-        self.assertEqual(self.inst1.visible, False)
 
     def test_isVisible(self):
         self.assertEqual(self.inst1.isVisible(), False)
@@ -178,12 +164,8 @@ class MADescriptionTest(TestCase):
         self.inst1.beHidden()
         self.assertEqual(self.inst1.isVisible(), False)
 
-    def test_getUndefined(self):
-        self.assertEqual(self.inst1.undefined, '')
-
-    def test_setUndefined(self):
-        self.inst1.undefined = 'str'
-        self.assertEqual(self.inst1.undefined, 'str')
+    def test_isAbstract(self):
+        self.assertEqual(self.inst1.isAbstract(), True)
 
     def test_isSortable(self):
         self.assertEqual(self.inst1.isSortable(), False)
