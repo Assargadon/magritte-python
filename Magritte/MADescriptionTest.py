@@ -144,10 +144,7 @@ class MADescriptionTest(TestCase):
     def setUp(self):
         self.inst1 = MADescription()
         self.inst2 = MADescription()
-        self.inst1['accessor'] = 3
-        self.inst2['kindErrorMessage'] = 3
-        self.accessorTrue = 'accessor'
-        self.accessorFalse = 3
+
 
     def test_eq(self):
         self.assertEqual(self.inst1 == self.inst1, True)
