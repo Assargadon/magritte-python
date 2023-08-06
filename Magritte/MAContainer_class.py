@@ -84,7 +84,7 @@ class MAContainer(MADescription):
     def asContainer(self):
         return self
 
-    def get(self, index, default_value):
+    def getitem(self, index, default_value):
         return self.children[index] if index < len(self.children) else default_value
 
 
