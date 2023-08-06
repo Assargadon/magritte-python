@@ -89,8 +89,8 @@ class MAContainerTest(TestCase):
 
     def test_get(self):
         self.inst1.setChildren([1, 2, 3, 4])
-        self.assertEqual(self.inst1.get(2, 'index > len'), 3)
-        self.assertEqual(self.inst1.get(7, 'index > len'), 'index > len')
+        self.assertEqual(self.inst1.getitem(2, 'index > len'), 3)
+        self.assertEqual(self.inst1.getitem(7, 'index > len'), 'index > len')
 
     def test_allSatisty(self):
         self.inst1.setChildren([1, 2, 3, 4])
