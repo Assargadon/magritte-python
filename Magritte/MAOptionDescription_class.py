@@ -78,7 +78,7 @@ class MAOptionDescription(MAReferenceDescription):
         self._undefined(aStr)
 
     def _undefined(self, aStr):
-        super().undefined = aStr
+        super()._undefined(aStr)
         if self.reference is not None:
             self.reference.undefined = aStr
 

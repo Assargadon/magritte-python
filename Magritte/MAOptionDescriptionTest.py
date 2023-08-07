@@ -48,3 +48,4 @@ class MAOptionDescriptionTest(TestCase):
         self.assertEqual(self.inst1.undefined, '')
         self.inst1.undefined = 'string'
         self.assertEqual(self.inst1.undefined, 'string')
+        self.assertEqual(self.inst1.reference.undefined, 'string')
