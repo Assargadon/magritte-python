@@ -255,6 +255,9 @@ class MADescription:
 
     @undefined.setter
     def undefined(self, aStr):
+        self._undefined(aStr)
+
+    def _undefined(self, aStr):
         self[intern('undefined')] = aStr
 
     @classmethod
