@@ -2,51 +2,6 @@ import datetime
 import random
 
 
-class Host:
-
-    def __init__(self, IP):
-        if IP is not None:
-            self._ip = IP
-        else:
-            self._ip = self.generate_ip()
-        self._ports = [Port('Name1', 20), Port('Name2', 21), Port('Name3', 22), Port('Name4', 23),
-                       Port('Name5', 25), Port('Name6', 42), Port('Name7', 43), Port('Name8', 53),
-                       Port('Name9', 67), Port('Name10', 69), Port('Name11', 80), Port('Name12', 110),
-                       Port('Name13', 115), Port('Name14', 123), Port('Name15', 137), Port('Name16', 138),
-                       Port('Name17', 139), Port('Name18', 143), Port('Name19', 161), Port('Name20', 179),
-                       Port('Name21', 443), Port('Name22', 445), Port('Name23', 514), Port('Name24', 515),
-                       Port('Name25', 993), Port('Name26', 995), Port('Name27', 1080), Port('Name28', 1194),
-                       Port('Name29', 1433), Port('Name30', 1702), Port('Name31', 1723), Port('Name32', 3128),
-                       Port('Name33', 3268), Port('Name34', 3306), Port('Name35', 3389), Port('Name36', 5432),
-                       Port('Name37', 5060), Port('Name38', 5900), Port('Name39', 5938), Port('Name40', 8080),
-                       Port('Name41', 10000), Port('Name42', 20000)]
-
-    def generate_ip(self):
-        block1 = random.randint(0, 255)
-        block2 = random.randint(0, 255)
-        block3 = random.randint(0, 255)
-        block4 = random.randint(0, 255)
-
-        ipAddress = f'{block1}.{block2}.{block3}.{block4}'
-        return ipAddress
-
-    @property
-    def ip(self):
-        return self._ip
-
-    @ip.setter
-    def ip(self, newIP):
-        self._ip = newIP
-
-    @property
-    def ports(self):
-        return self._ports
-
-    @ports.setter
-    def ports(self, newPorts):
-        self._ports = newPorts
-
-
 class User:
 
     def __init__(self, RegNum, FIO, DateOfBirth, Gender, Organization,
