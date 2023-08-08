@@ -27,9 +27,6 @@ class MARelationDescription(MAReferenceDescription):
     def classes(self, aCollection):
         self._classes = aCollection
 
-    def allClasses(self):
-        return sorted(self.classes, key=lambda entry: entry.label.lower())
-
     def commonClass(self):
         if len(self._classes) == 0:
             descriptionContainer = MAPriorityContainer()

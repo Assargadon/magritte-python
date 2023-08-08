@@ -50,10 +50,10 @@ class MAMagnitudeDescription(MAElementDescription):
             if max is not None:
                 defaultRangeErrorMessage = f'Input must be between {min} and {max}'
             else:
-                defaultRangeErrorMessage = f'Input must be above or equeal to {min}'
+                defaultRangeErrorMessage = f'Input must be above or equal to {min}'
         else:
             if max is not None:
-                defaultRangeErrorMessage = f'Input must be below or eqeal to {max}'
+                defaultRangeErrorMessage = f'Input must be below or equal to {max}'
             else:
                 defaultRangeErrorMessage = None
         return self.get(intern('rangeErrorMessage'), defaultRangeErrorMessage)
