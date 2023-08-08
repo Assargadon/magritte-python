@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import Dict, Any
 
 from MAVisitor_class import MAVisitor
-from Magritte.MAContainer_class import MAContainer
-from Magritte.MADescription_class import MADescription
+from MAContainer_class import MAContainer
+from MADescription_class import MADescription
 
 
 class MAValueJsonWriter(MAVisitor):
