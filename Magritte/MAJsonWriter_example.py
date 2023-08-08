@@ -9,7 +9,7 @@ from MAIdentityAccessor_class import MAIdentityAccessor
 from MAIntDescription_class import MAIntDescription
 from MARelationDescription_class import MARelationDescription
 from MAStringDescription_class import MAStringDescription
-from Magritte.MAJsonWriter_visitors import MAValueJsonWriter, MAObjectJsonWriter
+from MAJsonWriter_visitors import MAValueJsonWriter, MAObjectJsonWriter
 
 
 class TestObject1:
