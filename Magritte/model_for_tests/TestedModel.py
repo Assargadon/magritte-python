@@ -46,31 +46,6 @@ class Host:
     def ports(self, newPorts):
         self._ports = newPorts
 
-class Port:
-
-    def __init__(self, Host, NumOfPort):
-        self._host = Host
-        if NumOfPort is not None:
-            self._numofport = NumOfPort
-        else:
-            self._numofport = Host.ports[random.randint(0, 41)]
-
-    @property
-    def host(self):
-        return self._host
-
-    @host.setter
-    def host(self, newHost):
-        self._host = newHost
-
-    @property
-    def numofport(self):
-        return self._numofport
-
-    @numofport.setter
-    def numofport(self, newNumofports):
-        self._numofport = newNumofports
-
 
 class User:
 
