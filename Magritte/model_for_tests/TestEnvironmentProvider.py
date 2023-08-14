@@ -6,7 +6,7 @@ class TestEnvironmentProvider:
     def __init__(self, num_hosts=3, num_ports_per_host=12, num_accounts=3):
         self._hosts = [Host.random_host(num_ports=num_ports_per_host) for _ in range(num_hosts)]
         self._ports = [port for host in self._hosts for port in host.ports]
-        self._accounts = [Account.random_account() for _ in range(num_accounts)]
+        self._accounts = [Account.random_account(self._ports[_]) for _ in range(num_accounts)]
 
     @property
     def hosts(self):

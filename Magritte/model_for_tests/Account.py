@@ -39,12 +39,12 @@ class Account:
         return random.randint(1, 999)
 
     @classmethod
-    def random_account(cls):
+    def random_account(cls, new_port):
         login = cls.generate_login()
         password = cls.generate_password()
         dateofreg = cls.generate_dateofreg()
         days = cls.generate_days()
-        port = Port.randomPortForHost(Host.random_host())
+        port = new_port
         new_account = cls(login, password, dateofreg, days, port)
         return new_account
 
