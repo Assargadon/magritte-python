@@ -9,9 +9,13 @@ class TestEnvironmentProvider:
         self._hosts = [Host.random_host(num_ports=num_ports_per_host) for _ in range(num_hosts)]
         self._ports = [port for host in self._hosts for port in host.ports]
         self._accounts = [Account.random_account(self._ports[_]) for _ in range(num_accounts)]
-        self._organization = Organization.random_organization(listcomps=self._hosts)
-        self._users = [User.random_user(org=self._organization, setofacc=self._accounts)]
+        self._organization = Organization.random_organization()
+        self._users = [User.random_user() for _ in range(num_hosts)]
         self._organization.listusers = self._users
+        self._organization.listcomp = self._hosts
+        for _ in range(num_hosts):
+            self._users[_].organization = self._organization
+            self._users[_].setofaccounts = self._accounts
 
     @property
     def hosts(self):

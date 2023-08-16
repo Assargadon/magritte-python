@@ -1,20 +1,20 @@
-from User import User
-from Host import Host
 import random
 
 
 class Organization:
 
     def __init__(self, Name, Address, Active, ListUsers, ListComp):
+        from User import User
+        from Host import Host
         assert Name is not None, "Name cannot be None"
         assert Address is not None, "Address cannot be None"
         assert Active is not None, "Active cannot be None"
         assert ListUsers is not None and isinstance(ListUsers, list) and all(
             isinstance(user, User) for user in
-            ListUsers), "SetOfAccounts must be a list of Account instances"
+            ListUsers), "ListUsers must be a list of User instances"
         assert ListComp is not None and isinstance(ListComp, list) and all(
             isinstance(comp, Host) for comp in
-            ListComp), "SetOfAccounts must be a list of Account instances"
+            ListComp), "ListComp must be a list of Host instances"
 
         self._name = Name
         self._address = Address
@@ -42,19 +42,21 @@ class Organization:
 
     @staticmethod
     def generate_listUsers():
-        return [User.random_user for _ in range(5)]
+        from User import User
+        return [User.random_user() for _ in range(5)]
 
     @staticmethod
     def generate_listComps():
+        from Host import Host
         return [Host.random_host() for _ in range(5)]
 
     @classmethod
-    def random_organization(cls, listcomps=Host.random_host()):
+    def random_organization(cls):
         name = cls.generate_name()
         address = cls.generate_address()
         active = cls.generate_active()
         listUsers = cls.generate_listUsers
-        listComps = listcomps
+        listComps = cls.generate_listComps()
         new_organization = cls(name, address, active, listUsers, listComps)
         return new_organization
 

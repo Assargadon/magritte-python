@@ -1,4 +1,3 @@
-from Organization import Organization
 from Account import Account
 import datetime
 import random
@@ -8,6 +7,7 @@ class User:
 
     def __init__(self, RegNum, FIO, DateOfBirth, Gender, organization,
                  DateOfAdmission, DateOfDeparture, SetOfAccounts):
+        from Organization import Organization
         assert RegNum is not None, "RegNum cannot be None"
         assert FIO is not None, "FIO cannot be None"
         assert DateOfBirth is not None, "DateOfBirth cannot be None"
@@ -21,7 +21,7 @@ class User:
         self._fio = FIO
         self._dateofbirth = DateOfBirth
         self._gender = Gender
-        self._organization = Organization
+        self._organization = organization
         self._dateofadmission = DateOfAdmission
         self._dateofdeparture = DateOfDeparture
         self._setofaccounts = SetOfAccounts
@@ -44,6 +44,7 @@ class User:
 
     @staticmethod
     def generate_organization():
+        from Organization import Organization
         return Organization.random_organization()
 
     @staticmethod
@@ -59,13 +60,16 @@ class User:
         return [Account.random_account() for _ in range(5)]
 
     @classmethod
-    def random_user(cls, org=Organization.random_organization(), setofacc=Account.random_account()):
+    def random_user(cls):
+        from Organization import Organization
         regnum = cls.generate_regnum()
         fio = cls.generate_fio()
         dateofbirth = cls.generate_dateofbirth()
         gender = cls.generate_gender()
+        org = Organization.random_organization()
         dateofadmission = cls.generate_dateofadmission()
         dateofdeparture = cls.generate_dateofdeparture()
+        setofacc = cls.generate_setofaccounts()
         new_user = cls(regnum, fio, dateofbirth, gender, org, dateofadmission, dateofdeparture, setofacc)
         return new_user
 
