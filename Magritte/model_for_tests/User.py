@@ -57,20 +57,21 @@ class User:
 
     @staticmethod
     def generate_setofaccounts():
-        return [Account.random_account() for _ in range(5)]
+        from Port import Port
+        from Host import Host
+        return [Account.random_account(Port.randomPortForHost(Host.random_host())) for _ in range(5)]
 
     @classmethod
-    def random_user(cls):
-        from Organization import Organization
+    def random_user(cls, organization):
         regnum = cls.generate_regnum()
         fio = cls.generate_fio()
         dateofbirth = cls.generate_dateofbirth()
         gender = cls.generate_gender()
-        org = Organization.random_organization()
+        org = organization
         dateofadmission = cls.generate_dateofadmission()
         dateofdeparture = cls.generate_dateofdeparture()
         setofacc = cls.generate_setofaccounts()
-        new_user = cls(regnum, fio, dateofbirth, gender, org, dateofadmission, dateofdeparture, setofacc)
+        new_user = cls(regnum, fio, dateofbirth, gender, org,  dateofadmission, dateofdeparture, setofacc)
         return new_user
 
     def work(self):
@@ -133,7 +134,10 @@ class User:
 
     @property
     def setofaccounts(self):
-        return self._setofaccounts
+        logins = []
+        for acc in self._setofaccounts:
+            logins.append(acc.login)
+        return logins
 
     @setofaccounts.setter
     def setofaccounts(self, new_setofaccounts):

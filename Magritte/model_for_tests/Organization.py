@@ -51,13 +51,15 @@ class Organization:
         return [Host.random_host() for _ in range(5)]
 
     @classmethod
-    def random_organization(cls):
+    def random_organization(cls, numofsusers=5):
+        from User import User
         name = cls.generate_name()
         address = cls.generate_address()
         active = cls.generate_active()
-        listUsers = cls.generate_listUsers
         listComps = cls.generate_listComps()
-        new_organization = cls(name, address, active, listUsers, listComps)
+        new_organization = cls(name, address, active, [], listComps)
+        listUsers = [User.random_user(new_organization) for _ in range(numofsusers)]
+        new_organization._dictusers = listUsers
         return new_organization
 
     def amount_users(self):
@@ -91,12 +93,26 @@ class Organization:
         self._active = new_active
 
     @property
+    def listnameofusers(self):
+        names = []
+        for user in self._dictusers:
+            names.append(user.regnum)
+        return names
+
+    @property
     def listusers(self):
         return self._dictusers
 
     @listusers.setter
     def listusers(self, new_listusers):
         self._dictusers = new_listusers
+
+    @property
+    def listnameofcomp(self):
+        comps = []
+        for comp in self._dictcomp:
+            comps.append(comp.ip)
+        return comps
 
     @property
     def listcomp(self):

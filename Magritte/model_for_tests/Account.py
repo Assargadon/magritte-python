@@ -32,7 +32,7 @@ class Account:
 
     @staticmethod
     def generate_dateofreg():
-        return f'{random.randint(2010, 2023)}-{random.randint(1, 12)}-{random.randint(1, 31)}'
+        return f'{random.randint(2010, 2020)}-{random.randint(1, 12)}-{random.randint(1, 30)}'
 
     @staticmethod
     def generate_days():

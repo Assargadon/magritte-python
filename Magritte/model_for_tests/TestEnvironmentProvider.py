@@ -5,17 +5,15 @@ from Organization import Organization
 from User import User
 
 class TestEnvironmentProvider:
-    def __init__(self, num_hosts=3, num_ports_per_host=12, num_accounts=3):
+    def __init__(self, num_hosts=3, num_ports_per_host=12, num_accounts=3, num_users=3):
         self._hosts = [Host.random_host(num_ports=num_ports_per_host) for _ in range(num_hosts)]
         self._ports = [port for host in self._hosts for port in host.ports]
         self._accounts = [Account.random_account(self._ports[_]) for _ in range(num_accounts)]
-        self._organization = Organization.random_organization()
-        self._users = [User.random_user() for _ in range(num_hosts)]
-        self._organization.listusers = self._users
+        self._organization = Organization.random_organization(num_users)
+        self._users = self._organization.listusers
         self._organization.listcomp = self._hosts
-        for _ in range(num_hosts):
-            self._users[_].organization = self._organization
-            self._users[_].setofaccounts = self._accounts
+        for user in self._users:
+            user.setofaccounts = self._accounts
 
     @property
     def hosts(self):
@@ -55,7 +53,11 @@ def main():
 
     print("\nOrganization")
     org = provider.organization
-    print(f"Name: {org.name}, Address: {org.address}, Active: {org.active}, ListOfUsers: {org.listusers}, ListOfComp: {org.listcomp}")
+    print(f"Name: {org.name}, Address: {org.address}, Active: {org.active}, ListOfUsers: {org.listnameofusers}, ListOfComp: {org.listnameofcomp}")
+
+    print("\nUsers")
+    for user in provider.users:
+        print(f"RegNum: {user.regnum}, FIO: {user.fio}, DateOfBirth: {user.dateofbirth}, Gender: {user.gender}, Organization: {user.organization.name}, DateOfAdmission: {user.dateofadmission}, DateOfDeparture: {user.dateofdeparture}, SetOfAccounts: {user.setofaccounts}")
 
 if __name__ == "__main__":
     main()
