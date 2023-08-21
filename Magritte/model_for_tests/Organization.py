@@ -28,17 +28,11 @@ class Organization:
 
     @staticmethod
     def generate_address():
-        block1 = random.randint(0, 255)
-        block2 = random.randint(0, 255)
-        block3 = random.randint(0, 255)
-        block4 = random.randint(0, 255)
-
-        ipAddress = f'{block1}.{block2}.{block3}.{block4}'
-        return ipAddress
+        return f'address{random.randint(1000, 9999)}'
 
     @staticmethod
     def generate_active():
-        return random.randint(365, 2000)
+        return random.choice([False, True])
 
     @staticmethod
     def generate_listUsers():
