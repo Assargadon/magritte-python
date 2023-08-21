@@ -1,5 +1,12 @@
 from unittest import TestCase
 from Magritte.MAStringDescription_class import MAStringDescription
+import MAElementDescriptionTest
+
+
+class TestProperties_of_MAStringDescription(MAElementDescriptionTest.TestProperties_of_MAElementDescription):
+    def get_description_instance_to_test(self):
+        return MAStringDescription()
+
 
 
 class MAStringDescriptionTest(TestCase):
