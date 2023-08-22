@@ -1,6 +1,6 @@
 
 
-class MAAdaptiveModel_class:
+class MAAdaptiveModel:
 
     # TODO
     pass
