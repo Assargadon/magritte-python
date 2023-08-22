@@ -8,12 +8,9 @@ class MAStringDescription(MAElementDescription):
     def isAbstract(cls):
         return False
 
-    def defaultKind(self):
-        return str
-
     @classmethod
-    def defaultLabel(self):
-        return intern('str')
+    def defaultKind(cls):
+        return str
 
     def isSortable(self):
         return True
