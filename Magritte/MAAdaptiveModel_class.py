@@ -1,0 +1,6 @@
+
+
+class MAAdaptiveModel:
+
+    # TODO
+    pass
