@@ -1,0 +1,6 @@
+
+
+class MACondition:
+
+    # TODO
+    pass
