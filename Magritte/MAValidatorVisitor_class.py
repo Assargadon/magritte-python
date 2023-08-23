@@ -22,7 +22,8 @@ class MAValidatorVisitor(MAVisitor):
 
     def validateUsing(self, anObject, aDescription):
         aDescription.validateRequired(anObject)
-        # anObject = aDescription.undefinedValue ??? TODO
+        if anObject == aDescription.undefinedValue:
+            return
         aDescription.tryValidation(lambda : aDescription.validateKind(anObject), lambda : (aDescription.validateSpecific(anObject), aDescription.validateConditions(anObject)))
 
     def visit(self, aDescription):
