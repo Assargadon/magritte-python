@@ -16,9 +16,9 @@ class MAAdaptiveModel:
     def defaultDictionary(cls):
         return dict()
 
-    def readUsing(self, aDescription):
-        return self.values[aDescription] if aDescription in self.values else None
+    def readUsing(self, description):
+        return self.values[description] if description in self.values else None
 
-    def writeUsing(self, anObject, aDescription):
-        self.values[aDescription] = anObject
+    def writeUsing(self, description, value):
+        self.values[description] = value
 
