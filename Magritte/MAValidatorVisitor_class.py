@@ -34,7 +34,8 @@ class MAValidatorVisitor(MAVisitor):
         super().visitContainer(aDescription)
         anObject = self.object
         if anObject is not None:
-            self.useDuring(anObject.readUsing(aDescription), lambda : self.visit(aDescription))
+            for description in aDescription:
+                self.useDuring(anObject.readUsing(description), lambda : self.visit(description))
 
     def visitDescription(self, aDescription):
         self.validateUsing(self, aDescription)
