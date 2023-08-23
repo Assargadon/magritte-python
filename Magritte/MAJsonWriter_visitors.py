@@ -1,0 +1,89 @@
+import json
+from datetime import datetime
+from typing import Dict, Any
+
+from MAVisitor_class import MAVisitor
+from MAContainer_class import MAContainer
+from MADescription_class import MADescription
+
+
+class MAValueJsonWriter(MAVisitor):
+    """Encodes the value described by the descriptions into JSON."""
+
+    def __init__(self, description: MADescription):
+        if description.isContainer():
+            raise TypeError(
+                "MAValueJsonWriter cannot encode using container description. Only scalar values are allowed."
+                )
+        self._description = description
+        self._model = None
+        self._json = self._description.undefinedValue
+
+    def write_json(self, model) -> Any:
+        self._model = model
+        self._json = self._description.undefinedValue
+        self.visit(self._description)
+        return self._json
+
+    def write_json_string(self, model) -> str:
+        return json.dumps(self.write_json(model))
+
+    def visit(self, description: MADescription):
+        if description.accessor.canRead(self._model):
+            super().visit(description)
+
+    def visitElementDescription(self, description: MADescription):
+        self._json = description.accessor.read(self._model)
+
+    def visitMagnitudeDescription(self, description: MADescription):
+        # !TODO Separate visit methods for each type of magnitude when they are defined.
+        if type(description.accessor.read(self._model)) == datetime:
+            self._json = description.accessor.read(self._model).isoformat()
+        else:
+            self._json = description.accessor.read(self._model)
+
+    def visitRelationDescription(self, description: MADescription):
+        if description.reference.isContainer():
+            # referenced value is an object
+            nested_encoder = MAObjectJsonWriter(description.reference)
+        else:
+            # referenced value is a scalar value
+            nested_encoder = MAValueJsonWriter(description.reference)
+        self._json = nested_encoder.write_json(description.accessor.read(self._model))
+
+    def visitOptionDescription(self, description: MADescription):
+        if description.reference.isContainer():
+            # referenced value is an object
+            nested_encoder = MAObjectJsonWriter(description.reference)
+        else:
+            # referenced value is a scalar value
+            nested_encoder = MAValueJsonWriter(description.reference)
+        self._json = nested_encoder.write_json(description.accessor.read(self._model))
+
+
+class MAObjectJsonWriter(MAVisitor):
+    """Encodes the object described by the descriptions into JSON."""
+
+    def __init__(self, description: MAContainer):
+        if not description.isContainer():
+            raise TypeError(
+                "MAObjectJsonWriter cannot encode using scalar description. Only container values are allowed."
+                )
+        self._description = description
+        self._model = None
+        self._json = {}
+
+    def write_json(self, model) -> Dict[str, Any]:
+        self._model = model
+        self._json = {}  # Reset the json dict.
+        for elementDescription in self._description:
+            self.visit(elementDescription)
+        return self._json
+
+    def write_json_string(self, model) -> str:
+        return json.dumps(self.write_json(model))
+
+    def visitElementDescription(self, description: MADescription):
+        value_encoder = MAValueJsonWriter(description)
+        self._json[description.name] = value_encoder.write_json(self._model)
+
