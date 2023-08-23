@@ -11,8 +11,8 @@ class MAAdaptiveModelTest(TestCase):
         self.ageDesc = MANumberDescription()
 
         self.adaptiveModel = MAAdaptiveModel()        
-        self.adaptiveModel.magritteDescription += nameDesc 
-        self.adaptiveModel.magritteDescription += ageDesc
+        self.adaptiveModel.magritteDescription += self.nameDesc 
+        self.adaptiveModel.magritteDescription += self.ageDesc
         
     def test_write_read(self):
         self.adaptiveModel.writeUsing(description = self.nameDesc, value = "goodok")
@@ -26,7 +26,7 @@ class MAAdaptiveModelTest(TestCase):
         self.assertIsNone(self.adaptiveModel.readUsing(self.ageDesc))
 
     def test_access_undescribed(self):
-        notFieldOfAdaptiveModel = MAStringDescription("not_a_field")
+        notFieldOfAdaptiveModel = MAStringDescription()
 
         with self.assertRaises(MAReadError):
             self.adaptiveModel.readUsing(notFieldOfAdaptiveModel)
