@@ -1,8 +1,9 @@
 
-import types
 from copy import copy
 from sys import intern
 from MANullAccessor_class import MANullAccessor
+from MARequiredError_class import MARequiredError
+from MAValidationError_class import MAValidationError
 
 class MADescription:
 
@@ -310,3 +311,24 @@ class MADescription:
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitDescription(self)
+
+    def validateRequired(self, anObject):
+        if self.isRequired() and anObject is None:
+            raise MARequiredError(self, self.requiredErrorMessage())
+
+    def requiredErrorMessage(self):
+        return self.get(intern('requiredErrorMessage'), 'Input is required but no input given')
+
+    def tryValidation(self, tryBlock, passBlock):
+        shouldContinue = True
+        exc = None
+        try:
+            tryBlock()
+        except MAValidationError as e:
+            shouldContinue = False
+            exc = e
+        if exc is not None:
+            raise exc
+        if not shouldContinue:
+            return
+        passBlock()
