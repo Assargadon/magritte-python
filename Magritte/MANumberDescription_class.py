@@ -2,11 +2,6 @@ from MAMagnitudeDescription_class import MAMagnitudeDescription
 
 
 class MANumberDescription(MAMagnitudeDescription):
-
-    @classmethod
-    def isAbstract(cls):
-        return True
-
     #addCondition is not implemented yet
 
     # def be_integer(self):
@@ -20,3 +15,5 @@ class MANumberDescription(MAMagnitudeDescription):
     # def be_positive(self):
     #     self.addCondition(condition="positive",
     #                        label="No positive number was entered")
+
+    pass
