@@ -1,7 +1,5 @@
 
 from MAPluggableCondition_class import MAPluggableCondition
-from MAConjunctiveCondition_class import MAConjunctiveCondition
-from MANegationCondition_class import MANegationCondition
 
 
 class MACondition:
@@ -32,15 +30,6 @@ class MACondition:
     @classmethod
     def selectorArgument(cls, aSelector, anObject):
         cls.receiverSelectorArgumentsIndex(None, aSelector, [anObject], 0)
-
-    def andCondition(self, aCondition):
-        return MAConjunctiveCondition([self, aCondition])
-
-    def orCondition(self, aCondition):
-        return (self.notCondition().andCondition(aCondition.notCondition())).notCondition()
-
-    def notCondition(self):
-        return MANegationCondition(self)
 
     def numArgs(self):
         return 1
