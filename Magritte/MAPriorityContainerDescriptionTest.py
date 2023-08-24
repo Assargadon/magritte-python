@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Magritte.MAPriorityContainer_class import MAPriorityContainer
+from MAPriorityContainer_class import MAPriorityContainer
 
 
 class MAPriorityContainerTest(TestCase):
