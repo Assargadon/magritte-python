@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Magritte.MAStringDescription_class import MAStringDescription
+from MAStringDescription_class import MAStringDescription
 import MAElementDescriptionTest
 
 
