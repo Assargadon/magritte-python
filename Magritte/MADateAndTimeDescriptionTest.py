@@ -12,8 +12,6 @@ class TestProperties_of_MADateAndTimeDescription(MAMagnitudeDescriptionTest.Test
 
 class MADateAndTimeDescriptionTest(TestCase):
 
-    def setUp(self):
-        self.inst1 = MADateAndTimeDescription()
-
-    def test_kind(self):
-        self.assertEqual(self.inst1.kind, datetime)
+    def test_default_kind(self):
+        desc = MADateAndTimeDescription()
+        self.assertEqual(desc.kind, datetime)

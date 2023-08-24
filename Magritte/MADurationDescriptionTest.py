@@ -12,8 +12,6 @@ class TestProperties_of_MADurationDescription(MAMagnitudeDescriptionTest.TestPro
 
 class MADurationDescriptionTest(TestCase):
 
-    def setUp(self):
-        self.inst1 = MADurationDescription()
-
-    def test_kind(self):
-        self.assertEqual(self.inst1.kind, timedelta)
+    def test_default_kind(self):
+        desc = MADurationDescription()
+        self.assertEqual(desc.kind, timedelta)
