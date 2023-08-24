@@ -16,7 +16,7 @@ class MAStringDescriptionTest(TestCase):
     def test_isAbstract(self):
         self.assertEqual(MAStringDescription.isAbstract(), False)
 
-    def test_Kind(self):
+    def test_default_kind(self):
         self.assertEqual(self.inst.kind, str)
 
     def test_isSortable(self):
