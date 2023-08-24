@@ -15,7 +15,7 @@ class MACondition:
     @classmethod
     def receiverSelectorArgumentsIndex(cls, anObject, aSelector, anArray, anInteger):
         if anInteger not in range(0, len(anArray)):
-            self.error('Index out of bounds.')
+            raise Exception('Index out of bounds.')
         c = MAPluggableCondition()
         c.initializeReceiver(anObject)
         c.selector = aSelector
