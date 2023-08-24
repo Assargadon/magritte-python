@@ -45,6 +45,14 @@ class MATestingVisitor(MAVisitor):
         self.visited_methods.append(MAFloatDescription.__name__)
         super().visitFloatDescription(anObject)
 
+    def visitDateAndTimeDescription(self, anObject):
+        self.visited_methods.append(MADateAndTimeDescription.__name__)
+        super().visitDateAndTimeDescription(anObject)
+
+    def visitDurationDescription(self, anObject):
+        self.visited_methods.append(MADurationDescription.__name__)
+        super().visitDurationDescription(anObject)
+
     def visitOptionDescription(self, anObject):
         self.visited_methods.append(MAOptionDescription.__name__)
         super().visitOptionDescription(anObject)

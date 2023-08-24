@@ -41,6 +41,9 @@ class MAVisitor:
     def visitDirectoryDescription(self, anObject):
         self.visitFileDescription(anObject)
 
+    def visitDateAndTimeDescription(self, anObject):
+        self.visitMagnitudeDescription(anObject)
+
     def visitDurationDescription(self, anObject):
         self.visitMagnitudeDescription(anObject)
 
