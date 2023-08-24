@@ -16,4 +16,5 @@ class MANumberDescription(MAMagnitudeDescription):
     #     self.addCondition(condition="positive",
     #                        label="No positive number was entered")
 
-    pass
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitNumberDescription(self)

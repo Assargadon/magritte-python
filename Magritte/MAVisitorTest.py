@@ -33,6 +33,18 @@ class MATestingVisitor(MAVisitor):
         self.visited_methods.append(MAMagnitudeDescription.__name__)
         super().visitMagnitudeDescription(anObject)
 
+    def visitNumberDescription(self, anObject):
+        self.visited_methods.append(MANumberDescription.__name__)
+        super().visitNumberDescription(anObject)
+
+    def visitIntDescription(self, anObject):
+        self.visited_methods.append(MAIntDescription.__name__)
+        super().visitIntDescription(anObject)
+
+    def visitFloatDescription(self, anObject):
+        self.visited_methods.append(MAFloatDescription.__name__)
+        super().visitFloatDescription(anObject)
+
     def visitOptionDescription(self, anObject):
         self.visited_methods.append(MAOptionDescription.__name__)
         super().visitOptionDescription(anObject)

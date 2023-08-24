@@ -62,6 +62,12 @@ class MAVisitor:
     def visitNumberDescription(self, anObject):
         self.visitMagnitudeDescription(anObject)
 
+    def visitIntDescription(self, anObject):
+        self.visitNumberDescription(anObject)
+
+    def visitFloatDescription(self, anObject):
+        self.visitNumberDescription(anObject)
+
     def visitOptionDescription(self, anObject):
         self.visitReferenceDescription(anObject)
 
