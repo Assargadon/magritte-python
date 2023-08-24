@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Magritte.MAContainer_class import MAContainer
+from MAContainer_class import MAContainer
 from MAIdentityAccessor_class import MAIdentityAccessor
 
 
