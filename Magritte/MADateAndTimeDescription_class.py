@@ -12,3 +12,5 @@ class MADateAndTimeDescription(MAMagnitudeDescription):
     def isAbstract(cls):
         return False
 
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitDateAndTimeDescription(self)

@@ -12,3 +12,5 @@ class MAIntDescription(MANumberDescription):
     def defaultKind(cls):
         return int
 
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitIntDescription(self)

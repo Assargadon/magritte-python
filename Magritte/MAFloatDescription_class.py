@@ -12,3 +12,5 @@ class MAFloatDescription(MANumberDescription):
     def defaultKind(cls):
         return float
 
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitFloatDescription(self)
