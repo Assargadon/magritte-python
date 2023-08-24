@@ -6,6 +6,11 @@ from MAVisitor_class import MAVisitor
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
 from MAMagnitudeDescription_class import MAMagnitudeDescription
+from MANumberDescription_class import MANumberDescription
+from MAIntDescription_class import MAIntDescription
+from MAFloatDescription_class import MAFloatDescription
+from MADurationDescription_class import MADurationDescription
+from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MAOptionDescription_class import MAOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
@@ -59,6 +64,11 @@ class MAVisitorTest(TestCase):
         MADescription,
         MAElementDescription,
         MAMagnitudeDescription,
+        MANumberDescription,
+        MAIntDescription,
+        MAFloatDescription,
+        MADurationDescription,
+        MADateAndTimeDescription,
         MAOptionDescription,
         MAReferenceDescription,
         MARelationDescription,
