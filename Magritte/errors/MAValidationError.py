@@ -10,13 +10,7 @@ class MAValidationError(MAError):
         return self.message
 
     def isResumable(self):
-        while True:
-            try:
-                value = yield
-            except Exception as e:
-                print("Error:", e)
-                value = None
-            yield value
+        return True
 
     def setDescription(self, aDescription):
         self.description = aDescription
