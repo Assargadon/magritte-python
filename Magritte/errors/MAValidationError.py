@@ -8,3 +8,8 @@ class MAValidationError(MAError):
 
     def __str__(self):
         return self.message
+
+    # Just in case it will be useful somehow in future logic:
+    # unlike Smalltalk, Python has no resumable exceptions  
+    def isResumable(cls):
+        return True
