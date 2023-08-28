@@ -53,7 +53,7 @@ def main():
 
     print("\nOrganization")
     org = provider.organization
-    print(f"Name: {org.name}, Address: {org.address}, Active: {org.active}, ListOfUsers: {org.listnameofusers}, ListOfComp: {org.listnameofcomp}")
+    print(f"Name: {org.name}, Address: {org.address}, Active: {org.active}, ListOfUsers: {org.listnamesofusers}, ListOfComp: {org.listnamesofcomp}")
 
     print("\nUsers")
     for user in provider.users:

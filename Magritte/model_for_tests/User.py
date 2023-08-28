@@ -32,11 +32,14 @@ class User:
 
     @staticmethod
     def generate_fio():
-        return f'default_surname default_name default_patronymic'
+        names = ['Danila', 'Ivan', 'Vladimir']
+        surnames = ['Smirnov', 'Petrov', 'Ivanov']
+        patronymics = ['Ivanovich', 'Petrovich', 'Smirnovich']
+        return f'{random.choice(surnames)}, {random.choice(names)}, {random.choice(patronymics)}'
 
     @staticmethod
     def generate_dateofbirth():
-        return f'{random.randint(1970, 2004)}-{random.randint(1, 12)}-{random.randint(1, 30)}'
+        return datetime.datetime(random.randint(1970, 2004), random.randint(1, 12), random.randint(1, 30))
 
     @staticmethod
     def generate_gender():
@@ -49,11 +52,11 @@ class User:
 
     @staticmethod
     def generate_dateofadmission():
-        return f'{random.randint(2000, 2023)}-{random.randint(1, 12)}-{random.randint(1, 30)}'
+        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 30))
 
     @staticmethod
     def generate_dateofdeparture():
-        return f'{random.randint(2000, 2023)}-{random.randint(1, 12)}-{random.randint(1, 30)}'
+        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 30))
 
     @staticmethod
     def generate_setofaccounts():
@@ -75,11 +78,12 @@ class User:
         return new_user
 
     def work(self):
-        return ((datetime.datetime.strptime(self._dateofdeparture, '%Y-%m-%d')).timestamp() - (datetime.datetime.now()).timestamp()) > 0
+        return (self._dateofdeparture.timestamp() - (datetime.datetime.now()).timestamp()) > 0
 
     @property
     def regnum(self):
         return self._regnum
+
     @regnum.setter
     def regnum(self, new_regnum):
         self._regnum = new_regnum
@@ -94,7 +98,7 @@ class User:
 
     @property
     def dateofbirth(self):
-        return self._dateofbirth
+        return self._dateofbirth.date()
 
     @dateofbirth.setter
     def dateofbirth(self, new_dateofbirth):
@@ -118,7 +122,7 @@ class User:
 
     @property
     def dateofadmission(self):
-        return self._dateofadmission
+        return self._dateofadmission.date()
 
     @dateofadmission.setter
     def dateofadmission(self, new_dateofadmission):
@@ -126,7 +130,7 @@ class User:
 
     @property
     def dateofdeparture(self):
-        return self._dateofdeparture
+        return self._dateofdeparture.date()
 
     @dateofdeparture.setter
     def dateofdeparture(self, new_dateofdeparture):

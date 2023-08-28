@@ -87,11 +87,13 @@ class Organization:
         self._active = new_active
 
     @property
-    def listnameofusers(self):
-        names = []
-        for user in self._dictusers:
-            names.append(user.regnum)
-        return names
+    def listnamesofusers(self):
+        from User import User
+
+        def regnum(User):
+            return User.regnum
+
+        return list(map(regnum, self._dictusers))
 
     @property
     def listusers(self):
@@ -102,11 +104,13 @@ class Organization:
         self._dictusers = new_listusers
 
     @property
-    def listnameofcomp(self):
-        comps = []
-        for comp in self._dictcomp:
-            comps.append(comp.ip)
-        return comps
+    def listnamesofcomp(self):
+        from Host import Host
+
+        def ip(Host):
+            return Host.ip
+
+        return list(map(ip, self._dictcomp))
 
     @property
     def listcomp(self):
