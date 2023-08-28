@@ -88,12 +88,7 @@ class Organization:
 
     @property
     def listnamesofusers(self):
-        from User import User
-
-        def regnum(User):
-            return User.regnum
-
-        return list(map(regnum, self._dictusers))
+        return list(map(lambda u: u.regnum, self._dictusers))
 
     @property
     def listusers(self):
@@ -105,12 +100,7 @@ class Organization:
 
     @property
     def listnamesofcomp(self):
-        from Host import Host
-
-        def ip(Host):
-            return Host.ip
-
-        return list(map(ip, self._dictcomp))
+        return list(map(lambda h: h.ip, self._dictcomp))
 
     @property
     def listcomp(self):

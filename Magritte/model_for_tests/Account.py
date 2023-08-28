@@ -18,7 +18,7 @@ class Account:
         self._ntlm = ''
         for i in range(32):
             self._ntlm += hex(random.randint(0, 15))[2:]
-        self._dateofreg = (datetime.datetime.strptime(Dateofreg, '%Y-%m-%d')).timestamp()
+        self._dateofreg = Dateofreg.timestamp()
         self._time = Days
         self._port = port
 
@@ -32,7 +32,7 @@ class Account:
 
     @staticmethod
     def generate_dateofreg():
-        return f'{random.randint(2010, 2020)}-{random.randint(1, 12)}-{random.randint(1, 30)}'
+        return datetime.datetime(random.randint(2010, 2020), random.randint(1, 12), random.randint(1, 30))
 
     @staticmethod
     def generate_days():
