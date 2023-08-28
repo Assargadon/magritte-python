@@ -2,9 +2,9 @@ from MAError import MAError
 
 
 class MAValidationError(MAError):
-    def __init__(self, aDescription, aString):
+    def __init__(self, aDescription, message):
         self.description = aDescription
-        self.message = aString
+        self.message = message
 
     def __str__(self):
         return self.message
