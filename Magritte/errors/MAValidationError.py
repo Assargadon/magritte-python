@@ -9,8 +9,5 @@ class MAValidationError(MAError):
     def __str__(self):
         return self.message
 
-    def isResumable(self):
-        return True
-
     def setDescription(self, aDescription):
         self.description = aDescription
