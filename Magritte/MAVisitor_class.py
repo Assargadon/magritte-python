@@ -1,16 +1,38 @@
 
+from sys import intern
 from MAValidationError_class import MAValidationError
 from MAMultipleErrors_class import MAMultipleErrors
+
+
+class MAValidationErrorContextManager():
+    def __init__(self, anObject, onValidationError):
+        self._obj = anObject
+        self._hasOnValidationError = False
+        self._savedOnValidationError = None
+        self._newOnValidationError = onValidationError
+
+    def __enter__(self):
+        self._hasOnValidationError = hasattr(self._obj, intern('_onValidationError'))
+        if self._hasOnValidationError:
+            self._savedOnValidationError = self._obj._onValidationError
+            self._obj._onValidationError = self._newOnValidationError
+
+    def __exit__(self, type, value, traceback):
+        if self._hasOnValidationError:
+            self._obj._onValidationError = self._savedOnValidationError
 
 
 class MAVisitor:
 
     def visit(self, anObject):
         errors = []
-        try:
+        def onValidationError(exc):
+            errors.append(exc)
+            return True
+
+        with MAValidationErrorContextManager(anObject, onValidationError):
             anObject.acceptMagritte(self)
-        except MAValidationError as err:
-            errors.append(err)
+
         if len(errors) > 0:
             multipleErrors = MAMultipleErrors(errors=errors, message=anObject.label)
             raise multipleErrors
