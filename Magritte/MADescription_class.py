@@ -2,8 +2,8 @@
 from copy import copy
 from sys import intern
 from MANullAccessor_class import MANullAccessor
-from MARequiredError_class import MARequiredError
-from MAValidationError_class import MAValidationError
+from errors.MARequiredError import MARequiredError
+from errors.MAValidationError import MAValidationError
 
 class MADescription:
 
