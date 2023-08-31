@@ -1,7 +1,7 @@
 
 from sys import intern
-from MAValidationError_class import MAValidationError
-from MAMultipleErrors_class import MAMultipleErrors
+from errors.MAValidationError import MAValidationError
+from errors.MAMultipleErrors import MAMultipleErrors
 
 
 class MAValidationErrorContextManager():
