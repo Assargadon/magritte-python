@@ -12,6 +12,7 @@ class MADescription:
         return True
 
     def __init__(self, **kwargs):
+        self._onValidationError = None
         self._propertyDict = {}
         self._accessor = self.defaultAccessor()
         for key, value in kwargs.items():
@@ -292,10 +293,11 @@ class MADescription:
         try:
             tryBlock()
         except MAValidationError as e:
-            shouldContinue = False
             exc = e
-        if exc is not None:
-            raise exc
+            if self._onValidationError is not None:
+                shouldContinue = self._onValidationError(e)
+            else:
+                shouldContinue = False
         if not shouldContinue:
-            return
+            raise exc
         passBlock()
