@@ -5,6 +5,22 @@ from MAAccessor_class import MAAccessor
 from MADictAccessor_class import MADictAccessor
 from MANullAccessor_class import MANullAccessor
 from MAStringDescription_class import MAStringDescription
+from MADescription_class import MADescription
+import MAReferenceDescriptionTest
+
+
+class TestProperties_of_MARelationDescription(MAReferenceDescriptionTest.TestProperties_of_MAReferenceDescription):
+    def get_description_instance_to_test(self):
+        return MARelationDescription()
+
+    def _properties(self):
+        #{**dict1, **dict2} is actually a merge of two dictionaries
+        return {
+            **super()._properties(),
+            **{
+                'classes': set
+            }
+        }
 
 
 class MARelationDescriptionTest(TestCase):
@@ -26,4 +42,4 @@ class MARelationDescriptionTest(TestCase):
         self.assertEqual(self.inst1.commonClass(), MAAccessor)
 
     def test_reference(self):
-        self.assertIsInstance(self.inst1.reference(), MAStringDescription)
+        self.assertIsInstance(self.inst1.reference, MAStringDescription)
