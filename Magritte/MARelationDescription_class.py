@@ -38,11 +38,19 @@ class MARelationDescription(MAReferenceDescription):
                 current = current.__bases__[0]
         return current
 
+    @property
     def reference(self):
         reference = super().reference
         if reference is None:
             reference = self.commonClass().magritteTemplate.magritteDescription
         return reference
+
+    @reference.setter
+    def reference(self, aDescription):
+        self._reference = aDescription
+
+    def _reference(self, aDescription):
+        super().reference(aDescription)
 
 
     def acceptMagritte(self, aVisitor):

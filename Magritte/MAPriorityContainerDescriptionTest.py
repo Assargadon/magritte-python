@@ -1,5 +1,12 @@
 from unittest import TestCase
 from Magritte.MAPriorityContainer_class import MAPriorityContainer
+import MADescriptionTest
+
+
+class TestProperties_of_MAPriorityContainerDescription(MADescriptionTest.TestProperties_of_MADescription):
+    def get_description_instance_to_test(self):
+        return MAPriorityContainer()
+
 
 
 class MAPriorityContainerTest(TestCase):
