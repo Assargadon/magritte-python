@@ -19,6 +19,9 @@ class MANullAccessor(MAAccessor):
     def uuid(self, anObject):
         self._uuid = anObject
 
+    def __hash__(self):
+        return hash(tuple(self._uuid))
+
     def __eq__(self, other):
         return self._uuid == other._uuid
 
