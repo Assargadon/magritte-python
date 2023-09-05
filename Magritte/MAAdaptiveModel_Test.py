@@ -2,6 +2,8 @@ from unittest import TestCase
 from MAAdaptiveModel_class import MAAdaptiveModel
 from MAStringDescription_class import MAStringDescription
 from MANumberDescription_class import MANumberDescription
+from errors.MAReadError import MAReadError
+from errors.MAWriteError import MAWriteError
 
 
 class MAAdaptiveModelTest(TestCase):
