@@ -6,11 +6,14 @@ class MAElementDescription(MADescription):
 
     @property
     def default(self):
-        return self.get(intern('default'), self.defaultDefault())
+        try:
+            return self._default
+        except AttributeError:
+            return self.defaultDefault()
 
     @default.setter
     def default(self, anObject):
-        self[intern('default')] = anObject
+        self._default = anObject
 
 
     def acceptMagritte(self, aVisitor):

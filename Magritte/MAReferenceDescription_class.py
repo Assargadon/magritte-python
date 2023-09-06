@@ -22,11 +22,14 @@ class MAReferenceDescription(MAElementDescription):
 
     @property
     def initializer(self):
-        return self.get(intern('initializer'), self)
+        try:
+            return self._initializer
+        except AttributeError:
+            return self
 
     @initializer.setter
     def initializer(self, aValuable):
-        self[intern('initializer')] = aValuable
+        self._initializer = aValuable
 
     @property
     def reference(self):

@@ -34,11 +34,14 @@ class MAOptionDescription(MAReferenceDescription):
 
     @property
     def extensible(self):
-        return self.get(intern('extensible'), self.defaultExtensible())
+        try:
+            return self._extensible
+        except AttributeError:
+            return self.defaultExtensible()
 
     @extensible.setter
     def extensible(self, aBoolean):
-        self[intern('extensible')] = aBoolean
+        self._extensible = aBoolean
 
     def beExtensible(self):
         self.extensible = True
@@ -57,11 +60,14 @@ class MAOptionDescription(MAReferenceDescription):
 
     @property
     def sorted(self):
-        return self.get(intern('sorted'), self.defaultExtensible())
+        try:
+            return self._sorted
+        except AttributeError:
+            return self.defaultSorted()
 
     @sorted.setter
     def sorted(self, aBoolean):
-        self[intern('sorted')] = aBoolean
+        self._sorted = aBoolean
 
     def beSorted(self):
         self.sorted = True
