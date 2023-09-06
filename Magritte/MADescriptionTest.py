@@ -181,7 +181,8 @@ class MADescriptionTest(TestCase):
     def test_get(self):
         self.desc1.id = 13
         self.assertEqual(self.desc1.id, 13, "`.get` method failed to retrieve assigned value for 'id'")
-        #self.assertEqual(self.desc2.get('id', -7), -7, "`.get` method did not return the default value when 'id' was not found")
+        with self.assertRaises(AttributeError):
+            a = self.desc2.id
 
 
 
