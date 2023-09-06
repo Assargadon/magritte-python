@@ -6,6 +6,9 @@ class MADictAccessor(MAAccessor):
     def __init__(self, aSymbol):
         self._key = aSymbol
 
+    def __eq__(self, other):
+        return self._key == other._key
+
     def __hash__(self):
         return hash(self._key)
 
