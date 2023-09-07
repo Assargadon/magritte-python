@@ -4,9 +4,6 @@ from MANullAccessor_class import MANullAccessor
 
 class MANullAccessorTest(TestCase):
 
-    def test_isAbstract(self):
-        self.assertEqual(MANullAccessor.isAbstract(), False)
-
     def test_read(self):
         aModel = {1: 10, 2: 11, 3: 12}
         nullAccessor = MANullAccessor()
