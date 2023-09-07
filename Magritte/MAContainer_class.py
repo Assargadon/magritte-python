@@ -18,6 +18,7 @@ class MAContainer(MADescription):
 
     def __iadd__(self, anItem):
         self.append(anItem)
+        return self
 
     def __contains__(self, item):
         return item in self._children
