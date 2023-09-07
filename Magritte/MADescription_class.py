@@ -23,10 +23,10 @@ class MADescription:
             #        attr(self)
 
     def __eq__(self, other):
-        return self._propertyDict == other._propertyDict and self.accessor == other.accessor
+        return type(self) == type(other) and self.accessor == other.accessor
 
     def __hash__(self):
-        h1 = hash(tuple(self._propertyDict.keys()))
+        h1 = hash(type(self))
         h2 = hash(self.accessor)
         return h1 ^ h2
 
