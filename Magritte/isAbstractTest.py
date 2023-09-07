@@ -36,23 +36,24 @@ class AbstractTest(TestCase):
 
     ]
 
-    descriptions_abstract = [
+    forcedAbstract = [
         MADescription,
         MAElementDescription,
         MAMagnitudeDescription,
         MANumberDescription,
-        MAOptionDescription,
-        MAReferenceDescription,
-        MARelationDescription
-    ]
-
-    descriptions_notAbstract = [
         MAIntDescription,
         MAFloatDescription,
         MADurationDescription,
         MADateAndTimeDescription,
+        MAReferenceDescription,
         MAStringDescription
     ]
+
+    forcedNonAbstract = [
+        MAOptionDescription,
+        MARelationDescription
+    ]
+
 
     def setUp(self):
         # Проверка, что не появились новые классы дескрипторов. При появлении - выдаст assertion.
@@ -66,10 +67,11 @@ class AbstractTest(TestCase):
             if match is None:
                 self.assertTrue(False, f'{file_name} found. Add the class to one of then descriptors_to_test or descriptors_to_ignore lists')
 
-    def test_abstract_descriptors(self):
-        for desc in self.descriptions_abstract:
-            self.assertTrue(desc.isAbstract())
+    def has_subclass(self, aClass):
+        return len(aClass.__subclasses__()) > 0
 
-    def test_notAbstract_descriptors_(self):
-        for desc in self.descriptions_notAbstract:
-            self.assertFalse(desc.isAbstract())
+    def test_abstract_descriptors(self):
+        for desc in self.descriptors_to_test:
+            if desc in self.forcedAbstract:
+                self.assertEqual(self.has_subclass(desc), desc.isAbstract())
+
