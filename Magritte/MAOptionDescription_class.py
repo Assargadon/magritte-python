@@ -78,16 +78,9 @@ class MAOptionDescription(MAReferenceDescription):
     def isSorted(self):
         return self.sorted
 
-    @property
-    def undefined(self):
-        return super().undefined
 
-    @undefined.setter
-    def undefined(self, aStr):
-        self._undefined(aStr)
-
-    def _undefined(self, aStr):
-        super()._undefined(aStr)
+    def _undefined_set(self, aStr):
+        super()._undefined_set(aStr)
         if self.reference is not None:
             self.reference.undefined = aStr
 

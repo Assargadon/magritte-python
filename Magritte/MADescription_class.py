@@ -291,10 +291,10 @@ class MADescription:
 
     @undefined.setter
     def undefined(self, aStr):
-        self._undefined = aStr
+        self._undefined_set(aStr) #important to be able to override setter in subclasses
 
-    def _undefined(self, aStr):
-        self[intern('undefined')] = aStr
+    def _undefined_set(self, aStr):
+        self._undefined = aStr
 
     @classmethod
     def defaultUndefined(cls):
