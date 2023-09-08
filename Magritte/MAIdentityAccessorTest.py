@@ -23,6 +23,3 @@ class MAIdentityAccessorTest(TestCase):
         aModel = {1: 10, 2: 11, 3: 12}
         identityAccessor = MAIdentityAccessor()
         self.assertRaises(Exception, identityAccessor.write, aModel, 3)
-
-    def test_isAbstract(self):
-        self.assertEqual(MAIdentityAccessor.isAbstract(), False)

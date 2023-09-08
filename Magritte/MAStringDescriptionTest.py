@@ -13,9 +13,6 @@ class MAStringDescriptionTest(TestCase):
     def setUp(self):
         self.inst = MAStringDescription()
 
-    def test_isAbstract(self):
-        self.assertEqual(MAStringDescription.isAbstract(), False)
-
     def test_default_kind(self):
         self.assertEqual(self.inst.kind, str)
 

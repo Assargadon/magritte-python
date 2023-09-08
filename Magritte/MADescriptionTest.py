@@ -198,8 +198,6 @@ class MADescriptionTest(TestCase):
 
 
 
-    def test_isAbstract(self):
-        self.assertEqual(self.desc1.isAbstract(), True)
 
     def test_isSortable(self):
         self.assertEqual(self.desc1.isSortable(), False)

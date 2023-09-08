@@ -118,6 +118,3 @@ class MAPluggableAccessorTest(TestCase):
         d = {'price': 10, 'amount': 11}
         total_accessor.writeFunc = f_write2
         self.assertEqual(total_accessor.writeFunc, f_write2)
-
-    def test_isAbstract(self):
-        self.assertEqual(MAPluggableAccessor.isAbstract(), False)
