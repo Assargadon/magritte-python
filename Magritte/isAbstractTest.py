@@ -13,7 +13,10 @@ from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MAOptionDescription_class import MAOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
+from MASingleOptionDescription_class import MASingleOptionDescription
 from MAStringDescription_class import MAStringDescription
+from MAToManyRelationDescription_class import MAToManyRelationDescription
+from MAToOneRelationDescription_class import MAToOneRelationDescription
 
 class AbstractTest(TestCase):
 
@@ -29,29 +32,26 @@ class AbstractTest(TestCase):
         MAOptionDescription,
         MAReferenceDescription,
         MARelationDescription,
-        MAStringDescription
+        MASingleOptionDescription,
+        MAStringDescription,
+        MAToManyRelationDescription,
+        MAToOneRelationDescription
     ]  # Add other classes here
 
     descriptors_to_ignore = [
 
     ]
 
+    # абстрактные классы у которых не реализованы потомки, они проверяются насильно
     forcedAbstract = [
-        MADescription,
-        MAElementDescription,
-        MAMagnitudeDescription,
-        MANumberDescription,
-        MAIntDescription,
-        MAFloatDescription,
-        MADurationDescription,
-        MADateAndTimeDescription,
-        MAReferenceDescription,
-        MAStringDescription
+        MASingleOptionDescription,
+        MAToManyRelationDescription,
+        MAToOneRelationDescription
     ]
 
+    # неабстрактные классы, они проверяются насильно
     forcedNonAbstract = [
-        MAOptionDescription,
-        MARelationDescription
+
     ]
 
 
@@ -72,6 +72,11 @@ class AbstractTest(TestCase):
 
     def test_abstract_descriptors(self):
         for desc in self.descriptors_to_test:
-            if desc in self.forcedAbstract:
+            if desc not in self.forcedAbstract or self.forcedNonAbstract:
                 self.assertEqual(self.has_subclass(desc), desc.isAbstract())
+            elif desc in self.forcedAbstract:
+                self.assertTrue(desc.isAbstract())
+            elif desc in self.forcedNonAbstract:
+                self.assertFalse(desc.isAbstract())
+
 
