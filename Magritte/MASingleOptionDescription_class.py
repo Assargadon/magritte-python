@@ -2,4 +2,6 @@
 from MAOptionDescription_class import MAOptionDescription
 
 class MASingleOptionDescription(MAOptionDescription):
-    pass
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitSingleOptionDescription(self)

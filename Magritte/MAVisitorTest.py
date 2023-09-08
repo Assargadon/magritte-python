@@ -12,8 +12,11 @@ from MAFloatDescription_class import MAFloatDescription
 from MADurationDescription_class import MADurationDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MAOptionDescription_class import MAOptionDescription
+from MASingleOptionDescription_class import MASingleOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
+from MAToOneRelationDescription_class import MAToOneRelationDescription
+from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAStringDescription_class import MAStringDescription
 
 
@@ -53,17 +56,29 @@ class MATestingVisitor(MAVisitor):
         self.visited_methods.append(MADurationDescription.__name__)
         super().visitDurationDescription(anObject)
 
-    def visitOptionDescription(self, anObject):
-        self.visited_methods.append(MAOptionDescription.__name__)
-        super().visitOptionDescription(anObject)
-
     def visitReferenceDescription(self, anObject):
         self.visited_methods.append(MAReferenceDescription.__name__)
         super().visitReferenceDescription(anObject)
 
+    def visitOptionDescription(self, anObject):
+        self.visited_methods.append(MAOptionDescription.__name__)
+        super().visitOptionDescription(anObject)
+
+    def visitSingleOptionDescription(self, anObject):
+        self.visited_methods.append(MASingleOptionDescription.__name__)
+        super().visitSingleOptionDescription(anObject)
+
     def visitRelationDescription(self, anObject):
         self.visited_methods.append(MARelationDescription.__name__)
         super().visitRelationDescription(anObject)
+
+    def visitToOneRelationDescription(self, anObject):
+        self.visited_methods.append(MAToOneRelationDescription.__name__)
+        super().visitToOneRelationDescription(anObject)
+
+    def visitToManyRelationDescription(self, anObject):
+        self.visited_methods.append(MAToManyRelationDescription.__name__)
+        super().visitToManyRelationDescription(anObject)
 
     def visitStringDescription(self, anObject):
         self.visited_methods.append(MAStringDescription.__name__)
@@ -90,8 +105,11 @@ class MAVisitorTest(TestCase):
         MADurationDescription,
         MADateAndTimeDescription,
         MAOptionDescription,
+        MASingleOptionDescription,
         MAReferenceDescription,
         MARelationDescription,
+        MAToOneRelationDescription,
+        MAToManyRelationDescription,
         MAStringDescription
     ]  # Add other classes here
 
