@@ -15,12 +15,14 @@ class TestProperties_of_MARelationDescription(MAReferenceDescriptionTest.TestPro
 
     def _properties(self):
         #{**dict1, **dict2} is actually a merge of two dictionaries
-        return {
+        myProps = {
             **super()._properties(),
             **{
                 'classes': set
             }
         }
+        myProps.pop("reference") #reference is no None-accepting in sthis class and subclasses
+        return myProps 
 
 
 class MARelationDescriptionTest(TestCase):
