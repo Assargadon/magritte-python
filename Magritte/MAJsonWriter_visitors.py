@@ -85,5 +85,12 @@ class MAObjectJsonWriter(MAVisitor):
 
     def visitElementDescription(self, description: MADescription):
         value_encoder = MAValueJsonWriter(description)
-        self._json[description.name] = value_encoder.write_json(self._model)
+        name = description.name
+        if name is None:
+            raise ValueError("MAObjectJsonWriter requires names for all the descriptions to construct valid Json. Found None value.")
+        if not isinstance(name, str):
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to be str to construct valid Json. Found: {type(name)}")
+        if name in self._json:
+            raise ValueError(f"MAObjectJsonWriter requires distinct names for all the descriptions to construct valid Json. Found duplicate: {name}.")
+        self._json[name] = value_encoder.write_json(self._model)
 
