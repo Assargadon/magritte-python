@@ -29,9 +29,8 @@ class MARelationDescription(MAReferenceDescription):
 
     def commonClass(self):
         if len(self._classes) == 0:
-            descriptionContainer = MAPriorityContainer()
-            descriptionContainer.label = self.label
-            return descriptionContainer
+            return None
+
         current = next(iter(self.classes))
         for item in self.classes:
             while not issubclass(item, current):
@@ -42,8 +41,15 @@ class MARelationDescription(MAReferenceDescription):
     def reference(self):
         reference = super().reference
         if reference is None:
-            reference = self.commonClass().magritteTemplate.magritteDescription
-        return reference
+            commonClass = self.commonClass()
+            if commonClass is None:
+                descriptionContainer = self.defaultReference()
+                descriptionContainer.label = self.label
+                return descriptionContainer
+            else:
+                return commonClass.magritteTemplate.magritteDescription
+        else:
+            return reference
 
     @reference.setter
     def reference(self, aDescription):
@@ -52,6 +58,9 @@ class MARelationDescription(MAReferenceDescription):
     def _reference(self, aDescription):
         super().reference(aDescription)
 
+    @classmethod
+    def defaultReference(cls):
+        return MAPriorityContainer()
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitRelationDescription(self)
