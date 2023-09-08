@@ -1,11 +1,10 @@
 import json
-from datetime import datetime
 from typing import Dict, Any
 
 from MAVisitor_class import MAVisitor
 from MAContainer_class import MAContainer
 from MADescription_class import MADescription
-
+from MAReferenceDescription_class import MAReferenceDescription
 
 class MAValueJsonWriter(MAVisitor):
     """Encodes the value described by the descriptions into JSON."""
@@ -13,11 +12,11 @@ class MAValueJsonWriter(MAVisitor):
     def __init__(self, description: MADescription):
         if description.isContainer():
             raise TypeError(
-                "MAValueJsonWriter cannot encode using container description. Only scalar values are allowed."
-                )
+                "MAValueJsonWriter cannot encode using container description. Only scalar values are allowed. Use MAObjectJsonWriter instead."
+            )
         self._description = description
         self._model = None
-        self._json = self._description.undefinedValue
+        self._json = None
 
     def write_json(self, model) -> Any:
         self._model = model
@@ -61,11 +60,11 @@ class MAObjectJsonWriter(MAVisitor):
     def __init__(self, description: MAContainer):
         if not description.isContainer():
             raise TypeError(
-                "MAObjectJsonWriter cannot encode using scalar description. Only container values are allowed."
-                )
+                "MAObjectJsonWriter cannot encode using scalar description. Only container values are allowed. Use MAValueJsonWriter instead."
+            )
         self._description = description
         self._model = None
-        self._json = {}
+        self._json = None
 
     def write_json(self, model) -> Dict[str, Any]:
         self._model = model
