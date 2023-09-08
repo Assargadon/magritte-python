@@ -1,6 +1,6 @@
 from unittest import TestCase
 from MAContainer_class import MAContainer
-from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 
 class MAContainerTest(TestCase):

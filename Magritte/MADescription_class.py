@@ -1,6 +1,6 @@
 from copy import copy
 from sys import intern
-from Magritte.accessors.MANullAccessor_class import MANullAccessor
+from accessors.MANullAccessor_class import MANullAccessor
 
 class MADescription:
 

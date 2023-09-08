@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
+from . MAAttrAccessor_class import MAAttrAccessor
 
 
 class Person:

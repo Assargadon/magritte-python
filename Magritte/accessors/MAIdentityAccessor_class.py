@@ -1,4 +1,4 @@
-from Magritte.accessors.MAAccessor_class import MAAccessor
+from . MAAccessor_class import MAAccessor
 
 
 class MAIdentityAccessor(MAAccessor):

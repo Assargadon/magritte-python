@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from . MAIdentityAccessor_class import MAIdentityAccessor
 
 class MAIdentityAccessorTest(TestCase):
 
