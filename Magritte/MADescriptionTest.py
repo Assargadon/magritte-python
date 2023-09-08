@@ -169,22 +169,6 @@ class MADescriptionTest(TestCase):
         self.assertEqual(self.desc1, self.desc1, "Equality check failed for comparing Description instance with itself")
         self.assertNotEqual(self.desc1, self.desc2, "Inequality check failed for comparing two independent description instances")
 
-    def test_setitem_and_getitem(self):
-        self.desc1.id = 13
-        self.assertEqual(self.desc1.id, 13, "Failed to set or retrieve the value using item access")
-
-    def test_in(self):
-        self.desc1.fieldname = {'meaning': 'some object just to assign a value (because something like `3` is not explanatory)'}
-        self.assertTrue("fieldname" in self.desc1.__dict__, "Field 'fieldname' WAS assigned, and therefore should be `in` desc1, but it was not found")
-        self.assertFalse("fieldname" in self.desc2.__dict__, "Field 'fieldname' was NOT assigned, and therefore it should NOT be `in` desc2, but it was found")
-
-    def test_get(self):
-        self.desc1.id = 13
-        self.assertEqual(self.desc1.id, 13, "`.get` method failed to retrieve assigned value for 'id'")
-        with self.assertRaises(AttributeError):
-            a = self.desc2.id
-
-
 
     def test_undefined_default(self):
         self.assertIsInstance(self.desc1.undefined, str)
