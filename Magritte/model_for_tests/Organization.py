@@ -1,7 +1,9 @@
+
+from .. MAModel_class import MAModel
 import random
 
 
-class Organization:
+class Organization(MAModel):
 
     def __init__(self, Name, Address, Active, ListUsers, ListComp):
         from User import User

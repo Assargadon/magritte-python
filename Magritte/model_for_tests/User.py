@@ -1,9 +1,11 @@
+
+from .. MAModel_class import MAModel
 from Account import Account
 import datetime
 import random
 
 
-class User:
+class User(MAModel):
 
     def __init__(self, RegNum, FIO, DateOfBirth, Gender, organization,
                  DateOfAdmission, DateOfDeparture, SetOfAccounts):

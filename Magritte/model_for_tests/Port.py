@@ -1,6 +1,8 @@
+
+from .. MAModel_class import MAModel
 import random
 
-class Port:
+class Port(MAModel):
     COMMON_PORTS = [20,  # FTP
                    22,  # SSH
                    25,  # SMTP
