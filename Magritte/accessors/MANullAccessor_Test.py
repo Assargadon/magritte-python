@@ -1,5 +1,5 @@
 from unittest import TestCase
-from MANullAccessor_class import MANullAccessor
+from Magritte.accessors.MANullAccessor_class import MANullAccessor
 
 
 class MANullAccessorTest(TestCase):
