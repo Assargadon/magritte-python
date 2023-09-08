@@ -85,9 +85,6 @@ class MAContainer(MADescription):
     def asContainer(self):
         return self
 
-    def getitem(self, index, default_value):
-        return self.children[index] if index < len(self.children) else default_value
-
 
     def allSatisty(self, aBlock):
         return all(aBlock(item) for _, item in enumerate(self.children))
