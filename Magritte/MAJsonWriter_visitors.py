@@ -42,7 +42,7 @@ class MAValueJsonWriter(MAVisitor):
         else:
             self._json = description.accessor.read(self._model)
 
-    def visitRelationDescription(self, description: MADescription):
+    def visitReferenceDescription(self, description: MAReferenceDescription):
         if description.reference.isContainer():
             # referenced value is an object
             nested_encoder = MAObjectJsonWriter(description.reference)
@@ -51,14 +51,6 @@ class MAValueJsonWriter(MAVisitor):
             nested_encoder = MAValueJsonWriter(description.reference)
         self._json = nested_encoder.write_json(description.accessor.read(self._model))
 
-    def visitOptionDescription(self, description: MADescription):
-        if description.reference.isContainer():
-            # referenced value is an object
-            nested_encoder = MAObjectJsonWriter(description.reference)
-        else:
-            # referenced value is a scalar value
-            nested_encoder = MAValueJsonWriter(description.reference)
-        self._json = nested_encoder.write_json(description.accessor.read(self._model))
 
 
 class MAObjectJsonWriter(MAVisitor):
