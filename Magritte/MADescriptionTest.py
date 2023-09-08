@@ -2,6 +2,7 @@ from unittest import TestCase
 from MADescription_class import MADescription
 from MANullAccessor_class import MANullAccessor
 from MAAccessor_class import MAAccessor
+from MAContainer_class import MAContainer
 
 class TestProperties_of_MADescription(TestCase):
 
@@ -14,8 +15,16 @@ class TestProperties_of_MADescription(TestCase):
             return True
         elif prop_type == int:
             return 42
+        elif prop_type == list:
+            return [1, 2, 3]
+        elif prop_type == set:
+            return {1, 2, 3}
         elif prop_type == MAAccessor:
             return MAAccessor()
+        elif prop_type == MADescription:
+            return MADescription()
+        elif prop_type == MAContainer:
+            return MAContainer()
         elif prop_type is None:
             return {'meaning': 'object to read-write when no type check expected', 'true_meaning': 42}
         else:

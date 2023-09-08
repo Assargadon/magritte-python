@@ -293,6 +293,9 @@ class MADescription:
     def undefined(self, aStr):
         self._undefined = aStr
 
+    def _undefined(self, aStr):
+        self[intern('undefined')] = aStr
+
     @classmethod
     def defaultUndefined(cls):
         return intern('')
