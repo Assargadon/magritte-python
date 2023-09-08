@@ -35,12 +35,12 @@ class MAValueJsonWriter(MAVisitor):
     def visitElementDescription(self, description: MADescription):
         self._json = description.accessor.read(self._model)
 
+    def visitDateAndTimeDescription(self, description: MADescription):
+        self._json = description.accessor.read(self._model).isoformat()
+
     def visitMagnitudeDescription(self, description: MADescription):
-        # !TODO Separate visit methods for each type of magnitude when they are defined.
-        if type(description.accessor.read(self._model)) == datetime:
-            self._json = description.accessor.read(self._model).isoformat()
-        else:
-            self._json = description.accessor.read(self._model)
+        # !TODO Override exact visit methods like visitDateAndTimeDescription for each type of magnitude when they are defined.
+        self._json = description.accessor.read(self._model)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
         if description.reference.isContainer():
