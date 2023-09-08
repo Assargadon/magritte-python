@@ -72,11 +72,11 @@ class AbstractTest(TestCase):
 
     def test_abstract_descriptors(self):
         for desc in self.descriptors_to_test:
-            if desc not in self.forcedAbstract or self.forcedNonAbstract:
-                self.assertEqual(self.has_subclass(desc), desc.isAbstract())
-            elif desc in self.forcedAbstract:
+            if desc in self.forcedAbstract:
                 self.assertTrue(desc.isAbstract())
             elif desc in self.forcedNonAbstract:
                 self.assertFalse(desc.isAbstract())
+            else:
+                self.assertEqual(self.has_subclass(desc), desc.isAbstract())
 
 
