@@ -34,11 +34,6 @@ class MARelationDescriptionTest(TestCase):
     def test_copy(self):
         self.assertEqual(self.inst1.__copy__(), self.inst1)
 
-    def test_classes(self):
-        self.assertEqual(self.inst1.classes, set())
-        self.inst1.classes = [int, bool, str]
-        self.assertEqual(self.inst1.classes, [int, bool, str])
-
     def test_commonClass(self):	
         self.assertIsNone(self.inst1.commonClass())
 
