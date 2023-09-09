@@ -28,9 +28,5 @@ class MAReferenceDescription(MAElementDescription):
     def reference(self, aDescription):
         self._reference = aDescription
 
-    def _reference(self, aDescription):
-        self._reference = aDescription
-
-
     def acceptMagritte(self, aVisitor):
         aVisitor.visitReferenceDescription(self)
