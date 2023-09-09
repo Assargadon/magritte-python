@@ -14,7 +14,6 @@ class TestProperties_of_MAReferenceDescription(MAStringDescriptionTest.TestPrope
         return {
             **super()._properties(),
             **{
-                'initializer': MADescription,
                 'reference': MADescription
             }
         }
@@ -28,11 +27,6 @@ class MAReferenceDescriptionTest(TestCase):
     def test_copy(self):
         copy_test = self.inst1.__copy__()
         self.assertEqual(copy_test, self.inst1)
-
-    def test_initializer(self):
-        self.assertEqual(self.inst1.initializer, self.inst1)
-        self.inst1.initializer = 123
-        self.assertEqual(self.inst1.initializer, 123)
 
     def test_reference(self):
         self.assertIsInstance(self.inst1.reference, MAStringDescription)

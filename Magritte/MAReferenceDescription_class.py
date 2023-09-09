@@ -21,17 +21,6 @@ class MAReferenceDescription(MAElementDescription):
         return MAStringDescription()
 
     @property
-    def initializer(self):
-        try:
-            return self._initializer
-        except AttributeError:
-            return self
-
-    @initializer.setter
-    def initializer(self, aValuable):
-        self._initializer = aValuable
-
-    @property
     def reference(self):
         return self._reference
 
