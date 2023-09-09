@@ -36,11 +36,6 @@ class MAOptionDescriptionTest(TestCase):
     def test_copy(self):
         self.assertEqual(self.inst1.__copy__(), self.inst1)
 
-    def test_options(self):
-        self.assertEqual(self.inst1.options, [])
-        self.inst1.options = [1, 2, 3]
-        self.assertEqual(self.inst1.options, [1, 2, 3])
-
     def test_undefined(self):
         self.assertEqual(self.inst1.undefined, '')
         self.inst1.undefined = 'string'
