@@ -11,11 +11,9 @@ class TestProperties_of_MAOptionDescription(MAReferenceDescriptionTest.TestPrope
         #{**dict1, **dict2} is actually a merge of two dictionaries
         return {
             **super()._properties(),
-            **{
-                'extensible': bool,
-                'sorted': bool,
-                'options': list
-            }
+            'extensible': bool,
+            'sorted': bool,
+            'options': list
         }
 
     def _flag_properties(self):

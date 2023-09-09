@@ -17,9 +17,7 @@ class TestProperties_of_MARelationDescription(MAReferenceDescriptionTest.TestPro
         #{**dict1, **dict2} is actually a merge of two dictionaries
         return {
             **super()._properties(),
-            **{
-                'classes': set
-            }
+            'classes': set
         }
 
 
