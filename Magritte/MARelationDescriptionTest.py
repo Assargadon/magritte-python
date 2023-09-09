@@ -6,6 +6,7 @@ from MADictAccessor_class import MADictAccessor
 from MANullAccessor_class import MANullAccessor
 from MAStringDescription_class import MAStringDescription
 from MADescription_class import MADescription
+from MAContainer_class import MAContainer
 import MAReferenceDescriptionTest
 
 
@@ -29,15 +30,11 @@ class MARelationDescriptionTest(TestCase):
     def test_copy(self):
         self.assertEqual(self.inst1.__copy__(), self.inst1)
 
-    def test_classes(self):
-        self.assertEqual(self.inst1.classes, set())
-        self.inst1.classes = [int, bool, str]
-        self.assertEqual(self.inst1.classes, [int, bool, str])
+    def test_commonClass(self):	
+        self.assertIsNone(self.inst1.commonClass())
 
-    def test_commonClass(self):
-        self.assertIsInstance(self.inst1.commonClass(), MAPriorityContainer)
         self.inst1.classes = [MADictAccessor, MAAccessor, MANullAccessor]
         self.assertEqual(self.inst1.commonClass(), MAAccessor)
 
     def test_reference(self):
-        self.assertIsInstance(self.inst1.reference, MAStringDescription)
+        self.assertIsInstance(self.inst1.reference, MAContainer)
