@@ -1,6 +1,6 @@
 from unittest import TestCase
 from MASingleOptionDescription_class import MASingleOptionDescription
-from MAAccessor_class import MAAccessor
+from accessors.MAAccessor_class import MAAccessor
 import MAOptionDescriptionTest
 
 
