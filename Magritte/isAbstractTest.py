@@ -44,14 +44,10 @@ class AbstractTest(TestCase):
 
     # абстрактные классы у которых не реализованы потомки, они проверяются насильно
     forcedAbstract = [
-        MASingleOptionDescription,
-        MAToManyRelationDescription,
-        MAToOneRelationDescription
     ]
 
     # неабстрактные классы, они проверяются насильно
     forcedNonAbstract = [
-
     ]
 
 
