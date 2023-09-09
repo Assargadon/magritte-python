@@ -1,7 +1,7 @@
 
 from copy import copy
 from MADescription_class import MADescription
-from MAIdentityAccessor_class import MAIdentityAccessor
+from accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 class MAContainer(MADescription):
 

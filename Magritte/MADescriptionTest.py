@@ -1,7 +1,6 @@
 from unittest import TestCase
 from MADescription_class import MADescription
-from MANullAccessor_class import MANullAccessor
-from MAAccessor_class import MAAccessor
+from accessors.MAAccessor_class import MAAccessor
 from MAContainer_class import MAContainer
 
 class TestProperties_of_MADescription(TestCase):
