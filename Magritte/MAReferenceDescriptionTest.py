@@ -9,15 +9,6 @@ class TestProperties_of_MAReferenceDescription(MAElementDescriptionTest.TestProp
     def get_description_instance_to_test(self):
         return MAReferenceDescription()
 
-    def _properties(self):
-        #{**dict1, **dict2} is actually a merge of two dictionaries
-        return {
-            **super()._properties(),
-            **{
-                'reference': MADescription
-            }
-        }
-
 
 class MAReferenceDescriptionTest(TestCase):
 
@@ -28,3 +19,5 @@ class MAReferenceDescriptionTest(TestCase):
         copy_test = self.inst1.__copy__()
         self.assertEqual(copy_test, self.inst1)
 
+    def test_reference(self):
+        self.assertIsInstance(self.inst1.reference, MADescription)

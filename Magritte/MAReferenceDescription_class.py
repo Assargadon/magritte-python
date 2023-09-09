@@ -22,7 +22,13 @@ class MAReferenceDescription(MAElementDescription):
 
     @property
     def reference(self):
-        return self._reference
+        try:
+            if self._reference is None:
+                return self.defaultReference()
+            else:
+                return self._reference
+        except AttributeError:
+            return self.defaultReference()
 
     @reference.setter
     def reference(self, aDescription):
