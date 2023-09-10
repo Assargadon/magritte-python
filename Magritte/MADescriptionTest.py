@@ -54,6 +54,7 @@ class TestProperties_of_MADescription(TestCase):
             'group': str,
             'label': str,
             'priority': int,
+            'conditions': list,
             'visible': bool
         }
 
@@ -190,7 +191,15 @@ class MADescriptionTest(TestCase):
         self.assertIsInstance(self.desc1.undefined, str, "After assigning None to .undefined it should be defaultUndefined, not None")
 
 
-
-
+    def test_addCondition(self):
+        self.assertEqual(len(self.desc1.conditions), 0)
+        self.desc1.addCondition((lambda model: True), "always true")
+        self.assertEqual(len(self.desc1.conditions), 1)
+        self.desc1.addCondition((lambda model: False)) # label is ommited - None expected to be added as label
+        self.assertEqual(len(self.desc1.conditions), 2)
+        
+        self.assertEqual(self.desc1.conditions[0][1], "always true")
+        self.assertIsNone(self.desc1.conditions[1][1])
+        
     def test_isSortable(self):
         self.assertEqual(self.desc1.isSortable(), False)

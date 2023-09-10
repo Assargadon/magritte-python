@@ -273,7 +273,24 @@ class MADescription:
     def beHidden(self):
         self.visible = False
 
+    @property
+    def conditions(self):
+        try:
+            return self._conditions
+        except AttributeError:
+            self._conditions = self.defaultConditions()
+            return self._conditions
 
+    @conditions.setter
+    def conditions(self, conditionsTuplesList):
+        self._conditions = conditionsTuplesList
+
+    @classmethod
+    def defaultConditions(cls):
+        return []
+        
+    def addCondition(self, condition, label=None):
+        self.conditions.append((condition, label))
 
     @property
     def undefined(self):
