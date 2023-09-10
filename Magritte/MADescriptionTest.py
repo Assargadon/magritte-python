@@ -200,6 +200,14 @@ class MADescriptionTest(TestCase):
         
         self.assertEqual(self.desc1.conditions[0][1], "always true")
         self.assertIsNone(self.desc1.conditions[1][1])
+
+    def test_validateConditions(self):
+        self.assertEqual(len(self.desc1._validateConditions("test model")), 0, "Freshly initialized description with no conditions should return zero errors on `_validateConditions`")
+
+        self.desc1.addCondition(lambda model: False, "Condition always fails")
+        self.desc1.addCondition(lambda model: True, "Condition always met")
+        self.assertEqual(len(self.desc1._validateConditions("test model")), 1, "One unmet condition is here")
+        self.assertEqual(self.desc1._validateConditions("test model")[0].message, "Condition always fails")
         
     def test_isSortable(self):
         self.assertEqual(self.desc1.isSortable(), False)

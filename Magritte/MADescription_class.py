@@ -1,6 +1,8 @@
 from copy import copy
 from sys import intern
 from accessors.MANullAccessor_class import MANullAccessor
+from errors.MAValidationError import MAValidationError
+from errors.MAConditionError import MAConditionError
 
 class MADescription:
 
@@ -290,7 +292,8 @@ class MADescription:
         return []
         
     def addCondition(self, condition, label=None):
-        self.conditions.append((condition, label))
+        if(label is None): label = getattr(condition, "label", None)
+        self.conditions.append((condition, label)) # double parenthesis is not a typo: we add _tuple_ into `_conditions` list
 
     @property
     def undefined(self):
@@ -325,3 +328,18 @@ class MADescription:
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitDescription(self)
+
+    def _validateConditions(self, model):
+        errors = []
+        
+        for conditionTuple in self.conditions:
+            condition = conditionTuple[0]
+            label = conditionTuple[1]
+            
+            try:
+                if not condition(model):
+                    errors.append(MAConditionError(self, label))
+            except MAValidationError as e:
+                errors.append(e)
+                
+        return errors
