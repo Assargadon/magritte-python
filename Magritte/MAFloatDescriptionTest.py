@@ -11,6 +11,14 @@ class TestProperties_of_MAFloatDescription(MAMagnitudeDescriptionTest.TestProper
 
 class MAFloatDescriptionTest(TestCase):
 
+    def test_beInteger(self):
+        desc = MAFloatDescription()
+        desc.beInteger()
+        
+        self.assertEqual(len(desc._validateConditions(5.1)), 1, "5.1 is not integer, error should be found")
+        self.assertEqual(len(desc._validateConditions(5.0)), 0, "5.0 is integer, no errors expected")
+
+
     def test_default_kind(self):
         desc = MAFloatDescription()
         self.assertEqual(desc.kind, float)
