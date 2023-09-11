@@ -52,3 +52,28 @@ class MACondition_generator_Test(TestCase):
         condition = MACondition.list.contains("foo")
         self.assertTrue(condition(["foo", "bar"]))
         self.assertFalse(condition(["bar", "delta"]))
+
+
+    def test_complicated_expression_not_supported(self): # MACondition is for easy generation of the simple common tests. In such cases, just use lambda-function
+        # Mind that `and` and `&` is not a same operator.
+        # `&`, technically, bitwise - and may be overwritten,
+        # but `and` is logical - it cannot be overwritten (due to it not only calcualte the outcome, but also controls flow), but still may be blocked.
+        # same for `or` and `|`, `not` and `~`
+
+        with self.assertRaises(Exception):
+                condition = (MACondition.model >= 5) and (MACondition.model <= 11.5)
+
+        with self.assertRaises(Exception):
+                condition = (MACondition.model >= 5) & (MACondition.model <= 11.5)
+
+        with self.assertRaises(Exception):
+                condition = (MACondition.model < 5) or (MACondition.model > 11.5)
+
+        with self.assertRaises(Exception):
+                condition = (MACondition.model < 5) | (MACondition.model > 11.5)
+
+        with self.assertRaises(Exception):
+                condition = not (MACondition.model == 5)
+
+        with self.assertRaises(Exception):
+                condition = ~(MACondition.model != 5)
