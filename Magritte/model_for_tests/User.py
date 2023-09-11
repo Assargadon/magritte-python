@@ -1,13 +1,15 @@
-from Account import Account
+
+from MAModel_class import MAModel
+from . Account import Account
 import datetime
 import random
 
 
-class User:
+class User(MAModel):
 
     def __init__(self, RegNum, FIO, DateOfBirth, Gender, organization,
                  DateOfAdmission, DateOfDeparture, SetOfAccounts):
-        from Organization import Organization
+        from . Organization import Organization
         assert RegNum is not None, "RegNum cannot be None"
         assert FIO is not None, "FIO cannot be None"
         assert DateOfBirth is not None, "DateOfBirth cannot be None"
@@ -47,21 +49,21 @@ class User:
 
     @staticmethod
     def generate_organization():
-        from Organization import Organization
+        from . Organization import Organization
         return Organization.random_organization()
 
     @staticmethod
     def generate_dateofadmission():
-        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 30))
+        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_dateofdeparture():
-        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 30))
+        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_setofaccounts():
-        from Port import Port
-        from Host import Host
+        from . Port import Port
+        from . Host import Host
         return [Account.random_account(Port.randomPortForHost(Host.random_host())) for _ in range(5)]
 
     @classmethod

@@ -1,11 +1,13 @@
+
+from MAModel_class import MAModel
 import random
 
 
-class Organization:
+class Organization(MAModel):
 
     def __init__(self, Name, Address, Active, ListUsers, ListComp):
-        from User import User
-        from Host import Host
+        from . User import User
+        from . Host import Host
         assert Name is not None, "Name cannot be None"
         assert Address is not None, "Address cannot be None"
         assert Active is not None, "Active cannot be None"
@@ -41,12 +43,12 @@ class Organization:
 
     @staticmethod
     def generate_listComps():
-        from Host import Host
+        from . Host import Host
         return [Host.random_host() for _ in range(5)]
 
     @classmethod
     def random_organization(cls, numofsusers=5):
-        from User import User
+        from . User import User
         name = cls.generate_name()
         address = cls.generate_address()
         active = cls.generate_active()

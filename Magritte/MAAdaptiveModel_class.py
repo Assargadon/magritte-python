@@ -1,10 +1,11 @@
 
+from MAModel_class import MAModel
 from MAContainer_class import MAContainer
 from errors.MAReadError import MAReadError
 from errors.MAWriteError import MAWriteError
 
 
-class MAAdaptiveModel:
+class MAAdaptiveModel(MAModel):
 
     def __init__(self):
         self.magritteDescription = self.defaultDescription()
