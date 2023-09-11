@@ -333,8 +333,7 @@ class MADescription:
         errors = []
         
         for conditionTuple in self.conditions:
-            condition = conditionTuple[0]
-            label = conditionTuple[1]
+            (condition, label) = conditionTuple
             
             try:
                 if not condition(model):
