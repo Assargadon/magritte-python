@@ -54,11 +54,11 @@ class User(MAModel):
 
     @staticmethod
     def generate_dateofadmission():
-        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 30))
+        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_dateofdeparture():
-        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 30))
+        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_setofaccounts():
