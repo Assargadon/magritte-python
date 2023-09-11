@@ -1,7 +1,7 @@
 
-from .. MAModel_class import MAModel
-from Port import Port
-from Host import Host
+from MAModel_class import MAModel
+from . Port import Port
+from . Host import Host
 import datetime
 import random
 
