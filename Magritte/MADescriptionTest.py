@@ -54,6 +54,7 @@ class TestProperties_of_MADescription(TestCase):
             'group': str,
             'label': str,
             'priority': int,
+            'conditions': list,
             'visible': bool
         }
 
@@ -190,7 +191,23 @@ class MADescriptionTest(TestCase):
         self.assertIsInstance(self.desc1.undefined, str, "After assigning None to .undefined it should be defaultUndefined, not None")
 
 
+    def test_addCondition(self):
+        self.assertEqual(len(self.desc1.conditions), 0)
+        self.desc1.addCondition((lambda model: True), "always true")
+        self.assertEqual(len(self.desc1.conditions), 1)
+        self.desc1.addCondition((lambda model: False)) # label is ommited - None expected to be added as label
+        self.assertEqual(len(self.desc1.conditions), 2)
+        
+        self.assertEqual(self.desc1.conditions[0][1], "always true")
+        self.assertIsNone(self.desc1.conditions[1][1])
 
+    def test_validateConditions(self):
+        self.assertEqual(len(self.desc1._validateConditions("test model")), 0, "Freshly initialized description with no conditions should return zero errors on `_validateConditions`")
 
+        self.desc1.addCondition(lambda model: False, "Condition always fails")
+        self.desc1.addCondition(lambda model: True, "Condition always met")
+        self.assertEqual(len(self.desc1._validateConditions("test model")), 1, "One unmet condition is here")
+        self.assertEqual(self.desc1._validateConditions("test model")[0].message, "Condition always fails")
+        
     def test_isSortable(self):
         self.assertEqual(self.desc1.isSortable(), False)

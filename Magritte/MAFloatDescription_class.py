@@ -4,6 +4,10 @@ from sys import intern
 
 class MAFloatDescription(MANumberDescription):
 
+    def beInteger(self):
+        self.addCondition(condition = lambda f: f.is_integer(),
+                            label="Integer value required")  
+
     @classmethod
     def isAbstract(cls):
         return False
