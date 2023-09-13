@@ -73,17 +73,6 @@ class MADescription:
         except AttributeError:
             return False
 
-    @property
-    def kindErrorMessage(self):
-        try:
-            return self._kindErrorMessage
-        except AttributeError:
-            return 'Invalid input given'
-
-    @kindErrorMessage.setter
-    def kindErrorMessage(self, aStr):
-        self._kindErrorMessage = aStr
-
 
     @property
     def readOnly(self):
@@ -328,6 +317,77 @@ class MADescription:
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitDescription(self)
+
+
+    # =========== attributes-messages-validation ===========
+
+    @property
+    def requiredErrorMessage(self):
+        try:
+            return self._requiredErrorMessage
+        except AttributeError:
+            return self.defaultRequiredErrorMessage()
+
+    @requiredErrorMessage.setter
+    def requiredErrorMessage(self, message):
+        self._requiredErrorMessage = message
+
+    @classmethod
+    def defaultRequiredErrorMessage(cls):
+        return 'Input is required but no input given'
+
+
+
+    @property
+    def kindErrorMessage(self):
+        try:
+            return self._kindErrorMessage
+        except AttributeError:
+            return self.defaultKindErrorMessage()
+
+    @kindErrorMessage.setter
+    def kindErrorMessage(self, message):
+        self._kindErrorMessage = message
+
+    @classmethod
+    def defaultKindErrorMessage(cls):
+        return 'Invalid input given - wrong type'
+
+
+
+    @property
+    def multipleErrorsMessage(self):
+        try:
+            return self._multipleErrorsMessage
+        except AttributeError:
+            return self.defaultMultipleErrorsMessage()
+
+    @multipleErrorsMessage.setter
+    def multipleErrorsMessage(self, message):
+        self._multipleErrorsMessage = message
+
+    @classmethod
+    def defaultMultipleErrorsMessage(cls):
+        return 'Multiple errors'
+
+
+
+    @property
+    def conflictErrorMessage(self):
+        try:
+            return self._conflictErrorMessage
+        except AttributeError:
+            return self.defaultConflictErrorMessage()  # Use cls.defaultConflictErrorMessage() instead
+    
+    @conflictErrorMessage.setter
+    def conflictErrorMessage(self, message):
+        self._conflictErrorMessage = message
+    
+    @classmethod
+    def defaultConflictErrorMessage(cls):
+        return 'Input is conflicting with concurrent modification'
+
+    # =========== /attributes-messages-validation ===========
 
     def _validateConditions(self, model):
         errors = []

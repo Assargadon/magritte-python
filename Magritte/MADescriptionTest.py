@@ -44,7 +44,6 @@ class TestProperties_of_MADescription(TestCase):
     def _properties(self):
         return { 
             'kind': type,
-            'kindErrorMessage': str,
             'accessor': MAAccessor,
             'readOnly': bool,
             'required': bool,
@@ -55,7 +54,12 @@ class TestProperties_of_MADescription(TestCase):
             'label': str,
             'priority': int,
             'conditions': list,
-            'visible': bool
+            'visible': bool,
+            
+            'requiredErrorMessage': str,
+            'kindErrorMessage': str,
+            'multipleErrorsMessage': str,
+            'conflictErrorMessage': str,            
         }
 
 
