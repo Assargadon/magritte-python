@@ -1,6 +1,7 @@
 # ==================== For testing. ====================
 from datetime import datetime
 from unittest import TestCase
+import json
 
 from MAAttrAccessor_class import MAAttrAccessor
 from MAContainer_class import MAContainer
@@ -107,43 +108,56 @@ class MAJsonWriter_Test(TestCase):
 
     def test_int_encoder(self):
         self.assertEqual(self.int_encoder.write_json(self.int_value), 123)
-        self.assertEqual(self.int_encoder.write_json_string(self.int_value), '123')
+        json_string = self.int_encoder.write_json_string(self.int_value)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, 123)
 
     def test_str_encoder(self):
         self.assertEqual(self.str_encoder.write_json(self.str_value), 'abc')
-        self.assertEqual(self.str_encoder.write_json_string(self.str_value), '"abc"')
+        json_string = self.str_encoder.write_json_string(self.str_value)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, 'abc')
 
     def test_float_encoder(self):
         self.assertEqual(self.float_encoder.write_json(self.float_value), 1.23)
-        self.assertEqual(self.float_encoder.write_json_string(self.float_value), '1.23')
+        json_string = self.float_encoder.write_json_string(self.float_value)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, 1.23)
 
     def test_date_encoder(self):
         self.assertEqual(self.date_encoder.write_json(self.date_value), datetime.now().isoformat())
-        self.assertEqual(self.date_encoder.write_json_string(self.date_value), f'"{datetime.now().isoformat()}"')
+        json_string = self.date_encoder.write_json_string(self.date_value)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, datetime.now().isoformat())
 
     def test_scalar_encoder(self):
         self.assertEqual(self.scalar_rel_encoder.write_json(self.scalar_rel_value), self.int_value)
-        self.assertEqual(self.scalar_rel_encoder.write_json_string(self.scalar_rel_value), str(self.int_value))
+        json_string = self.scalar_rel_encoder.write_json_string(self.scalar_rel_value)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, self.int_value)
 
     def test_object_encoder(self):
         self.assertEqual(self.object_encoder.write_json(self.object1),
                          {'name': 'object1', 'int_value': 123, 'float_value': 1.23, 'date_value': datetime.now().isoformat()})
-        # self.assertEqual(self.object_encoder.write_json_string(self.object1),
-        #                  {"name": "object1", "int_value": 123, "float_value": 1.23, "date_value": f"{datetime.now().isoformat()}"})
+        json_string = self.object_encoder.write_json_string(self.object1)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, {"name": "object1", "int_value": 123, "float_value": 1.23, "date_value": f"{datetime.now().isoformat()}"})
 
     def test_object_rel_encoder(self):
         self.assertEqual(self.object_rel_encoder.write_json(self.object1),
                          {'name': 'object1', 'int_value': 123, 'float_value': 1.23, 'date_value': datetime.now().isoformat()})
-        # self.assertEqual(self.object_rel_encoder.write_json_string(self.object1),
-        #                  {"name": "object1", "int_value": 123, "float_value": 1.23, "date_value": f"{datetime.now().isoformat()}"})
+        json_string = self.object_rel_encoder.write_json_string(self.object1)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, {"name": "object1", "int_value": 123, "float_value": 1.23, "date_value": f"{datetime.now().isoformat()}"})
 
     def test_compound_object_encoder(self):
         self.assertEqual(self.compound_object_encoder.write_json(self.compound_object),
                          {'name': 'object2', 'int_value': 234, 'float_value': 2.34, 'date_value': datetime.now().isoformat(),
                           'ref_object': {'name': 'object1', 'int_value': 123, 'float_value': 1.23, 'date_value': datetime.now().isoformat()}})
-        # self.assertEqual(self.compound_object_encoder.write_json(self.compound_object),
-        #                  {"name": "object2", "int_value": 234, "float_value": 2.34, "date_value": f'"{datetime.now().isoformat()}"',
-        #                   "ref_object": {"name": "object1", "int_value": 123, "float_value": 1.23, "date_value": f'"{datetime.now().isoformat()}"'}})
+        json_string = self.compound_object_encoder.write_json_string(self.compound_object)
+        obj = json.loads(json_string)
+        self.assertEqual(obj, {"name": "object2", "int_value": 234, "float_value": 2.34, "date_value": f"{datetime.now().isoformat()}",
+                          "ref_object": {"name": "object1", "int_value": 123, "float_value": 1.23, "date_value": f"{datetime.now().isoformat()}"}})
 
 
 # if __name__ == "__main__":
