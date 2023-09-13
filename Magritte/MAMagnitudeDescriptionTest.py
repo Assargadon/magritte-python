@@ -25,6 +25,7 @@ class MAMagnitudeDescriptionTest(TestCase):
 
     def test_setMinMax(self):
         self.inst.setMinMax(1, 10)
+        self.assertEqual(self.inst.min, 1)
         self.assertEqual(self.inst.max, 10)
 
     def test_isWithinRange(self):
