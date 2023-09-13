@@ -400,6 +400,12 @@ class MADescription:
         else:
             return []
 
+    def _validateKind(self, model):
+        if isinstance(model, self.kind) and model is None:
+            return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
+        else:
+            return []
+
     def _validateSpecific(self, model):
     # validates descriptions-specific conditions. Subclasses may override this method - see MAMAgnitudeDescription for example."
         return []
