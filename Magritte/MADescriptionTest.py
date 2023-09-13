@@ -2,6 +2,7 @@ from unittest import TestCase
 from MADescription_class import MADescription
 from accessors.MAAccessor_class import MAAccessor
 from MAContainer_class import MAContainer
+from errors.MARequiredError import MARequiredError
 
 class TestProperties_of_MADescription(TestCase):
 
@@ -168,6 +169,24 @@ class TestProperties_of_MADescription(TestCase):
                 # print(f"checkable prop: {prop_tuple}")
                 self.setUp()
                 self.check_property_defined(*prop_tuple)
+
+
+class MADescription_ValidationTest(TestCase):
+    def setUp(self):
+        self.desc = MADescription()
+        self.nonNullInstance = "Some value - it may be both complex object and scalar value"
+
+    def test_validateRequired(self):
+        with self.subTest("optional"):
+            self.desc.beOptional()
+            self.assertTrue(len(self.desc._validateRequired(self.nonNullInstance)) == 0)
+            self.assertTrue(len(self.desc._validateRequired(None)) == 0, "Description is optional, None should pass the test")
+        
+        with self.subTest("required"):
+            self.desc.beRequired()
+            self.assertTrue(len(self.desc._validateRequired(self.nonNullInstance)) == 0)
+            self.assertFalse(len(self.desc._validateRequired(None)) == 0)
+            self.assertIsInstance(self.desc._validateRequired(None)[0], MARequiredError)
 
 
 class MADescriptionTest(TestCase):

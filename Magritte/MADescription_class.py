@@ -4,6 +4,7 @@ from accessors.MANullAccessor_class import MANullAccessor
 
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
+from errors.MARequiredError import MARequiredError
 
 class MADescription:
 
@@ -393,9 +394,16 @@ class MADescription:
 
     # =========== validation ===========
     
+    def _validateRequired(self, model):
+        if self.isRequired() and model is None:
+            return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
+        else:
+            return []
+
     def _validateSpecific(self, model):
     # validates descriptions-specific conditions. Subclasses may override this method - see MAMAgnitudeDescription for example."
         return []
+        
     def _validateConditions(self, model):
         errors = []
         
