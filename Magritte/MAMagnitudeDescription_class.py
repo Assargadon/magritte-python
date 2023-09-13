@@ -1,6 +1,6 @@
-
 from sys import intern
 from MAElementDescription_class import MAElementDescription
+from errors.MARangeError import MARangeError
 
 class MAMagnitudeDescription(MAElementDescription):
 
@@ -47,6 +47,7 @@ class MAMagnitudeDescription(MAElementDescription):
         self.min = aMinimumObject
         self.max = aMaximumObject
 
+    # =========== attributes-messages-validation ===========
 
     @property
     def rangeErrorMessage(self):
@@ -71,6 +72,20 @@ class MAMagnitudeDescription(MAElementDescription):
     def rangeErrorMessage(self, aString):
         self._rangeErrorMessage = aString
 
+    # =========== /attributes-messages-validation ===========
+
+    # =========== validation ===========
+    
+    def _validateSpecific(self, model):
+        if(not self.isWithinRange(model)):
+            return [
+                *super()._validateSpecific(model),
+                MARangeError(message = self.rangeErrorMessage, aDescription = self)
+            ]
+        else:
+            return super()._validateSpecific(model)
+
+    # =========== /validation ===========
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitMagnitudeDescription(self)

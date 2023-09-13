@@ -50,3 +50,31 @@ class MAMagnitudeDescriptionTest(TestCase):
     def test_isSortable(self):
         self.assertEqual(self.inst.isSortable(), True)
 
+
+class MAMagnitude_ValidationTest(TestCase):
+    def setUp(self):
+        self.desc = MAMagnitudeDescription()
+    
+    def test_validateSpecific(self):
+        with self.subTest("No range"):
+            self.assertTrue(len(self.desc._validateSpecific(5)) == 0, "No range set - no errors should be")
+            
+        with self.subTest("Full range"):
+            self.desc.setMinMax(1, 10)
+            self.assertTrue(len(self.desc._validateSpecific(5)) == 0, "Within range - no errors should be")
+            self.assertTrue(len(self.desc._validateSpecific(1)) == 0, "Within range - no errors should be")
+            self.assertTrue(len(self.desc._validateSpecific(10)) == 0, "Within range - no errors should be")
+            self.assertTrue(len(self.desc._validateSpecific(0)) == 1, "Out of range (min) - error expected")
+            self.assertTrue(len(self.desc._validateSpecific(11)) == 1, "Out of range (max) - error expected")
+
+        with self.subTest("min-opened range"):
+            self.desc.max = 10
+            self.assertTrue(len(self.desc._validateSpecific(5)) == 0, "Within range - no errors should be")
+            self.assertTrue(len(self.desc._validateSpecific(10)) == 0, "Within range - no errors should be")
+            self.assertTrue(len(self.desc._validateSpecific(11)) == 1, "Out of range (max) - error expected")
+
+        with self.subTest("max-open range"):
+            self.desc.min = 1
+            self.assertTrue(len(self.desc._validateSpecific(5)) == 0, "Within range - no errors should be")
+            self.assertTrue(len(self.desc._validateSpecific(1)) == 0, "Within range - no errors should be")
+            self.assertTrue(len(self.desc._validateSpecific(0)) == 1, "Out of range (min) - error expected")

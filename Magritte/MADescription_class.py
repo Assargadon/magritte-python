@@ -1,6 +1,7 @@
 from copy import copy
 from sys import intern
 from accessors.MANullAccessor_class import MANullAccessor
+
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
 
@@ -389,6 +390,12 @@ class MADescription:
 
     # =========== /attributes-messages-validation ===========
 
+
+    # =========== validation ===========
+    
+    def _validateSpecific(self, model):
+    # validates descriptions-specific conditions. Subclasses may override this method - see MAMAgnitudeDescription for example."
+        return []
     def _validateConditions(self, model):
         errors = []
         
@@ -402,3 +409,6 @@ class MADescription:
                 errors.append(e)
                 
         return errors
+
+
+    # =========== /validation ===========
