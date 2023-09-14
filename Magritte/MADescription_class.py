@@ -8,6 +8,10 @@ from MAModel_class import MAModel
 
 class MADescription(MAModel):
 
+    def magritteDescription(self):
+        import MADescription_selfdesc
+        return MADescription_selfdesc.magritteDescription(self)
+    
     @classmethod
     def isAbstract(cls):
         return True
