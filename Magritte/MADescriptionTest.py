@@ -189,13 +189,18 @@ class MADescription_ValidationTest(TestCase):
             self.assertIsInstance(self.desc._validateRequired(None)[0], MARequiredError)
 
     def test_validateKind(self):
-        self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 0)
-        self.assertTrue(len(self.desc._validateKind(None)) == 0)
-        self.assertTrue(len(self.desc._validateKind(36)) == 0)
-        self.desc.kind = Exception
-        self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 1)
-        self.assertTrue(len(self.desc._validateKind(None)) == 1)
-        self.assertTrue(len(self.desc._validateKind(36)) == 1)
+        with self.subTest("kind is any object"):
+            self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 0)
+            self.assertTrue(len(self.desc._validateKind(None)) == 0)
+            self.assertTrue(len(self.desc._validateKind(36)) == 0)
+
+        with self.subTest("kind is specific wrong class"):
+            self.desc.kind = Exception
+            self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 1)
+            self.assertTrue(len(self.desc._validateKind(None)) == 1)
+            self.assertTrue(len(self.desc._validateKind(36)) == 1)
+
+        #with self.subTest("use a visitor"):
         #self.assertTrue(len(self.desc.validate(self.nonNullInstance)) == 0)
         #self.assertTrue(len(self.desc.validate(None)) == 0)
         #self.assertTrue(len(self.desc.validate(36)) == 0)
