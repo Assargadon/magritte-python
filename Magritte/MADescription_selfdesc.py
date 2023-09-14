@@ -13,8 +13,10 @@ def magritteDescription(self):
     desc += MAStringDescription(label = "Group", priority = 105, default = self.defaultGroup(), accessor = MAAttrAccessor('group'))
     desc += MAStringDescription(label = "Comment", priority = 110, default = self.defaultComment(), accessor = MAAttrAccessor('comment'))
     desc += MAIntDescription(label = "Priority", priority = 130, default = self.defaultPriority(), required = True, accessor = MAAttrAccessor('priority'))
+    desc += MAStringDescription(label = "Undefined String", priority = 140, default = self.defaultUndefined(), accessor = MAAttrAccessor('undefined'), comment = "A string that is printed whenever the model described by the receiver is None.")
     desc += MABooleanDescription(label = 'Read-only', priority = 200, default = self.defaultReadOnly(), accessor = MAAttrAccessor('readOnly'))
     desc += MABooleanDescription(label = 'Visible', priority = 210, default = self.defaultVisible(), accessor = MAAttrAccessor('visible'))
     desc += MABooleanDescription(label = 'Required', priority = 220, default = self.defaultRequired(), accessor = MAAttrAccessor('required'))
     return desc
     
+
