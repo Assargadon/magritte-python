@@ -80,7 +80,7 @@ class MAObjectJsonWriter(MAVisitor):
         value_encoder = MAValueJsonWriter(description)
         name = description.name
         if name is None:
-            raise ValueError("MAObjectJsonWriter requires names for all the descriptions to construct valid Json. Found None value.")
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to construct valid Json. Found None value for {description.label}")
         if not isinstance(name, str):
             raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to be str to construct valid Json. Found: {type(name)}")
         if name in self._json:
