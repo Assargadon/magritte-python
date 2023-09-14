@@ -87,3 +87,16 @@ class MAObjectJsonWriter(MAVisitor):
             raise ValueError(f"MAObjectJsonWriter requires distinct names for all the descriptions to construct valid Json. Found duplicate: {name}.")
         self._json[name] = value_encoder.write_json(self._model)
 
+    def visitToManyRelationDescription(self, aMAToManyRelationDescription):
+        name = aMAToManyRelationDescription.name
+        if name is None:
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to construct valid Json. Found None value for {description.label}")
+        if not isinstance(name, str):
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to be str to construct valid Json. Found: {type(name)}")
+        if name in self._json:
+            raise ValueError(f"MAObjectJsonWriter requires distinct names for all the descriptions to construct valid Json. Found duplicate: {name}.")
+
+        object_encoder = MAObjectJsonWriter(aMAToManyRelationDescription.reference)
+        collection = aMAToManyRelationDescription.accessor.read(self._model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)
+        self._json[name] = [object_encoder.write_json(entry) for entry in collection]
+        
