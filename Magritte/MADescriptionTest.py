@@ -192,7 +192,7 @@ class MADescription_ValidationTest(TestCase):
         self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 0)
         self.assertTrue(len(self.desc._validateKind(None)) == 0)
         self.assertTrue(len(self.desc._validateKind(36)) == 0)
-        self.desc.kind = str
+        self.desc.kind = Exception
         self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 1)
         self.assertTrue(len(self.desc._validateKind(None)) == 1)
         self.assertTrue(len(self.desc._validateKind(36)) == 1)
