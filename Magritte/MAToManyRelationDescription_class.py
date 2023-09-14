@@ -12,10 +12,10 @@ class MAToManyRelationDescription(MARelationDescription):
     # =========== validation ===========
     
     def _validateRequired(self, model):
-        superValidationResult = super()._validateRequired(model)
-        if(superValidationResult): return superValidationResult
-        
-        if(self.isRequired and isinstance(model, Sequence) and not len(model)):
+        errors = super()._validateRequired(model)
+        if len(errors) > 0:
+            return errors
+        if self.isRequired() and isinstance(model, Sequence) and len(model) == 0:
             return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
         else:
             return []
