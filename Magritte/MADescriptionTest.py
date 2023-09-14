@@ -194,16 +194,21 @@ class MADescription_ValidationTest(TestCase):
             self.assertTrue(len(self.desc._validateKind(None)) == 0)
             self.assertTrue(len(self.desc._validateKind(36)) == 0)
 
+        with self.subTest("use a visitor"):
+            self.assertTrue(len(self.desc.validate(self.nonNullInstance)) == 0)
+            self.assertTrue(len(self.desc.validate(None)) == 0)
+            self.assertTrue(len(self.desc.validate(36)) == 0)
+
         with self.subTest("kind is specific wrong class"):
             self.desc.kind = Exception
             self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 1)
             self.assertTrue(len(self.desc._validateKind(None)) == 1)
             self.assertTrue(len(self.desc._validateKind(36)) == 1)
 
-        #with self.subTest("use a visitor"):
-        #self.assertTrue(len(self.desc.validate(self.nonNullInstance)) == 0)
-        #self.assertTrue(len(self.desc.validate(None)) == 0)
-        #self.assertTrue(len(self.desc.validate(36)) == 0)
+        with self.subTest("use a visitor"):
+            self.assertTrue(len(self.desc.validate(self.nonNullInstance)) == 1)
+            self.assertTrue(len(self.desc.validate(None)) == 0)   # none is undefinedValue for description - no error
+            self.assertTrue(len(self.desc.validate(36)) == 1)
 
 
 class MADescriptionTest(TestCase):
