@@ -32,7 +32,9 @@ class MASingleOptionDescription(MAOptionDescription):
 
     def _validateKind(self, model):
         errors = super()._validateKind(model)
-        errors += self._validateOptionKind(model)
+        if len(errors) > 0:
+            return errors
+        errors = self._validateOptionKind(model)
         return errors
 
     # =========== / validation ===========
