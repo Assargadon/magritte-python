@@ -16,6 +16,10 @@ class MADescription(MAModel):
     def isAbstract(cls):
         return True
 
+    @property
+    def type(self):
+        return self.__class__.__name__
+
     def __init__(self, **kwargs):
         self._accessor = self.defaultAccessor()
         for key, value in kwargs.items():

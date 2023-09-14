@@ -8,6 +8,7 @@ from accessors.MAAttrAccessor_class import MAAttrAccessor
 def magritteDescription(self):
     desc = MAPriorityContainer()
     
+    desc += MAStringDescription(label = "Kind", priority = 0, readOnly = True, accessor = MAAttrAccessor('type'))
     desc += MAStringDescription(priority = 1, accessor = MAAttrAccessor('name'))
     desc += MAStringDescription(label = "Label", priority = 100, default = "#nolabel#", required = True, accessor = MAAttrAccessor('label'))
     desc += MAStringDescription(label = "Group", priority = 105, default = self.defaultGroup(), accessor = MAAttrAccessor('group'))
