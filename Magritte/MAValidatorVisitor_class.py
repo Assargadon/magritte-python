@@ -39,7 +39,7 @@ class MAValidatorVisitor(MAVisitor):
 
     def visit(self, aDescription):
         if aDescription.isVisible and not aDescription.isReadOnly:
-            self._errors += super().visit(aDescription)
+            super().visit(aDescription)
 
     def visitContainer(self, aDescription):
         super().visitContainer(aDescription)
