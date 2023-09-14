@@ -36,17 +36,17 @@ class MAMagnitudeDescriptionTest(TestCase):
         self.assertEqual(self.inst.isWithinRange(7), True)
 
     def test_getRangeErrorMessage_by_default(self):
-        self.inst.setMinMax(3, 9)
-        self.assertTrue('3' in self.inst.rangeErrorMessage and '9' in self.inst.rangeErrorMessage)
+        self.inst.setMinMax(321, 987)
+        self.assertTrue('321' in self.inst.rangeErrorMessage and '987' in self.inst.rangeErrorMessage)
 
-        self.inst.setMinMax(3, None)
-        self.assertTrue('3' in self.inst.rangeErrorMessage)
+        self.inst.setMinMax(321, None)
+        self.assertTrue('321' in self.inst.rangeErrorMessage)
 
-        self.inst.setMinMax(None, 9)
-        self.assertTrue('9' in self.inst.rangeErrorMessage)
+        self.inst.setMinMax(None, 987)
+        self.assertTrue('987' in self.inst.rangeErrorMessage)
 
         self.inst.setMinMax(None, None)
-        self.assertEqual(self.inst.rangeErrorMessage, None)
+        self.assertIsNone(self.inst.rangeErrorMessage)
 
 
     def test_isSortable(self):
