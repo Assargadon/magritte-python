@@ -188,6 +188,18 @@ class MADescription_ValidationTest(TestCase):
             self.assertFalse(len(self.desc._validateRequired(None)) == 0)
             self.assertIsInstance(self.desc._validateRequired(None)[0], MARequiredError)
 
+    def test_validateKind(self):
+        self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 0)
+        self.assertTrue(len(self.desc._validateKind(None)) == 0)
+        self.assertTrue(len(self.desc._validateKind(36)) == 0)
+        self.desc.kind = str
+        self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 1)
+        self.assertTrue(len(self.desc._validateKind(None)) == 1)
+        self.assertTrue(len(self.desc._validateKind(36)) == 1)
+        #self.assertTrue(len(self.desc.validate(self.nonNullInstance)) == 0)
+        #self.assertTrue(len(self.desc.validate(None)) == 0)
+        #self.assertTrue(len(self.desc.validate(36)) == 0)
+
 
 class MADescriptionTest(TestCase):
 

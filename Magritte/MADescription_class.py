@@ -1,6 +1,7 @@
 from copy import copy
 from sys import intern
 from accessors.MANullAccessor_class import MANullAccessor
+from MAValidatorVisitor_class import MAValidatorVisitor
 
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
@@ -393,7 +394,27 @@ class MADescription:
 
 
     # =========== validation ===========
-    
+
+    @classmethod
+    def defaultValidator(cls):
+        return MAValidatorVisitor
+
+    @property
+    def validator(self):
+        try:
+            return self._validator
+        except AttributeError:
+            return self.defaultValidator()
+
+    @validator.setter
+    def validator(self, aVisitorClass):
+        self._validator = aVisitorClass
+
+    def validate(self, model):
+        visitor = self.validator()
+        errors = visitor.validateUsing(model, self)
+        return errors
+
     def _validateRequired(self, model):
         if self.isRequired() and model is None:
             return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
@@ -401,7 +422,7 @@ class MADescription:
             return []
 
     def _validateKind(self, model):
-        if isinstance(model, self.kind) and model is None:
+        if not isinstance(model, self.kind):
             return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
         else:
             return []
