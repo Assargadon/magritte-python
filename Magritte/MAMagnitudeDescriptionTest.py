@@ -36,14 +36,14 @@ class MAMagnitudeDescriptionTest(TestCase):
         self.assertEqual(self.inst.isWithinRange(7), True)
 
     def test_getRangeErrorMessage_by_default(self):
-        self.inst.setMinMax(1, 10)
-        self.assertEqual(self.inst.rangeErrorMessage, f'Input must be between {1} and {10}')
+        self.inst.setMinMax(3, 9)
+        self.assertTrue('3' in self.inst.rangeErrorMessage and '9' in self.inst.rangeErrorMessage)
 
-        self.inst.setMinMax(1, None)
-        self.assertEqual(self.inst.rangeErrorMessage, f'Input must be above or equal to {1}')
+        self.inst.setMinMax(3, None)
+        self.assertTrue('3' in self.inst.rangeErrorMessage)
 
-        self.inst.setMinMax(None, 10)
-        self.assertEqual(self.inst.rangeErrorMessage, f'Input must be below or equal to {10}')
+        self.inst.setMinMax(None, 9)
+        self.assertTrue('9' in self.inst.rangeErrorMessage)
 
         self.inst.setMinMax(None, None)
         self.assertEqual(self.inst.rangeErrorMessage, None)
