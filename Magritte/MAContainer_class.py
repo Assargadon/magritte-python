@@ -148,3 +148,7 @@ class MAContainer(MADescription):
 
     def keysAndValuesDo(self, aBlock):
         for index, item in enumerate(self.children): aBlock(index, item)
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitContainer(self)
+        

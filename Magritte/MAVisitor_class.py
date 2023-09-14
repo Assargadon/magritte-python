@@ -124,3 +124,9 @@ class MAVisitor:
 
     def visitUrlDescription(self, aMAUrlDescription):
         self.visitElementDescription(aMAUrlDescription)
+        
+    def visitContainer(self, aMAContainer):
+        self.visitDescription(aMAContainer)
+
+    def visitPriorityContainer(self, aMAPriorityContainer):
+        self.visitContainer(aMAPriorityContainer)
