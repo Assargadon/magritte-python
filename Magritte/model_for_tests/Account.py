@@ -34,7 +34,7 @@ class Account(MAModel):
 
     @staticmethod
     def generate_dateofreg():
-        return datetime.datetime(random.randint(2010, 2020), random.randint(1, 12), random.randint(1, 30))
+        return datetime.datetime(random.randint(2010, 2020), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_days():
