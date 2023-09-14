@@ -17,11 +17,3 @@ class TestProperties_of_MABooleanDescription(MAElementDescriptionTest.TestProper
 
 class MABooleanDescriptionTest(TestCase):
     pass
-#    def setUp(self):
-#        self.inst = MAStringDescription()
-#
-#    def test_default_kind(self):
-#        self.assertEqual(self.inst.kind, str)
-#
-#    def test_isSortable(self):
-#        self.assertEqual(self.inst.isSortable(), True)
