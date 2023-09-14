@@ -14,7 +14,7 @@ class MAToManyRelationDescription(MARelationDescription):
     
     def _validateRequired(self, model):
         errors = super()._validateRequired(model)
-        if len(errors) > 0:
+        if errors:
             return errors
         if self.isRequired() and isinstance(model, Sequence) and len(model) == 0:
             return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
@@ -23,7 +23,7 @@ class MAToManyRelationDescription(MARelationDescription):
 
     def _validateKind(self, model):
         errors = super()._validateKind(model)
-        if len(errors) > 0:
+        if errors:
             return errors
         for item in model:
             if not any(isinstance(item, cls) for cls in self.classes):

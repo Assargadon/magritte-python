@@ -24,15 +24,15 @@ class MAValidatorVisitor(MAVisitor):
         if anObject == aDescription.undefinedValue:
             return self._errors
         errors = aDescription._validateKind(anObject)
-        if len(errors) > 0:
+        if errors:
             self._errors += errors
             return self._errors
         errors = aDescription._validateSpecific(anObject)
-        if len(errors) > 0:
+        if errors:
             self._errors += errors
             return self._errors
         errors = aDescription._validateConditions(anObject)
-        if len(errors) > 0:
+        if errors:
             self._errors += errors
             return self._errors
         return self._errors
