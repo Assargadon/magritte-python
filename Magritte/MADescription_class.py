@@ -412,7 +412,7 @@ class MADescription:
 
     def validate(self, model):
         visitor = self.validator()
-        errors = visitor.validateUsing(model, self)
+        errors = visitor.validateModelDescription(model, self)
         return errors
 
     def _validateRequired(self, model):
@@ -423,7 +423,7 @@ class MADescription:
 
     def _validateKind(self, model):
         if not isinstance(model, self.kind):
-            return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
+            return [MARequiredError(message = self.kindErrorMessage, aDescription = self)]
         else:
             return []
 

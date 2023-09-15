@@ -8,37 +8,40 @@ class MAValidatorVisitor(MAVisitor):
         self._object = None
         self._errors = []
 
+    def validateModelDescription(self, aModel, aDescription):
+        self._errors = []
+        self.useDuring(aModel, lambda: self.visit(aDescription))
+        return self._errors
+
     def useDuring(self, anObject, aBlock):
         previous = self._object
         self._object = anObject
         try:
             aBlock()
-        except Exception:
-            raise
+        except Exception as e:
+            self._errors.append(e)
         finally:
             self._object = previous
 
     def validateUsing(self, anObject, aDescription):
-        self._errors = []
-        self._errors += aDescription._validateRequired(anObject)
+        self._errors.extend(aDescription._validateRequired(anObject))
         if anObject == aDescription.undefinedValue:
-            return self._errors
+            return
         errors = aDescription._validateKind(anObject)
         if errors:
-            self._errors += errors
-            return self._errors
+            self._errors.extend(errors)
+            return
         errors = aDescription._validateSpecific(anObject)
         if errors:
-            self._errors += errors
-            return self._errors
+            self._errors.extend(errors)
+            return
         errors = aDescription._validateConditions(anObject)
         if errors:
-            self._errors += errors
-            return self._errors
-        return self._errors
+            self._errors.extend(errors)
+            return
 
     def visit(self, aDescription):
-        if aDescription.isVisible and not aDescription.isReadOnly:
+        if aDescription.isVisible() and not aDescription.isReadOnly():
             super().visit(aDescription)
 
     def visitContainer(self, aDescription):
@@ -49,5 +52,5 @@ class MAValidatorVisitor(MAVisitor):
                 self.useDuring(anObject.readUsing(description), lambda: self.visit(description))
 
     def visitDescription(self, aDescription):
-        self._errors += self.validateUsing(self, aDescription)
+        self.validateUsing(self._object, aDescription)
 
