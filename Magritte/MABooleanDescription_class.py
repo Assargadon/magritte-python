@@ -32,7 +32,7 @@ class MABooleanDescription(MAElementDescription):
 
     @classmethod
     def defaultTrueStrings(cls):
-         return ['true' 't' 'yes' 'y' '1' 'on']
+         return ['true', 't', 'yes', 'y', '1', 'on']
 
 
     @property
@@ -52,7 +52,7 @@ class MABooleanDescription(MAElementDescription):
 
     @classmethod
     def defaultFalseStrings(cls):
-         return ['false' 'f' 'no' 'n' '0' 'off']
+         return ['false', 'f', 'no', 'n', '0', 'off']
 
 
     def acceptMagritte(self, aVisitor):
