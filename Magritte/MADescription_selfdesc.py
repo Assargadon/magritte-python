@@ -1,4 +1,5 @@
 from MAPriorityContainer_class import MAPriorityContainer
+from MAElementDescription_class import MAElementDescription
 from MAStringDescription_class import MAStringDescription
 from MAIntDescription_class import MAIntDescription
 from MABooleanDescription_class import MABooleanDescription
@@ -22,6 +23,9 @@ def magritteDescription(self):
     desc += MABooleanDescription(label = 'Read-only', priority = 200, default = self.defaultReadOnly(), accessor = MAAttrAccessor('readOnly'))
     desc += MABooleanDescription(label = 'Visible', priority = 210, default = self.defaultVisible(), accessor = MAAttrAccessor('visible'))
     desc += MABooleanDescription(label = 'Required', priority = 220, default = self.defaultRequired(), accessor = MAAttrAccessor('required'))
-    return desc
     
+    # originally in smalltalk #validator is MASingleOptionDescription with reference of MAClassDescription type
+    # but as long as we only have one common-purpose validator, and as long as we have no MAClassDescription (yet?) I did it this way
+    desc += MAElementDescription(label = 'Validator', priority = 250, default = self.defaultValidator(), accessor = MAAttrAccessor("validator"))
 
+    return desc
