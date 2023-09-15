@@ -7,6 +7,11 @@ class MABooleanDescription(MAElementDescription):
     # as long as it's only used for sharing UI components between boolean and option descriptions,
     # I omit it here - looks like a trick, not natural for the system. But beware in case I'm wrong.  
 
+    def magritteDescription(self):
+        import MABooleanDescription_selfdesc
+        return MABooleanDescription_selfdesc.magritteDescription(self, super().magritteDescription())
+
+
     @classmethod
     def isAbstract(cls):
         return False
