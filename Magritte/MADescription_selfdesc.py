@@ -18,6 +18,7 @@ def magritteDescription(self):
     desc += MAStringDescription(label = "Comment", priority = 110, default = self.defaultComment(), accessor = MAAttrAccessor('comment'))
     desc += MAIntDescription(label = "Priority", priority = 130, default = self.defaultPriority(), required = True, accessor = MAAttrAccessor('priority'))
     desc += MAStringDescription(label = "Undefined String", priority = 140, default = self.defaultUndefined(), accessor = MAAttrAccessor('undefined'), comment = "A string that is printed whenever the model described by the receiver is None.")
+    desc += MAToOneRelationDescription(accessor = MAAttrAccessor("undefinedValue"), priority = 150,	default = self.defaultUndefinedValue(), comment = "Value, which is treated as, well, undefined. No need for it to be of the same kind to the kind of descriptor. Used to effectively override None - for example, if None is used as meaningful value.")    
     desc += MABooleanDescription(label = 'Read-only', priority = 200, default = self.defaultReadOnly(), accessor = MAAttrAccessor('readOnly'))
     desc += MABooleanDescription(label = 'Visible', priority = 210, default = self.defaultVisible(), accessor = MAAttrAccessor('visible'))
     desc += MABooleanDescription(label = 'Required', priority = 220, default = self.defaultRequired(), accessor = MAAttrAccessor('required'))
