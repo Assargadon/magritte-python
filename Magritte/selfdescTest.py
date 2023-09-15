@@ -3,6 +3,7 @@ import json
 from datetime import datetime
         
 from MAContainer_class import MAContainer
+from MABooleanDescription_class import MABooleanDescription
 from MAStringDescription_class import MAStringDescription
 from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
@@ -54,11 +55,11 @@ class TestVisualizerVisitor(MAVisitor):
         if(not description.reference):
             self.visitRelationDescription(description)
         else:
-            self.json[description.name] = self.deeper(related_object, description.reference)
+            self.json[description.name] = self.deeper(related_object)
 
     def visitToManyRelationDescription(self, description):
         collection = description.accessor.read(self.model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)
-        self.json[description.name] = [self.deeper(entry, description.reference) for entry in collection]
+        self.json[description.name] = [self.deeper(entry) for entry in collection]
 
 class MagritteSelfDescriptionTest(TestCase):
 
@@ -68,6 +69,7 @@ class MagritteSelfDescriptionTest(TestCase):
 
         object_desc = MAContainer()
         object_desc.label = "Demo Object"
+        object_desc += MABooleanDescription(name='bool_value', label='Bool Value', default=True)
         object_desc += MAStringDescription(name='string_value', label='String Value', default='')
         object_desc += MAIntDescription(name='int_value', label='Int Value', default=0)
         object_desc += MAFloatDescription(name='float_value', label='Float Value', default=0.0)
