@@ -48,7 +48,7 @@ class MACondition_generator_Test(TestCase):
         self.assertFalse(condition([]))
         self.assertTrue(condition(["foo", "bar"]))
 
-    def test_notEmpty(self):
+    def test_contains(self):
         condition = MACondition.list.contains("foo")
         self.assertTrue(condition(["foo", "bar"]))
         self.assertFalse(condition(["bar", "delta"]))
