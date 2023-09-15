@@ -5,6 +5,7 @@ from MAValidatorVisitor_class import MAValidatorVisitor
 
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
+from errors.MAKindError import MAKindError
 from errors.MARequiredError import MARequiredError
 
 class MADescription:
@@ -423,7 +424,7 @@ class MADescription:
 
     def _validateKind(self, model):
         if not isinstance(model, self.kind):
-            return [MARequiredError(message = self.kindErrorMessage, aDescription = self)]
+            return [MAKindError(message = self.kindErrorMessage, aDescription = self)]
         else:
             return []
 
