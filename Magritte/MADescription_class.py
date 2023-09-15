@@ -150,18 +150,6 @@ class MADescription(MAModel):
 
 
     @property
-    def default(self):
-        return self.undefinedValue
-
-    @default.setter
-    def default(self, anObject):
-        pass
-
-    @classmethod
-    def defaultDefault(cls):
-        return None
-
-    @property
     def undefinedValue(self):
         try:
             result = self._undefinedValue

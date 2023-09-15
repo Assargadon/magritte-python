@@ -15,6 +15,11 @@ class MAElementDescription(MADescription):
     def default(self, anObject):
         self._default = anObject
 
+    @classmethod
+    def defaultDefault(cls):
+        return None
+
+
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitElementDescription(self)
