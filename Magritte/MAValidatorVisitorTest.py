@@ -37,6 +37,9 @@ class MAToOneRelationDescriptionTest(TestCase):
         self.desc_wrong2 += MAStringDescription(label='String value', required=False, accessor=MAAttrAccessor(aAttrName='str_value'))
         self.desc_wrong2 += MAIntDescription(label='Int value', required=True, conditions=[(MACondition.model == 98, '==98')], accessor=MAAttrAccessor(aAttrName='int_value'))
 
+        self.desc_wrong3 = MAContainer()
+        self.desc_wrong3 += MAStringDescription(label='String value', required=True, accessor=MAAttrAccessor(aAttrName='str_value'))
+
 
     def testValidator_desc_good1(self):
         self.assertEqual(len(self.visitor.validateModelDescription(self.model, self.desc_good1)), 0, "Good description should not produce validation errors")
@@ -49,3 +52,6 @@ class MAToOneRelationDescriptionTest(TestCase):
 
     def testValidator_desc_wrong2(self):
         self.assertNotEqual(len(self.visitor.validateModelDescription(self.model, self.desc_wrong2)), 0, "Wrong description should produce validation errors")
+
+    def testValidator_desc_wrong3(self):
+        self.assertNotEqual(len(self.visitor.validateModelDescription(self.model, self.desc_wrong3)), 0, "Wrong description should produce validation errors")
