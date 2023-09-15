@@ -64,14 +64,12 @@ class TestVisualizerVisitor(MAVisitor):
 class MagritteSelfDescriptionTest(TestCase):
 
     def test_magritteDescription(self):
-#        from datetime import datetime
-#        from MAJsonWriter_visitors import MAValueJsonWriter, MAObjectJsonWriter
 
         object_desc = MAContainer()
         object_desc.label = "Demo Object"
         object_desc += MABooleanDescription(name='bool_value', label='Bool Value', default=True)
         object_desc += MAStringDescription(name='string_value', label='String Value', default='')
-        object_desc += MAIntDescription(name='int_value', label='Int Value', default=0)
+        object_desc += MAIntDescription(name='int_value', label='Int Value', default=0, min = 0)
         object_desc += MAFloatDescription(name='float_value', label='Float Value', default=0.0)
         object_desc += MADateAndTimeDescription(name='date_value', label='Date Value', default=datetime.now())
 
