@@ -2,6 +2,7 @@ from copy import copy
 from sys import intern
 from accessors.MAAttrAccessor_class import MAAttrAccessor
 from accessors.MANullAccessor_class import MANullAccessor
+from MAValidatorVisitor_class import MAValidatorVisitor
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
 from MAModel_class import MAModel
@@ -363,3 +364,19 @@ class MADescription(MAModel):
                 errors.append(e)
                 
         return errors
+
+    @property
+    def validator(self):
+        try:
+            return self._validator
+        except AttributeError:
+            self._validator = self.defaultValidator()
+            return self._validator
+
+    @validator.setter
+    def validator(self, validator):
+        self._validator = validator
+
+    @classmethod
+    def defaultValidator(cls):
+        return MAValidatorVisitor
