@@ -11,4 +11,5 @@ class MADurationDescription(MAMagnitudeDescription):
     @classmethod
     def isAbstract(cls):
         return False
-
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitDurationDescription(self)

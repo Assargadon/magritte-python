@@ -10,9 +10,6 @@ class TestProperties_of_MAFloatDescription(MAMagnitudeDescriptionTest.TestProper
 
 
 class MAFloatDescriptionTest(TestCase):
-
-    def setUp(self):
-        self.inst1 = MAFloatDescription()
-
-    def test_kind(self):
-        self.assertEqual(self.inst1.kind, float)
+    def test_default_kind(self):
+        desc = MAFloatDescription()
+        self.assertEqual(desc.kind, float)

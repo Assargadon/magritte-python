@@ -8,10 +8,7 @@ class TestProperties_of_MAIntDescription(MANumberDescriptionTest.TestProperties_
         return MAIntDescription()
 
 class MAIntDescriptionTest(TestCase):
-
-    def setUp(self):
-        self.desc = MAIntDescription()
-
-    def test_kind_by_default(self):
-        self.assertEqual(self.desc.kind, int)
+    def test_default_kind(self):
+        desc = MAIntDescription()
+        self.assertEqual(desc.kind, int)
 

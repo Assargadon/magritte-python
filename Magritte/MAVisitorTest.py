@@ -6,6 +6,11 @@ from MAVisitor_class import MAVisitor
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
 from MAMagnitudeDescription_class import MAMagnitudeDescription
+from MANumberDescription_class import MANumberDescription
+from MAIntDescription_class import MAIntDescription
+from MAFloatDescription_class import MAFloatDescription
+from MADurationDescription_class import MADurationDescription
+from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MAOptionDescription_class import MAOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
@@ -27,6 +32,26 @@ class MATestingVisitor(MAVisitor):
     def visitMagnitudeDescription(self, anObject):
         self.visited_methods.append(MAMagnitudeDescription.__name__)
         super().visitMagnitudeDescription(anObject)
+
+    def visitNumberDescription(self, anObject):
+        self.visited_methods.append(MANumberDescription.__name__)
+        super().visitNumberDescription(anObject)
+
+    def visitIntDescription(self, anObject):
+        self.visited_methods.append(MAIntDescription.__name__)
+        super().visitIntDescription(anObject)
+
+    def visitFloatDescription(self, anObject):
+        self.visited_methods.append(MAFloatDescription.__name__)
+        super().visitFloatDescription(anObject)
+
+    def visitDateAndTimeDescription(self, anObject):
+        self.visited_methods.append(MADateAndTimeDescription.__name__)
+        super().visitDateAndTimeDescription(anObject)
+
+    def visitDurationDescription(self, anObject):
+        self.visited_methods.append(MADurationDescription.__name__)
+        super().visitDurationDescription(anObject)
 
     def visitOptionDescription(self, anObject):
         self.visited_methods.append(MAOptionDescription.__name__)
@@ -59,6 +84,11 @@ class MAVisitorTest(TestCase):
         MADescription,
         MAElementDescription,
         MAMagnitudeDescription,
+        MANumberDescription,
+        MAIntDescription,
+        MAFloatDescription,
+        MADurationDescription,
+        MADateAndTimeDescription,
         MAOptionDescription,
         MAReferenceDescription,
         MARelationDescription,

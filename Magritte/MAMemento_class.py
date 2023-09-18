@@ -1,0 +1,6 @@
+
+
+class MAMemento:
+
+    # TODO
+    pass
