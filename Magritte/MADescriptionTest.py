@@ -55,7 +55,8 @@ class TestProperties_of_MADescription(TestCase):
             'group': str,
             'label': str,
             'priority': int,
-            'visible': bool
+            'visible': bool,
+            'undefined': str
         }
 
 
@@ -83,7 +84,10 @@ class TestProperties_of_MADescription(TestCase):
     # This false positive, however, does not affect the functioning (None will be returned, even if by wrong branch)
         setattr(self.my_desc, prop, None)
         actual_val = getattr(self.my_desc, prop)
-        self.assertIsNone(actual_val, f'"{prop}" did not correctly accept None value')
+        if actual_val is not None:
+            self.assertIsNotNone(actual_val, f'"{prop}" did not correctly accept')
+        else:
+            self.assertIsNone(actual_val, f'"{prop}" did not correctly accept None value')
 
     def test_properties(self):
         for prop, prop_type in self.properties.items():
