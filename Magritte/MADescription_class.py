@@ -47,14 +47,7 @@ class MADescription:
     @accessor.setter
     def accessor(self, anObject):
         if isinstance(anObject, str):
-            m_accessors = __import__('accessors')
-            m_class = getattr(m_accessors, f'{anObject}_class')
-            class_ = getattr(m_class, anObject)
-            if class_ == MAAttrAccessor:
-                instance = class_(self.name)
-            else:
-                instance = class_()
-            self._accessor = instance
+            self._accessor = MAAttrAccessor(anObject)
         else:
             self._accessor = anObject
 
