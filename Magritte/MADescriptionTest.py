@@ -3,6 +3,7 @@ from MADescription_class import MADescription
 from accessors.MAAccessor_class import MAAccessor
 from MAContainer_class import MAContainer
 from errors.MARequiredError import MARequiredError
+from MACondition import MACondition
 
 class TestProperties_of_MADescription(TestCase):
 
@@ -15,6 +16,8 @@ class TestProperties_of_MADescription(TestCase):
             return True
         elif prop_type == int:
             return 42
+        elif prop_name == 'conditions':
+            return [(MACondition.model >= 5, '>=5'), (MACondition.model == 36, '==36')]
         elif prop_type == list:
             return [1, 2, 3]
         elif prop_type == set:

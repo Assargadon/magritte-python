@@ -51,6 +51,10 @@ class MARelationDescription(MAReferenceDescription):
         else:
             return reference
 
+    @reference.setter
+    def reference(self, aDescription):
+        self._reference = aDescription
+
     @classmethod
     def defaultReference(cls):
         return MAPriorityContainer()
