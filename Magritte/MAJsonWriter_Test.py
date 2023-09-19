@@ -35,33 +35,29 @@ class MAJsonWriter_Test(TestCase):
     def setUp(self):
         # ==================== Scalar values testing. ====================
         self.int_value = 123
-        self.int_desc = MAIntDescription(
-            name='TestInt', label='Test Int', default=0, accessor='MAIdentityAccessor'
-        )
+        self.int_desc = MAIntDescription(name='TestInt', label='Test Int', default=0, accessor=MAIdentityAccessor())
         self.int_encoder = MAValueJsonWriter(self.int_desc)
 
         self.str_value = 'abc'
-        self.str_desc = MAStringDescription(
-            name='TestString', label='Test String', default='', accessor='MAIdentityAccessor'
-        )
+        self.str_desc = MAStringDescription(name='TestString', label='Test String', default='',
+                                       accessor=MAIdentityAccessor())
         self.str_encoder = MAValueJsonWriter(self.str_desc)
 
         self.float_value = 1.23
-        self.float_desc = MAFloatDescription(
-            name='TestFloat', label='Test Float', default=0.0, accessor='MAIdentityAccessor'
-        )
+        self.float_desc = MAFloatDescription(name='TestFloat', label='Test Float', default=0.0,
+                                        accessor=MAIdentityAccessor())
         self.float_encoder = MAValueJsonWriter(self.float_desc)
 
         self.time_now = datetime.now()
         self.date_value = self.time_now
         self.date_desc = MADateAndTimeDescription(
-            name='TestDate', label='Test Date', default=self.time_now, accessor='MAIdentityAccessor'
+            name='TestDate', label='Test Date', default=self.time_now, accessor=MAIdentityAccessor()
         )
         self.date_encoder = MAValueJsonWriter(self.date_desc)
 
         self.scalar_rel_value = self.int_value
         self.scalar_rel_desc = MARelationDescription(
-            name='TestScalarRel', label='Test Scalar Relation', accessor='MAIdentityAccessor'
+            name='TestScalarRel', label='Test Scalar Relation', accessor=MAIdentityAccessor()
         )
         # Cannot set reference in constructor because of current MARelationDescription implementation.
         self.scalar_rel_desc.reference = self.int_desc
@@ -72,17 +68,17 @@ class MAJsonWriter_Test(TestCase):
         self.object_desc = MAContainer()
         self.object_desc.setChildren(
             [
-                MAStringDescription(name='name', label='Name', default='', accessor='MAAttrAccessor'),
-                MAIntDescription(name='int_value', label='Int Value', default=0, accessor='MAAttrAccessor'),
-                MAFloatDescription(name='float_value', label='Float Value', default=0.0, accessor='MAAttrAccessor'),
-                MADateAndTimeDescription(name='date_value', label='Date Value', default=self.time_now, accessor='MAAttrAccessor'),
+                MAStringDescription(label='Name', default='', accessor='name'),
+                MAIntDescription(label='Int Value', default=0, accessor='int_value'),
+                MAFloatDescription(label='Float Value', default=0.0, accessor='float_value'),
+                MADateAndTimeDescription(label='Date Value', default=self.time_now, accessor='date_value'),
             ]
         )
         self.object_encoder = MAObjectJsonWriter(self.object_desc)
 
         # ==================== Object reference value testing. ====================
         self.object_rel_desc = MARelationDescription(
-            name='TestObjectRel', label='Test Object Relation', accessor='MAIdentityAccessor'
+            name='TestObjectRel', label='Test Object Relation', accessor=MAIdentityAccessor()
         )
         # Cannot set reference in constructor because of current MARelationDescription implementation.
         self.object_rel_desc.reference = self.object_desc
@@ -92,11 +88,11 @@ class MAJsonWriter_Test(TestCase):
         self.compound_object = TestObject2('object2', 234, 2.34, self.time_now, self.object1)
         self.compound_object_desc = MAContainer()
         self.compound_object_desc.setChildren([
-            MAStringDescription(name='name', label='Name', default='', accessor='MAAttrAccessor'),
-            MAIntDescription(name='int_value', label='Int Value', default=0, accessor='MAAttrAccessor'),
-            MAFloatDescription(name='float_value', label='Float Value', default=0.0, accessor='MAAttrAccessor'),
-            MADateAndTimeDescription(name='date_value', label='Date Value', default=self.time_now, accessor='MAAttrAccessor'),
-            MARelationDescription(name='ref_object', label='Referenced Object', accessor='MAAttrAccessor'),
+            MAStringDescription(label='Name', default='', accessor='name'),
+            MAIntDescription(label='Int Value', default=0, accessor='int_value'),
+            MAFloatDescription(label='Float Value', default=0.0, accessor='float_value'),
+            MADateAndTimeDescription(label='Date Value', default=self.time_now, accessor='date_value'),
+            MARelationDescription(label='Referenced Object', accessor='ref_object'),
         ])
         # Cannot set reference in constructor because of current MARelationDescription implementation.
         self.compound_object_desc.children[4].reference = self.object_desc
