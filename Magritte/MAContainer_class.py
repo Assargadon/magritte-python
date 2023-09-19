@@ -30,10 +30,7 @@ class MAContainer(MADescription):
         return len(self._children)
 
     def __getitem__(self, item):
-        if(isinstance(item, str)):
-            return self._getByName(item)
-        else:
-            return self._children[item]
+        return self._children[item]
 
     def __copy__(self):
         clone = self.__class__()
@@ -154,9 +151,6 @@ class MAContainer(MADescription):
 
     def keysAndValuesDo(self, aBlock):
         for index, item in enumerate(self.children): aBlock(index, item)
-    
-    def _getByName(self, nameOfDescriptionToSearchFor):
-        return self.detectIfNone(lambda description: description.name == nameOfDescriptionToSearchFor, lambda: None)
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitContainer(self)
