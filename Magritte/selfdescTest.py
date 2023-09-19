@@ -8,6 +8,7 @@ from MAStringDescription_class import MAStringDescription
 from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
+from MASingleOptionDescription_class import MASingleOptionDescription
 
 from MAVisitor_class import MAVisitor
 
@@ -76,6 +77,7 @@ class MagritteSelfDescriptionTest(TestCase):
         object_desc += MAIntDescription(name='int_value', label='Int Value', default=0, min = 0)
         object_desc += MAFloatDescription(name='float_value', label='Float Value', default=0.0)
         object_desc += MADateAndTimeDescription(name='date_value', label='Date Value', default=datetime.now())
+        object_desc += MASingleOptionDescription(name='color', label='Color Variants', options = ["red", "blue", "orange", "green"], default="orange", reference = MAStringDescription())
 
         object_encoder = TestVisualizerVisitor()
         metadescriptor_json = object_encoder.convert(object_desc)
