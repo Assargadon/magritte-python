@@ -290,12 +290,15 @@ class MADescription(MAModel):
 
     @conditions.setter
     def conditions(self, conditions):
-        self._conditions = []
-        for item in conditions:
-            if isinstance(item, tuple):
-                self.addCondition(item[0], label=item[1])
-            else:
-                self.addCondition(item)
+        if conditions is None:
+            self._conditions = self.defaultConditions()
+        else:
+            self._conditions = []
+            for item in conditions:
+                if isinstance(item, tuple):
+                    self.addCondition(item[0], label=item[1])
+                else:
+                    self.addCondition(item)
 
     @classmethod
     def defaultConditions(cls):
