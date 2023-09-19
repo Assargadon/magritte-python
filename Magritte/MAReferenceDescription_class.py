@@ -6,10 +6,6 @@ from MAStringDescription_class import MAStringDescription
 
 class MAReferenceDescription(MAElementDescription):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._reference = self.defaultReference()
-
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
@@ -24,11 +20,12 @@ class MAReferenceDescription(MAElementDescription):
     def reference(self):
         try:
             if self._reference is None:
-                return self.defaultReference()
-            else:
-                return self._reference
+                self._reference = self.defaultReference()
         except AttributeError:
-            return self.defaultReference()
+            self._reference = self.defaultReference()
+ 
+        return self._reference
+        
 
     @reference.setter
     def reference(self, aDescription):
