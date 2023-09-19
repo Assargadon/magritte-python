@@ -2,6 +2,7 @@ from unittest import TestCase
 from copy import copy
 from MAContainer_class import MAContainer
 from accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from MAStringDescription_class import MAStringDescription
 
 
 class MAContainerTest(TestCase):
@@ -153,3 +154,14 @@ class MAContainerTest(TestCase):
     def test_keysAndValuesDo(self):
         self.inst1.setChildren([1, 2, 3, 4])
         self.assertEqual(self.inst1.keysAndValuesDo(self.block2), None)
+    
+    def test_searchByName(self):
+        desc = MAContainer()
+        desc += MAStringDescription(name = "first", label = "First Field")
+        desc += MAStringDescription(label = "nameless #2")
+        desc += MAStringDescription(name = "second", label = "Second Field")
+        desc += MAStringDescription(label = "nameless #1")
+        
+        self.assertEqual(desc["first"].label, "First Field")
+        self.assertEqual(desc["second"].label, "Second Field")
+        self.assertIsNone(desc["third"])
