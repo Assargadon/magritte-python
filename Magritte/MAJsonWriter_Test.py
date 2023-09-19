@@ -3,11 +3,11 @@ from datetime import datetime
 from unittest import TestCase
 import json
 
-from MAAttrAccessor_class import MAAttrAccessor
+from accessors.MAAttrAccessor_class import MAAttrAccessor
 from MAContainer_class import MAContainer
 from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MAFloatDescription_class import MAFloatDescription
-from MAIdentityAccessor_class import MAIdentityAccessor
+from accessors.MAIdentityAccessor_class import MAIdentityAccessor
 from MAIntDescription_class import MAIntDescription
 from MARelationDescription_class import MARelationDescription
 from MAStringDescription_class import MAStringDescription
