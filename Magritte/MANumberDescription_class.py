@@ -1,4 +1,5 @@
 from MAMagnitudeDescription_class import MAMagnitudeDescription
+from MACondition import MACondition
 
 
 class MANumberDescription(MAMagnitudeDescription):

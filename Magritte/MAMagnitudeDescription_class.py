@@ -15,11 +15,14 @@ class MAMagnitudeDescription(MAElementDescription):
 
     @property
     def max(self):
-        return self.get(intern('max'), self.defaultMax())
+        try:
+            return self._max
+        except AttributeError:
+            return self.defaultMax()
 
     @max.setter
     def max(self, anObjectOrNone):
-        self[intern('max')] = anObjectOrNone
+        self._max = anObjectOrNone
 
     @classmethod
     def defaultMax(cls):
@@ -27,11 +30,14 @@ class MAMagnitudeDescription(MAElementDescription):
 
     @property
     def min(self):
-        return self.get(intern('min'), self.defaultMin())
+        try:
+            return self._min
+        except AttributeError:
+            return self.defaultMin()
 
     @min.setter
     def min(self, anObjectOrNone):
-        self[intern('min')] = anObjectOrNone
+        self._min = anObjectOrNone
 
     @classmethod
     def defaultMin(cls):
@@ -44,23 +50,26 @@ class MAMagnitudeDescription(MAElementDescription):
 
     @property
     def rangeErrorMessage(self):
-        min = self.min
-        max = self.max
-        if min is not None:
-            if max is not None:
-                defaultRangeErrorMessage = f'Input must be between {min} and {max}'
+        try:
+            return self._rangeErrorMessage
+        except AttributeError:
+            min = self.min
+            max = self.max
+            if min is not None:
+                if max is not None:
+                    defaultRangeErrorMessage = f'Input must be between {min} and {max}'
+                else:
+                    defaultRangeErrorMessage = f'Input must be above or equal to {min}'
             else:
-                defaultRangeErrorMessage = f'Input must be above or equal to {min}'
-        else:
-            if max is not None:
-                defaultRangeErrorMessage = f'Input must be below or equal to {max}'
-            else:
-                defaultRangeErrorMessage = None
-        return self.get(intern('rangeErrorMessage'), defaultRangeErrorMessage)
+                if max is not None:
+                    defaultRangeErrorMessage = f'Input must be below or equal to {max}'
+                else:
+                    defaultRangeErrorMessage = None
+            return defaultRangeErrorMessage
 
     @rangeErrorMessage.setter
     def rangeErrorMessage(self, aString):
-        self[intern('rangeErrorMessage')] = aString
+        self._rangeErrorMessage = aString
 
 
     def acceptMagritte(self, aVisitor):

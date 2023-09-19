@@ -1,8 +1,8 @@
-
-import types
 from copy import copy
 from sys import intern
-from MANullAccessor_class import MANullAccessor
+from accessors.MANullAccessor_class import MANullAccessor
+from errors.MAValidationError import MAValidationError
+from errors.MAConditionError import MAConditionError
 
 class MADescription:
 
@@ -11,7 +11,6 @@ class MADescription:
         return True
 
     def __init__(self, **kwargs):
-        self._propertyDict = {}
         self._accessor = self.defaultAccessor()
         for key, value in kwargs.items():
             attr = getattr(self.__class__, key)
@@ -33,24 +32,11 @@ class MADescription:
     def __lt__(self, other):
         return self.priority < other.priority
 
-    def __getitem__(self, prop_name):
-        return self._propertyDict[prop_name]
-
-    def __setitem__(self, prop_name, value):
-        self._propertyDict[prop_name] = value
-
-    def __contains__(self, prop_name):
-        return prop_name in self._propertyDict
-
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
         clone.accessor = copy(self.accessor)
         return clone
-
-    def get(self, prop_name, default_value):
-        return self._propertyDict.get(prop_name, default_value)
-
 
 
     @property
@@ -68,35 +54,47 @@ class MADescription:
 
     @property
     def kind(self):
-        return self.get(intern('kind'), self.defaultKind())
+        try:
+            return self._kind
+        except AttributeError:
+            return self.defaultKind()
 
     @kind.setter
     def kind(self, aClass):
-        self[intern('kind')] = aClass
+        self._kind = aClass
 
     @classmethod
     def defaultKind(cls):
         return object
 
     def isKindDefined(self):
-        return intern('kind') in self
+        try:
+            return self._kind is not None
+        except AttributeError:
+            return False
 
     @property
     def kindErrorMessage(self):
-        return self.get(intern('kindErrorMessage'), 'Invalid input given')
+        try:
+            return self._kindErrorMessage
+        except AttributeError:
+            return 'Invalid input given'
 
     @kindErrorMessage.setter
     def kindErrorMessage(self, aStr):
-        self[intern('kindErrorMessage')] = aStr
+        self._kindErrorMessage = aStr
 
 
     @property
     def readOnly(self):
-        return self.get(intern('readOnly'), self.defaultReadOnly())
+        try:
+            return self._readOnly
+        except AttributeError:
+            return self.defaultReadOnly()
 
     @readOnly.setter
     def readOnly(self, aBool):
-        self[intern('readOnly')] = aBool
+        self._readOnly = aBool
 
     @classmethod
     def defaultReadOnly(cls):
@@ -114,11 +112,14 @@ class MADescription:
 
     @property
     def required(self):
-        return self.get(intern('required'), self.defaultRequired())
+        try:
+            return self._required
+        except AttributeError:
+            return self.defaultRequired()
 
     @required.setter
     def required(self, aBool):
-        self[intern('required')] = aBool
+        self._required = aBool
 
     @classmethod
     def defaultRequired(cls):
@@ -148,12 +149,15 @@ class MADescription:
 
     @property
     def undefinedValue(self):
-        result = self.get(intern('undefinedValue'), self.defaultUndefinedValue())
+        try:
+            result = self._undefinedValue
+        except AttributeError:
+            result = self.defaultUndefinedValue()
         return self.defaultUndefinedValue() if result is None else result
 
     @undefinedValue.setter
     def undefinedValue(self, anObject):
-        self[intern('undefinedValue')] = anObject
+        self._undefinedValue = anObject
 
     @classmethod
     def defaultUndefinedValue(cls):
@@ -162,22 +166,28 @@ class MADescription:
 
     @property
     def name(self):
-        return self.get(intern('name'), self.accessor.name)
+        try:
+            return self._name
+        except AttributeError:
+            return self.accessor.name
 
     @name.setter
     def name(self, aSymbol):
         if aSymbol is None:
-            self[intern('name')] = None
+            self._name = None
         else:
-            self[intern('name')] = intern(aSymbol)
+            self._name = intern(aSymbol)
 
     @property
     def comment(self):
-        return self.get(intern('comment'), self.defaultComment())
+        try:
+            return self._comment
+        except AttributeError:
+            return self.defaultComment()
 
     @comment.setter
     def comment(self, aStr):
-        self[intern('comment')] = aStr
+        self._comment = aStr
 
     @classmethod
     def defaultComment(cls):
@@ -190,11 +200,14 @@ class MADescription:
 
     @property
     def group(self):
-        return self.get(intern('group'), self.defaultGroup())
+        try:
+            return self._group
+        except AttributeError:
+            return self.defaultGroup()
 
     @group.setter
     def group(self, aStr):
-        self[intern('group')] = aStr
+        self._group = aStr
 
     @classmethod
     def defaultGroup(cls):
@@ -203,11 +216,14 @@ class MADescription:
 
     @property
     def label(self):
-        return self.get(intern('label'), self.defaultLabel())
+        try:
+            return self._label
+        except AttributeError:
+            return self.defaultLabel()
 
     @label.setter
     def label(self, aStr):
-        self[intern('label')] = aStr
+        self._label = aStr
 
     @classmethod
     def defaultLabel(cls):
@@ -221,11 +237,14 @@ class MADescription:
 
     @property
     def priority(self):
-        return self.get(intern('priority'), self.defaultPriority())
+        try:
+            return self._priority
+        except AttributeError:
+            return self.defaultPriority()
 
     @priority.setter
     def priority(self, aNumber):
-        self[intern('priority')] = aNumber
+        self._priority = aNumber
 
     @classmethod
     def defaultPriority(cls):
@@ -234,11 +253,14 @@ class MADescription:
 
     @property
     def visible(self):
-        return self.get(intern('visible'), self.defaultVisible())
+        try:
+            return self._visible
+        except AttributeError:
+            return self.defaultVisible()
 
     @visible.setter
     def visible(self, aBool):
-        self[intern('visible')] = aBool
+        self._visible = aBool
 
     @classmethod
     def defaultVisible(cls):
@@ -253,11 +275,32 @@ class MADescription:
     def beHidden(self):
         self.visible = False
 
+    @property
+    def conditions(self):
+        try:
+            return self._conditions
+        except AttributeError:
+            self._conditions = self.defaultConditions()
+            return self._conditions
 
+    @conditions.setter
+    def conditions(self, conditionsTuplesList):
+        self._conditions = conditionsTuplesList
+
+    @classmethod
+    def defaultConditions(cls):
+        return []
+        
+    def addCondition(self, condition, label=None):
+        if(label is None): label = getattr(condition, "label", None)
+        self.conditions.append((condition, label)) # double parenthesis is not a typo: we add _tuple_ into `_conditions` list
 
     @property
     def undefined(self):
-        result = self.get(intern('undefined'), self.defaultUndefined())
+        try:
+            result = self._undefined
+        except AttributeError:
+            result = self.defaultUndefined()
         return self.defaultUndefined() if result is None else result
         # The idea behind this double defaultUndefined() call is (I believe) as follows:
         # even if you manually assign None to the `undefined` (i.e. not just left it unmentioned),
@@ -266,10 +309,10 @@ class MADescription:
 
     @undefined.setter
     def undefined(self, aStr):
-        self[intern('undefined')] = aStr
+        self._undefined_set(aStr) #important to be able to override setter in subclasses
 
-    def _undefined(self, aStr):
-        self[intern('undefined')] = aStr
+    def _undefined_set(self, aStr):
+        self._undefined = aStr
 
     @classmethod
     def defaultUndefined(cls):
@@ -285,3 +328,17 @@ class MADescription:
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitDescription(self)
+
+    def _validateConditions(self, model):
+        errors = []
+        
+        for conditionTuple in self.conditions:
+            (condition, label) = conditionTuple
+            
+            try:
+                if not condition(model):
+                    errors.append(MAConditionError(self, label))
+            except MAValidationError as e:
+                errors.append(e)
+                
+        return errors

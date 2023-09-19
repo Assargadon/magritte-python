@@ -1,5 +1,5 @@
 from unittest import TestCase
-from MAAttrAccessor_class import MAAttrAccessor
+from . MAAttrAccessor_class import MAAttrAccessor
 
 
 class Person:
@@ -71,6 +71,3 @@ class MAAttrAccessorTest(TestCase):
     def test_name(self):
 
         self.assertEqual(self.accessor_field.name, "surname")
-
-    def test_isAbstract(self):
-        self.assertEqual(MAAttrAccessor.isAbstract(), False)

@@ -1,10 +1,12 @@
-from Port import Port
-from Host import Host
+
+from MAModel_class import MAModel
+from . Port import Port
+from . Host import Host
 import datetime
 import random
 
 
-class Account:
+class Account(MAModel):
 
     def __init__(self, Login, Password, Dateofreg, Days, port):
         assert isinstance(port, Port), "Expected port to be an instance of Port"

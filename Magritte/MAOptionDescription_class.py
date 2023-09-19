@@ -34,11 +34,14 @@ class MAOptionDescription(MAReferenceDescription):
 
     @property
     def extensible(self):
-        return self.get(intern('extensible'), self.defaultExtensible())
+        try:
+            return self._extensible
+        except AttributeError:
+            return self.defaultExtensible()
 
     @extensible.setter
     def extensible(self, aBoolean):
-        self[intern('extensible')] = aBoolean
+        self._extensible = aBoolean
 
     def beExtensible(self):
         self.extensible = True
@@ -57,11 +60,14 @@ class MAOptionDescription(MAReferenceDescription):
 
     @property
     def sorted(self):
-        return self.get(intern('sorted'), self.defaultExtensible())
+        try:
+            return self._sorted
+        except AttributeError:
+            return self.defaultSorted()
 
     @sorted.setter
     def sorted(self, aBoolean):
-        self[intern('sorted')] = aBoolean
+        self._sorted = aBoolean
 
     def beSorted(self):
         self.sorted = True
@@ -72,16 +78,9 @@ class MAOptionDescription(MAReferenceDescription):
     def isSorted(self):
         return self.sorted
 
-    @property
-    def undefined(self):
-        return super().undefined
 
-    @undefined.setter
-    def undefined(self, aStr):
-        self._undefined(aStr)
-
-    def _undefined(self, aStr):
-        super()._undefined(aStr)
+    def _undefined_set(self, aStr):
+        super()._undefined_set(aStr)
         if self.reference is not None:
             self.reference.undefined = aStr
 

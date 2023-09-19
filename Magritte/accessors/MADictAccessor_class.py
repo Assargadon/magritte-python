@@ -1,4 +1,4 @@
-from MAAccessor_class import MAAccessor
+from . MAAccessor_class import MAAccessor
 
 
 class MADictAccessor(MAAccessor):

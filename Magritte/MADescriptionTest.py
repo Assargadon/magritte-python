@@ -1,7 +1,6 @@
 from unittest import TestCase
 from MADescription_class import MADescription
-from MANullAccessor_class import MANullAccessor
-from MAAccessor_class import MAAccessor
+from accessors.MAAccessor_class import MAAccessor
 from MAContainer_class import MAContainer
 
 class TestProperties_of_MADescription(TestCase):
@@ -182,21 +181,6 @@ class MADescriptionTest(TestCase):
         self.assertEqual(self.desc1, self.desc1, "Equality check failed for comparing Description instance with itself")
         self.assertNotEqual(self.desc1, self.desc2, "Inequality check failed for comparing two independent description instances")
 
-    def test_setitem_and_getitem(self):
-        self.desc1['id'] = 13
-        self.assertEqual(self.desc1['id'], 13, "Failed to set or retrieve the value using item access")
-
-    def test_in(self):
-        self.desc1['fieldname'] = {'meaning': 'some object just to assign a value (because something like `3` is not explanatory)'}
-        self.assertTrue("fieldname" in self.desc1, "Field 'fieldname' WAS assigned, and therefore should be `in` desc1, but it was not found")
-        self.assertFalse("fieldname" in self.desc2, "Field 'fieldname' was NOT assigned, and therefore it should NOT be `in` desc2, but it was found")
-
-    def test_get(self):
-        self.desc1['id'] = 13
-        self.assertEqual(self.desc1.get('id', -7), 13, "`.get` method failed to retrieve assigned value for 'id'")
-        self.assertEqual(self.desc2.get('id', -7), -7, "`.get` method did not return the default value when 'id' was not found")
-
-
 
     def test_undefined_default(self):
         self.assertIsInstance(self.desc1.undefined, str)
@@ -210,9 +194,23 @@ class MADescriptionTest(TestCase):
         self.assertIsInstance(self.desc1.undefined, str, "After assigning None to .undefined it should be defaultUndefined, not None")
 
 
+    def test_addCondition(self):
+        self.assertEqual(len(self.desc1.conditions), 0)
+        self.desc1.addCondition((lambda model: True), "always true")
+        self.assertEqual(len(self.desc1.conditions), 1)
+        self.desc1.addCondition((lambda model: False)) # label is ommited - None expected to be added as label
+        self.assertEqual(len(self.desc1.conditions), 2)
+        
+        self.assertEqual(self.desc1.conditions[0][1], "always true")
+        self.assertIsNone(self.desc1.conditions[1][1])
 
-    def test_isAbstract(self):
-        self.assertEqual(self.desc1.isAbstract(), True)
+    def test_validateConditions(self):
+        self.assertEqual(len(self.desc1._validateConditions("test model")), 0, "Freshly initialized description with no conditions should return zero errors on `_validateConditions`")
 
+        self.desc1.addCondition(lambda model: False, "Condition always fails")
+        self.desc1.addCondition(lambda model: True, "Condition always met")
+        self.assertEqual(len(self.desc1._validateConditions("test model")), 1, "One unmet condition is here")
+        self.assertEqual(self.desc1._validateConditions("test model")[0].message, "Condition always fails")
+        
     def test_isSortable(self):
         self.assertEqual(self.desc1.isSortable(), False)

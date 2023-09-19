@@ -1,7 +1,7 @@
 
 from copy import copy
 from MADescription_class import MADescription
-from MAIdentityAccessor_class import MAIdentityAccessor
+from accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 class MAContainer(MADescription):
 
@@ -85,9 +85,6 @@ class MAContainer(MADescription):
     def asContainer(self):
         return self
 
-    def get(self, index, default_value):
-        return self.children[index] if index < len(self.children) else default_value
-
 
     def allSatisty(self, aBlock):
         return all(aBlock(item) for _, item in enumerate(self.children))
@@ -151,3 +148,7 @@ class MAContainer(MADescription):
 
     def keysAndValuesDo(self, aBlock):
         for index, item in enumerate(self.children): aBlock(index, item)
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitContainer(self)
+        

@@ -1,6 +1,7 @@
 from unittest import TestCase
+from copy import copy
 from MAContainer_class import MAContainer
-from MAIdentityAccessor_class import MAIdentityAccessor
+from accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 
 class MAContainerTest(TestCase):
@@ -20,21 +21,21 @@ class MAContainerTest(TestCase):
         self.assertEqual(self.inst1.__contains__('exm'), True)
 
     def test_len(self):
-        self.inst1.__iadd__('exm1')
-        self.inst1.__iadd__('exm2')
-        self.inst1.__iadd__('exm3')
-        self.inst1.__iadd__('exm4')
-        self.assertEqual(self.inst1.__len__(), 4)
+        self.inst1 += 'exm1'
+        self.inst1 += 'exm2'
+        self.inst1 += 'exm3'
+        self.inst1 += 'exm4'
+        self.assertEqual(len(self.inst1), 4)
 
     def test_getitem(self):
-        self.inst1.__iadd__('exm1')
-        self.inst1.__iadd__('exm2')
-        self.inst1.__iadd__('exm3')
-        self.inst1.__iadd__('exm4')
-        self.assertEqual(self.inst1.__getitem__(0), 'exm1')
+        self.inst1 += 'exm1'
+        self.inst1 += 'exm2'
+        self.inst1 += 'exm3'
+        self.inst1 += 'exm4'
+        self.assertEqual(self.inst1[0], 'exm1')
 
     def test_copy(self):
-        exm = self.inst1.__copy__()
+        exm = copy(self.inst1)
         self.assertEqual(self.inst1 == exm, True)
 
     def test_defaultAccessor(self):
@@ -89,8 +90,8 @@ class MAContainerTest(TestCase):
 
     def test_get(self):
         self.inst1.setChildren([1, 2, 3, 4])
-        self.assertEqual(self.inst1.get(2, 'index > len'), 3)
-        self.assertEqual(self.inst1.get(7, 'index > len'), 'index > len')
+        self.assertEqual(self.inst1[2] if 2 < len(self.inst1) else 'index > len', 3)
+        self.assertEqual(self.inst1[7] if 7 < len(self.inst1) else 'index > len', 'index > len')
 
     def test_allSatisty(self):
         self.inst1.setChildren([1, 2, 3, 4])

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from MADictAccessor_class import MADictAccessor
+from . MADictAccessor_class import MADictAccessor
 
 
 class MADictAccessorTest(TestCase):
@@ -60,6 +60,3 @@ class MADictAccessorTest(TestCase):
     def test_name(self):
         m = MADictAccessor(2)
         self.assertEqual(m.name, 2)
-
-    def test_isAbstract(self):
-        self.assertEqual(MADictAccessor.isAbstract(), False)

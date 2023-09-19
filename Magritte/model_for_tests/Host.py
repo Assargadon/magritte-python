@@ -1,7 +1,9 @@
-import random
-from Port import Port
 
-class Host:
+from MAModel_class import MAModel
+import random
+from . Port import Port
+
+class Host(MAModel):
 
     def __init__(self, IP, ports):
         assert IP is not None, "IP cannot be None"

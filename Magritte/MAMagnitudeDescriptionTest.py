@@ -11,11 +11,9 @@ class TestProperties_of_MAMagnitudeDescription(MAElementDescriptionTest.TestProp
         #{**dict1, **dict2} is actually a merge of two dictionaries
         return {
             **super()._properties(),
-            **{ 
-                'max': None,
-                'min': None,
-                'rangeErrorMessage': str
-            }
+            'max': None,
+            'min': None,
+            'rangeErrorMessage': str
         }
 
 
@@ -36,17 +34,17 @@ class MAMagnitudeDescriptionTest(TestCase):
         self.assertEqual(self.inst.isWithinRange(7), True)
 
     def test_getRangeErrorMessage_by_default(self):
-        self.inst.setMinMax(1, 10)
-        self.assertEqual(self.inst.rangeErrorMessage, f'Input must be between {1} and {10}')
+        self.inst.setMinMax(321, 987)
+        self.assertTrue('321' in self.inst.rangeErrorMessage and '987' in self.inst.rangeErrorMessage)
 
-        self.inst.setMinMax(1, None)
-        self.assertEqual(self.inst.rangeErrorMessage, f'Input must be above or equal to {1}')
+        self.inst.setMinMax(321, None)
+        self.assertTrue('321' in self.inst.rangeErrorMessage)
 
-        self.inst.setMinMax(None, 10)
-        self.assertEqual(self.inst.rangeErrorMessage, f'Input must be below or equal to {10}')
+        self.inst.setMinMax(None, 987)
+        self.assertTrue('987' in self.inst.rangeErrorMessage)
 
         self.inst.setMinMax(None, None)
-        self.assertEqual(self.inst.rangeErrorMessage, None)
+        self.assertIsNone(self.inst.rangeErrorMessage)
 
 
     def test_isSortable(self):

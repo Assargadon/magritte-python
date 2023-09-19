@@ -5,6 +5,7 @@ from MAVisitor_class import MAVisitor
 
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
+from MABooleanDescription_class import MABooleanDescription
 from MAMagnitudeDescription_class import MAMagnitudeDescription
 from MANumberDescription_class import MANumberDescription
 from MAIntDescription_class import MAIntDescription
@@ -12,10 +13,15 @@ from MAFloatDescription_class import MAFloatDescription
 from MADurationDescription_class import MADurationDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MAOptionDescription_class import MAOptionDescription
+from MASingleOptionDescription_class import MASingleOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
+from MAToOneRelationDescription_class import MAToOneRelationDescription
+from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAStringDescription_class import MAStringDescription
 
+from MAContainer_class import MAContainer
+from MAPriorityContainer_class import MAPriorityContainer
 
 class MATestingVisitor(MAVisitor):
     def __init__(self):
@@ -28,6 +34,10 @@ class MATestingVisitor(MAVisitor):
     def visitElementDescription(self, anObject):
         self.visited_methods.append(MAElementDescription.__name__)
         super().visitElementDescription(anObject)
+
+    def visitBooleanDescription(self, anObject):
+        self.visited_methods.append(MABooleanDescription.__name__)
+        super().visitBooleanDescription(anObject)
 
     def visitMagnitudeDescription(self, anObject):
         self.visited_methods.append(MAMagnitudeDescription.__name__)
@@ -53,21 +63,41 @@ class MATestingVisitor(MAVisitor):
         self.visited_methods.append(MADurationDescription.__name__)
         super().visitDurationDescription(anObject)
 
+    def visitReferenceDescription(self, anObject):
+        self.visited_methods.append(MAReferenceDescription.__name__)
+        super().visitReferenceDescription(anObject)
+
     def visitOptionDescription(self, anObject):
         self.visited_methods.append(MAOptionDescription.__name__)
         super().visitOptionDescription(anObject)
 
-    def visitReferenceDescription(self, anObject):
-        self.visited_methods.append(MAReferenceDescription.__name__)
-        super().visitReferenceDescription(anObject)
+    def visitSingleOptionDescription(self, anObject):
+        self.visited_methods.append(MASingleOptionDescription.__name__)
+        super().visitSingleOptionDescription(anObject)
 
     def visitRelationDescription(self, anObject):
         self.visited_methods.append(MARelationDescription.__name__)
         super().visitRelationDescription(anObject)
 
+    def visitToOneRelationDescription(self, anObject):
+        self.visited_methods.append(MAToOneRelationDescription.__name__)
+        super().visitToOneRelationDescription(anObject)
+
+    def visitToManyRelationDescription(self, anObject):
+        self.visited_methods.append(MAToManyRelationDescription.__name__)
+        super().visitToManyRelationDescription(anObject)
+
     def visitStringDescription(self, anObject):
         self.visited_methods.append(MAStringDescription.__name__)
         super().visitStringDescription(anObject)
+
+    def visitContainer(self, aMAContainer):
+        self.visited_methods.append(MAContainer.__name__)
+        super().visitContainer(aMAContainer)
+
+    def visitPriorityContainer(self, aMAPriorityContainer):
+        self.visited_methods.append(MAPriorityContainer.__name__)
+        super().visitPriorityContainer(aMAPriorityContainer)
 
 
 class MATestingVisitAllVisitor(MAVisitor):
@@ -83,6 +113,7 @@ class MAVisitorTest(TestCase):
     descriptors_to_test = [
         MADescription,
         MAElementDescription,
+        MABooleanDescription,
         MAMagnitudeDescription,
         MANumberDescription,
         MAIntDescription,
@@ -90,9 +121,14 @@ class MAVisitorTest(TestCase):
         MADurationDescription,
         MADateAndTimeDescription,
         MAOptionDescription,
+        MASingleOptionDescription,
         MAReferenceDescription,
         MARelationDescription,
-        MAStringDescription
+        MAToOneRelationDescription,
+        MAToManyRelationDescription,
+        MAStringDescription,
+        MAContainer,
+        MAPriorityContainer
     ]  # Add other classes here
 
     descriptors_to_ignore = [

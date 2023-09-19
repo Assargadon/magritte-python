@@ -1,6 +1,11 @@
 
 from MARelationDescription_class import MARelationDescription
 
-
 class MAToOneRelationDescription(MARelationDescription):
-    pass
+
+    @classmethod
+    def isAbstract(cls):
+        return False
+
+    def acceptMagritte(self, aVisitor):
+        aVisitor.visitToOneRelationDescription(self)

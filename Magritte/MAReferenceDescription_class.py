@@ -21,24 +21,18 @@ class MAReferenceDescription(MAElementDescription):
         return MAStringDescription()
 
     @property
-    def initializer(self):
-        return self.get(intern('initializer'), self)
-
-    @initializer.setter
-    def initializer(self, aValuable):
-        self[intern('initializer')] = aValuable
-
-    @property
     def reference(self):
-        return self._reference
+        try:
+            if self._reference is None:
+                return self.defaultReference()
+            else:
+                return self._reference
+        except AttributeError:
+            return self.defaultReference()
 
     @reference.setter
     def reference(self, aDescription):
         self._reference = aDescription
-
-    def _reference(self, aDescription):
-        self._reference = aDescription
-
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitReferenceDescription(self)
