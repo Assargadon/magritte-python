@@ -1,5 +1,6 @@
 from copy import copy
 from sys import intern
+from accessors.MAAttrAccessor_class import MAAttrAccessor
 from accessors.MANullAccessor_class import MANullAccessor
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
@@ -45,7 +46,17 @@ class MADescription:
 
     @accessor.setter
     def accessor(self, anObject):
-        self._accessor = anObject
+        if isinstance(anObject, str):
+            m_accessors = __import__('accessors')
+            m_class = getattr(m_accessors, f'{anObject}_class')
+            class_ = getattr(m_class, anObject)
+            if class_ == MAAttrAccessor:
+                instance = class_(self.name)
+            else:
+                instance = class_()
+            self._accessor = instance
+        else:
+            self._accessor = anObject
 
     @classmethod
     def defaultAccessor(cls):
