@@ -5,6 +5,7 @@ from MAVisitor_class import MAVisitor
 
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
+from MABooleanDescription_class import MABooleanDescription
 from MAMagnitudeDescription_class import MAMagnitudeDescription
 from MANumberDescription_class import MANumberDescription
 from MAIntDescription_class import MAIntDescription
@@ -33,6 +34,10 @@ class MATestingVisitor(MAVisitor):
     def visitElementDescription(self, anObject):
         self.visited_methods.append(MAElementDescription.__name__)
         super().visitElementDescription(anObject)
+
+    def visitBooleanDescription(self, anObject):
+        self.visited_methods.append(MABooleanDescription.__name__)
+        super().visitBooleanDescription(anObject)
 
     def visitMagnitudeDescription(self, anObject):
         self.visited_methods.append(MAMagnitudeDescription.__name__)
@@ -108,6 +113,7 @@ class MAVisitorTest(TestCase):
     descriptors_to_test = [
         MADescription,
         MAElementDescription,
+        MABooleanDescription,
         MAMagnitudeDescription,
         MANumberDescription,
         MAIntDescription,
