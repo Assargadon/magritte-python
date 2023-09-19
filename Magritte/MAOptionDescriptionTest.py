@@ -1,7 +1,7 @@
 from unittest import TestCase
 from MAOptionDescription_class import MAOptionDescription
 import MAReferenceDescriptionTest
-
+from accessors.MAAccessor_class import MAAccessor
 
 class TestProperties_of_MAOptionDescription(MAReferenceDescriptionTest.TestProperties_of_MAReferenceDescription):
     def get_description_instance_to_test(self):
@@ -12,7 +12,8 @@ class TestProperties_of_MAOptionDescription(MAReferenceDescriptionTest.TestPrope
             *super()._properties(),
             ('extensible', bool),
             ('sorted', bool),
-            ('options', list)
+            ('options', list),
+            ('groupBy', MAAccessor)
         }
 
     def _flag_properties(self):
@@ -22,6 +23,12 @@ class TestProperties_of_MAOptionDescription(MAReferenceDescriptionTest.TestPrope
                 ('extensible', 'beExtensible', 'beLimited', 'isExtensible'),
                 ('sorted', 'beSorted', 'beUnsorted', 'isSorted'),
             ]
+        ]
+
+    def _checkable_properties(self):
+        return [
+            *super()._checkable_properties(),
+            ('groupBy', 'isGrouped')
         ]
 
 

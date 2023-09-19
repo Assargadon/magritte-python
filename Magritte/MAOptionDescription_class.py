@@ -56,6 +56,23 @@ class MAOptionDescription(MAReferenceDescription):
     def isExtensible(self):
         return self.extensible
 
+    @property
+    def groupBy(self):
+        try:
+            return self._groupBy
+        except AttributeError:
+            return None
+
+    @groupBy.setter
+    def groupBy(self, anMAAccessor):
+        self._groupBy = anMAAccessor
+
+    def isGrouped(self):
+        try:
+            return self._groupBy is not None
+        except AttributeError:
+            return False
+
 
 
     @classmethod

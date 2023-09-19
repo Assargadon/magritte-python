@@ -1,6 +1,5 @@
 from unittest import TestCase
 from MASingleOptionDescription_class import MASingleOptionDescription
-from accessors.MAAccessor_class import MAAccessor
 import MAOptionDescriptionTest
 
 
@@ -19,7 +18,6 @@ class TestProperties_of_MASingleOptionDescription(MAOptionDescriptionTest.TestPr
             *super()._checkable_properties(),
             ('groupBy', 'isGrouped')
         ]
-
 
 class MASingleOptionDescriptionTest(TestCase):
 
