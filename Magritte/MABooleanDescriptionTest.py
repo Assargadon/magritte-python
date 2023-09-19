@@ -16,4 +16,8 @@ class TestProperties_of_MABooleanDescription(MAElementDescriptionTest.TestProper
 
 
 class MABooleanDescriptionTest(TestCase):
-    pass
+    
+    def test_defaultStrings(self):
+        self.assertTrue(len(MABooleanDescription.defaultTrueStrings()) > 1, "MABooleanDescription should have defaultTrueStrings")
+        self.assertTrue(len(MABooleanDescription.defaultFalseStrings()) > 1, "MABooleanDescription should have defaultFalseStrings")
+        
