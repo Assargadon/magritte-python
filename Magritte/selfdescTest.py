@@ -14,14 +14,18 @@ from MAVisitor_class import MAVisitor
 class TestVisualizerVisitor(MAVisitor):
     
     def convert(self, model, description = None):
-        if not description: description = model.magritteDescription()
+        if not description:
+            if hasattr(model, "magritteDescription"):
+                description = model.magritteDescription()
 
-        self.json = None
-        self.model = model
-        
-        self.visit(description)
-        
-        return self.json
+                self.json = None
+                self.model = model
+                
+                self.visit(description)
+                
+                return self.json
+            else:
+                return model
         
     def deeper(self, model, description = None):
         prev_json = self.json
