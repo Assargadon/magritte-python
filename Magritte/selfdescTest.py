@@ -1,16 +1,25 @@
 from unittest import TestCase
 import json
 from datetime import datetime
+from glob import glob
+import re
         
 from MADescription_class import MADescription
 from MAContainer_class import MAContainer
 from MAPriorityContainer_class import MAPriorityContainer
+from MAElementDescription_class import MAElementDescription
 from MABooleanDescription_class import MABooleanDescription
 from MAStringDescription_class import MAStringDescription
+from MAMagnitudeDescription_class import MAMagnitudeDescription
+from MANumberDescription_class import MANumberDescription
 from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
+from MADurationDescription_class import MADurationDescription
+from MAReferenceDescription_class import MAReferenceDescription
+from MAOptionDescription_class import MAOptionDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
+from MARelationDescription_class import MARelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 
@@ -89,7 +98,7 @@ class TestVisualizerVisitor(MAVisitor):
         
         
 
-class MagritteSelfDescriptionTest(TestCase):
+class MagritteSelfDescriptionVisualTest(TestCase):
 
         
     def test_magritteDescription(self):
@@ -131,3 +140,61 @@ class MagritteSelfDescriptionTest(TestCase):
         metadescriptor_json = object_encoder.convert(object_desc)
         
         print(f"description's description (in JSON):\n{json.dumps(metadescriptor_json, indent=4)}")
+        
+class MagritteSelfDescriptionTest(TestCase):
+
+    descriptors_to_test = [
+        MADescription,
+        MAElementDescription,
+        MABooleanDescription,
+        MAMagnitudeDescription,
+        MANumberDescription,
+        MAIntDescription,
+        MAFloatDescription,
+        MADurationDescription,
+        MADateAndTimeDescription,
+        MAOptionDescription,
+        MAReferenceDescription,
+        MARelationDescription,
+        MASingleOptionDescription,
+        MAStringDescription,
+        MAToManyRelationDescription,
+        MAToOneRelationDescription
+    ]  # Add other classes here
+
+    descriptors_to_ignore = [
+
+    ]
+
+    def setUp(self):
+        # Проверка, что не появились новые классы дескрипторов. При появлении - выдаст assertion.
+        descriptions_file_list = glob('MA*Description_class.py')
+        descriptors_all = [x.__name__ for x in (self.descriptors_to_test + self.descriptors_to_ignore)]
+        pattern = "|".join(map(re.escape, descriptors_all))
+        regex = re.compile(pattern)
+
+        for file_name in descriptions_file_list:
+            match = regex.search(file_name)
+            if match is None:
+                self.assertTrue(False, f'{file_name} found. Add the class to one of then descriptors_to_test or descriptors_to_ignore lists')
+    
+
+    def test_allDescriptorsHaveDescriptions(self):
+        for desc in self.descriptors_to_test:
+            with self.subTest(desc):
+                metadescription = desc().magritteDescription()
+                self.assertIsInstance(metadescription, MAContainer)
+                self.assertTrue(len(metadescription) > 1)
+
+    def test_allDescriptorsFieldsAreReadable(self):
+        for desc in self.descriptors_to_test:
+            with self.subTest(desc):
+                description = desc()
+                metadescription = description.magritteDescription()
+                for desc_field_desc in metadescription:
+                    val = description.readUsing(desc_field_desc)
+                    #print(f"{desc.__name__}.{desc_field_desc.name} = `{val}`")
+                    if(desc_field_desc.isRequired()):
+                        #print(f"Mandatored {desc.__name__}.{desc_field_desc.name} = `{val}`")
+                        self.assertIsNotNone(val, f"Field '{desc_field_desc.name}' of description {desc.__name__} is mandatored, but None")
+                        
