@@ -2,6 +2,7 @@ from unittest import TestCase
 import json
 from datetime import datetime
         
+from MADescription_class import MADescription
 from MAContainer_class import MAContainer
 from MABooleanDescription_class import MABooleanDescription
 from MAStringDescription_class import MAStringDescription
@@ -9,26 +10,29 @@ from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
+from MAToOneRelationDescription_class import MAToOneRelationDescription
 
 from MAVisitor_class import MAVisitor
 
 class TestVisualizerVisitor(MAVisitor):
     
-    def convert(self, model, description = None):
+    def convert(self, model, description = None): #returns JSON representation of `model`
         if not description:
             if hasattr(model, "magritteDescription"):
                 description = model.magritteDescription()
-
-                self.json = None
-                self.model = model
-                
-                self.visit(description)
-                
-                return self.json
             else:
-                return model
+                return f"?{model}?"
+
+        self.json = None
+        self.model = model
+        self.visit(description)
+        return self.json
+                
         
     def deeper(self, model, description = None):
+        if model is None: return None #to avoid same condition in every place needed to convert value 
+        if isinstance(model, (int, float, str, bool)): return model
+        
         prev_json = self.json
         prev_model = self.model
         
@@ -47,7 +51,8 @@ class TestVisualizerVisitor(MAVisitor):
             raise Exception("Shouldn't reach visitContainer with nonempty self.json")
 
     def visitElementDescription(self, description):
-        value = description.accessor.read(self.model)
+
+        value = description.accessor.read(self.model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)        
         
         try:
             json.dumps(value) #for test if value is json-serializable
@@ -55,20 +60,28 @@ class TestVisualizerVisitor(MAVisitor):
         except:
             self.json[description.name] = f"!{value}!"
 
-    def visitToOneRelationDescription(self, description):
-        related_object = description.accessor.read(self.model)
-        if(not description.reference):
-            self.visitRelationDescription(description)
-        else:
-            self.json[description.name] = self.deeper(related_object)
+    def visitReferenceDescription(self, description): # i.e. model expected to be complex object (or collection of objects, but it's catched by visitMultipleOptionDescription and visitToManyRelationDescription below)
+        model = description.accessor.read(self.model)
+        print(description.reference)
+        self.json[description.name] = self.deeper(model)
 
+    def visitMultipleOptionDescription(self, description): # Mind that MAMultipleOptionDescription is not implemented yet
+        selectedOptions = description.accessor.read(self.model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)
+        print(description.reference)
+        self.json[description.name] = {self.deeper(entry) for entry in selectedOptions}
+       
     def visitToManyRelationDescription(self, description):
         collection = description.accessor.read(self.model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)
+        print(f"{description.name} : {description.reference}")
         self.json[description.name] = [self.deeper(entry) for entry in collection]
+
+        
+        
 
 class MagritteSelfDescriptionTest(TestCase):
 
     def test_magritteDescription(self):
+
 
         object_desc = MAContainer()
         object_desc.label = "Demo Object"
