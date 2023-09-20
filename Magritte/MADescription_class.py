@@ -4,8 +4,9 @@ from accessors.MAAttrAccessor_class import MAAttrAccessor
 from accessors.MANullAccessor_class import MANullAccessor
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
+from MAModel_class import MAModel
 
-class MADescription:
+class MADescription(MAModel):
 
     @classmethod
     def isAbstract(cls):
