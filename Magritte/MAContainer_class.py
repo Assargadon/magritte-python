@@ -13,8 +13,8 @@ class MAContainer(MADescription):
         return False
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         self._children = self.defaultCollection()
+        super().__init__(**kwargs)
 
     def __eq__(self, other):
         return super().__eq__(other) and self._children == other.children
