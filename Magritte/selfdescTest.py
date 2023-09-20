@@ -58,7 +58,10 @@ class TestVisualizerVisitor(MAVisitor):
             json.dumps(value) #for test if value is json-serializable
             self.json[description.name] = value #if so, then just put raw value
         except:
-            self.json[description.name] = f"!{value}!"
+            if isinstance(value, (set, list)):
+                self.json[description.name] = [self.deeper(entry) for entry in value]
+            else:
+                self.json[description.name] = f"!{value}!"
 
     def visitReferenceDescription(self, description): # i.e. model expected to be complex object (or collection of objects, but it's catched by visitMultipleOptionDescription and visitToManyRelationDescription below)
         model = description.accessor.read(self.model)
@@ -80,7 +83,10 @@ class TestVisualizerVisitor(MAVisitor):
 
 class MagritteSelfDescriptionTest(TestCase):
 
+        
     def test_magritteDescription(self):
+        class TestChild:
+            pass
 
 
         object_desc = MAContainer()
@@ -94,7 +100,7 @@ class MagritteSelfDescriptionTest(TestCase):
 
         child_obj_desc = MAContainer(label = "child object")
         child_obj_desc += MAStringDescription(name='string_value_of_child', label='String Value Of Child', default='')
-        object_desc += MAToOneRelationDescription(name='child', label='Child object reference', reference = child_obj_desc)
+        object_desc += MAToOneRelationDescription(name='child', label='Child object reference', reference = child_obj_desc, classes = {TestChild})
 
         
 

@@ -5,9 +5,10 @@ from MAPriorityContainer_class import MAPriorityContainer
 
 class MARelationDescription(MAReferenceDescription):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._classes = self.defaultClasses()
+    def magritteDescription(self):
+        import MARelationDescription_selfdesc
+        return MARelationDescription_selfdesc.magritteDescription(self, super().magritteDescription())
+
 
     def __copy__(self):
         clone = self.__class__()
@@ -17,11 +18,15 @@ class MARelationDescription(MAReferenceDescription):
 
     @classmethod
     def defaultClasses(cls):
-        return set()
+        return {}
 
     @property
     def classes(self):
-        return self._classes
+        try:
+            return self._classes
+        except AttributeError:
+            self._classes = self.defaultClasses()
+            return self._classes
 
     @classes.setter
     def classes(self, aCollection):
