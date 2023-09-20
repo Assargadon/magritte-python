@@ -9,8 +9,8 @@ class MAContainer(MADescription):
     def isAbstract(cls):
         return False
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._children = self.defaultCollection()
 
     def __eq__(self, other):
