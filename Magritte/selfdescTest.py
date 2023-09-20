@@ -79,6 +79,12 @@ class MagritteSelfDescriptionTest(TestCase):
         object_desc += MADateAndTimeDescription(name='date_value', label='Date Value', default=datetime.now())
         object_desc += MASingleOptionDescription(name='color', label='Color Variants', options = ["red", "blue", "orange", "green"], default="orange", reference = MAStringDescription())
 
+        child_obj_desc = MAContainer(label = "child object")
+        child_obj_desc += MAStringDescription(name='string_value_of_child', label='String Value Of Child', default='')
+        object_desc += MAToOneRelationDescription(name='child', label='Child object reference', reference = child_obj_desc)
+
+        
+
         object_encoder = TestVisualizerVisitor()
         metadescriptor_json = object_encoder.convert(object_desc)
         

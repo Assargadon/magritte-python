@@ -12,6 +12,10 @@ class MAReferenceDescription(MAElementDescription):
         clone.reference = copy(self.reference)
         return clone
 
+    def magritteDescription(self):
+        import MAReferenceDescription_selfdesc
+        return MAReferenceDescription_selfdesc.magritteDescription(self, super().magritteDescription())
+
     @classmethod
     def defaultReference(cls):
         return MAStringDescription()
