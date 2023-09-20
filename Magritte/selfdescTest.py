@@ -4,6 +4,7 @@ from datetime import datetime
         
 from MADescription_class import MADescription
 from MAContainer_class import MAContainer
+from MAPriorityContainer_class import MAPriorityContainer
 from MABooleanDescription_class import MABooleanDescription
 from MAStringDescription_class import MAStringDescription
 from MAIntDescription_class import MAIntDescription
@@ -11,6 +12,7 @@ from MAFloatDescription_class import MAFloatDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
+from MAToManyRelationDescription_class import MAToManyRelationDescription
 
 from MAVisitor_class import MAVisitor
 
@@ -65,18 +67,24 @@ class TestVisualizerVisitor(MAVisitor):
 
     def visitReferenceDescription(self, description): # i.e. model expected to be complex object (or collection of objects, but it's catched by visitMultipleOptionDescription and visitToManyRelationDescription below)
         model = description.accessor.read(self.model)
-        print(description.reference)
-        self.json[description.name] = self.deeper(model)
+        if model is None:
+            self.json[description.name] = None
+        else:
+            self.json[description.name] = self.deeper(model)
 
     def visitMultipleOptionDescription(self, description): # Mind that MAMultipleOptionDescription is not implemented yet
         selectedOptions = description.accessor.read(self.model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)
-        print(description.reference)
-        self.json[description.name] = {self.deeper(entry) for entry in selectedOptions}
+        if selectedOptions is None:
+            self.json[description.name] = None
+        else:
+            self.json[description.name] = {self.deeper(entry) for entry in selectedOptions}
        
     def visitToManyRelationDescription(self, description):
         collection = description.accessor.read(self.model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)
-        print(f"{description.name} : {description.reference}")
-        self.json[description.name] = [self.deeper(entry) for entry in collection]
+        if collection is None:
+            self.json[description.name] = None
+        else:
+            self.json[description.name] = [self.deeper(entry) for entry in collection]
 
         
         
@@ -85,10 +93,6 @@ class MagritteSelfDescriptionTest(TestCase):
 
         
     def test_magritteDescription(self):
-        class TestChild:
-            pass
-
-
         object_desc = MAContainer()
         object_desc.label = "Demo Object"
         object_desc += MABooleanDescription(name='bool_value', label='Bool Value', default=True)
@@ -98,10 +102,29 @@ class MagritteSelfDescriptionTest(TestCase):
         object_desc += MADateAndTimeDescription(name='date_value', label='Date Value', default=datetime.now())
         object_desc += MASingleOptionDescription(name='color', label='Color Variants', options = ["red", "blue", "orange", "green"], default="orange", reference = MAStringDescription())
 
+
+        class TestChild1:
+            pass
+
+        class TestChild2:
+            pass
+
         child_obj_desc = MAContainer(label = "child object")
         child_obj_desc += MAStringDescription(name='string_value_of_child', label='String Value Of Child', default='')
-        object_desc += MAToOneRelationDescription(name='child', label='Child object reference', reference = child_obj_desc, classes = {TestChild})
+        object_desc += MAToOneRelationDescription(name='child', label='Child object reference', reference = child_obj_desc, classes = {TestChild1, TestChild2})
 
+
+        
+        class EntryType1:
+            pass
+
+        class EntryType2:
+            pass
+
+        entry_desc = MAPriorityContainer(label = "entry object")
+        entry_desc += MAStringDescription(name='comment', label='Comment', priority=20)
+        entry_desc += MADateAndTimeDescription(name='timestamp', label='Entry Date', priority=10)
+        object_desc += MAToManyRelationDescription(name='entries', label='Entries (child objects list)', reference = entry_desc, classes = {EntryType1, EntryType2})
         
 
         object_encoder = TestVisualizerVisitor()
