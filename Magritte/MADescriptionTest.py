@@ -19,7 +19,7 @@ class TestProperties_of_MADescription(TestCase):
         elif prop_type == int:
             return 42
         elif prop_name == 'conditions':
-            return [MACondition.model >= 5, MACondition.model == 36]
+            return [(MACondition.model >= 5, 'custom label: >=5'), (MACondition.model == 36, 'custom label: ==36')]
         elif prop_type == list:
             return [1, 2, 3]
         elif prop_type == set:
@@ -67,7 +67,7 @@ class TestProperties_of_MADescription(TestCase):
             ('group', str),
             ('label', str),
             ('priority', int),
-            ('conditions', list),
+            ('conditions', list, True),
             ('visible', bool),
             ('undefined', str, True)
         }
