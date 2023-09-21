@@ -1,4 +1,6 @@
 from unittest import TestCase
+import types
+
 from MADescription_class import MADescription
 from accessors.MAAccessor_class import MAAccessor
 from MAContainer_class import MAContainer
@@ -214,6 +216,20 @@ class MADescriptionTest(TestCase):
         
         self.assertEqual(self.desc1.conditions[0][1], "always true")
         self.assertIsNone(self.desc1.conditions[1][1])
+
+    def test_conditionsConvertionOnAssignment(self):
+        self.desc1.conditions = [MACondition.model >= 5, lambda x: x != 10, (MACondition.model == 36, "test custom label")]
+        self.assertEqual(len(self.desc1.conditions), 3)
+
+        self.assertIsInstance(self.desc1.conditions[0][0], MACondition)
+        self.assertIsInstance(self.desc1.conditions[0][1], str)
+        
+        self.assertIsInstance(self.desc1.conditions[1][0], types.LambdaType)
+        self.assertIsNone(self.desc1.conditions[1][1])
+        
+        self.assertIsInstance(self.desc1.conditions[2][0], MACondition)
+        self.assertEqual(self.desc1.conditions[2][1], "test custom label")
+        
 
     def test_validateConditions(self):
         self.assertEqual(len(self.desc1._validateConditions("test model")), 0, "Freshly initialized description with no conditions should return zero errors on `_validateConditions`")
