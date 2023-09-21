@@ -209,13 +209,22 @@ class MADescriptionTest(TestCase):
 
     def test_addCondition(self):
         self.assertEqual(len(self.desc1.conditions), 0)
+        
         self.desc1.addCondition((lambda model: True), "always true")
         self.assertEqual(len(self.desc1.conditions), 1)
+        self.assertIsInstance(self.desc1.conditions[0][0], types.LambdaType)
+        self.assertEqual(self.desc1.conditions[0][1], "always true")
+        
         self.desc1.addCondition((lambda model: False)) # label is ommited - None expected to be added as label
         self.assertEqual(len(self.desc1.conditions), 2)
-        
-        self.assertEqual(self.desc1.conditions[0][1], "always true")
+        self.assertIsInstance(self.desc1.conditions[1][0], types.LambdaType)
         self.assertIsNone(self.desc1.conditions[1][1])
+
+        self.desc1.addCondition(MACondition.model >= 5) #label is ommited, but MACondition generators have labels
+        self.assertEqual(len(self.desc1.conditions), 3)
+        self.assertIsInstance(self.desc1.conditions[2][0], MACondition)
+        self.assertIsInstance(self.desc1.conditions[2][1], str)
+        
 
     def test_conditionsConvertionOnAssignment(self):
         self.desc1.conditions = [MACondition.model >= 5, lambda x: x != 10, (MACondition.model == 36, "test custom label")]
