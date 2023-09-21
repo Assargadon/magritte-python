@@ -10,8 +10,8 @@ class TestProperties_of_MASingleOptionDescription(MAOptionDescriptionTest.TestPr
 
     def _properties(self):
         return {
-            **super()._properties(),
-            'groupBy': MAAccessor
+            *super()._properties(),
+            ('groupBy', MAAccessor)
         }
         
     def _checkable_properties(self):
