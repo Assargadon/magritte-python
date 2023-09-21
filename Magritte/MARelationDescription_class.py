@@ -18,7 +18,7 @@ class MARelationDescription(MAReferenceDescription):
 
     @classmethod
     def defaultClasses(cls):
-        return {}
+        return set()
 
     @property
     def classes(self):
@@ -33,7 +33,7 @@ class MARelationDescription(MAReferenceDescription):
         self._classes = aCollection
 
     def commonClass(self):
-        if len(self._classes) == 0:
+        if not self.classes:
             return None
 
         current = next(iter(self.classes))
