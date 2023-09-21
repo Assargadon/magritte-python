@@ -289,15 +289,23 @@ class MADescription(MAModel):
             return self._conditions
 
     @conditions.setter
-    def conditions(self, conditionsTuplesList):
-        self._conditions = conditionsTuplesList
+    def conditions(self, conditions):
+        if conditions is None:
+            self._conditions = self.defaultConditions()
+        else:
+            self._conditions = []
+            for item in conditions:
+                if isinstance(item, tuple):
+                    self.addCondition(item[0], label=item[1])
+                else:
+                    self.addCondition(item)
 
     @classmethod
     def defaultConditions(cls):
         return []
         
     def addCondition(self, condition, label=None):
-        if(label is None): label = getattr(condition, "label", None)
+        if label is None: label = getattr(condition, "label", None)
         self.conditions.append((condition, label)) # double parenthesis is not a typo: we add _tuple_ into `_conditions` list
 
     @property
