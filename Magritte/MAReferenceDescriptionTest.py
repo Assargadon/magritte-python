@@ -9,6 +9,11 @@ class TestProperties_of_MAReferenceDescription(MAElementDescriptionTest.TestProp
     def get_description_instance_to_test(self):
         return MAReferenceDescription()
 
+    def _properties(self):
+        return {
+            *super()._properties(),
+            ('reference', MADescription, True)
+        }
 
 class MAReferenceDescriptionTest(TestCase):
 
@@ -18,6 +23,3 @@ class MAReferenceDescriptionTest(TestCase):
     def test_copy(self):
         copy_test = self.inst1.__copy__()
         self.assertEqual(copy_test, self.inst1)
-
-    def test_reference(self):
-        self.assertIsInstance(self.inst1.reference, MADescription)
