@@ -8,12 +8,11 @@ class TestProperties_of_MAMagnitudeDescription(MAElementDescriptionTest.TestProp
         return MAMagnitudeDescription()
 
     def _properties(self):
-        #{**dict1, **dict2} is actually a merge of two dictionaries
         return {
-            **super()._properties(),
-            'max': None,
-            'min': None,
-            'rangeErrorMessage': str
+            *super()._properties(),
+            ('max', None),
+            ('min', None),
+            ('rangeErrorMessage', str)
         }
 
 
