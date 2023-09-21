@@ -148,7 +148,7 @@ class MAVisitorTest(TestCase):
                 self.assertTrue(False, f'{file_name} found. Add the class to one of then descriptors_to_test or descriptors_to_ignore lists')
 
     def get_inheritance_chain(self, cls):
-        return [base.__name__ for base in cls.__mro__ if base != object]
+        return [base.__name__ for base in cls.__mro__ if issubclass(base, MADescription)]
 
     def check_descriptor(self, descriptor):
         # Get expected inheritance chain
