@@ -9,9 +9,9 @@ class TestProperties_of_MABooleanDescription(MAElementDescriptionTest.TestProper
     
     def _properties(self):
         return {
-            **super()._properties(),
-            'trueString': str,
-            'falseString': str,
+            *super()._properties(),
+            ('trueString', str),
+            ('falseString', str),
         }
 
 
