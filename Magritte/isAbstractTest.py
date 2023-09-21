@@ -4,6 +4,7 @@ import re
 
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
+from MABooleanDescription_class import MABooleanDescription
 from MAMagnitudeDescription_class import MAMagnitudeDescription
 from MANumberDescription_class import MANumberDescription
 from MAIntDescription_class import MAIntDescription
@@ -23,6 +24,7 @@ class AbstractTest(TestCase):
     descriptors_to_test = [
         MADescription,
         MAElementDescription,
+        MABooleanDescription,
         MAMagnitudeDescription,
         MANumberDescription,
         MAIntDescription,

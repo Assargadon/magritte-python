@@ -5,6 +5,7 @@ from MAVisitor_class import MAVisitor
 
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
+from MABooleanDescription_class import MABooleanDescription
 from MAMagnitudeDescription_class import MAMagnitudeDescription
 from MANumberDescription_class import MANumberDescription
 from MAIntDescription_class import MAIntDescription
@@ -33,6 +34,10 @@ class MATestingVisitor(MAVisitor):
     def visitElementDescription(self, anObject):
         self.visited_methods.append(MAElementDescription.__name__)
         super().visitElementDescription(anObject)
+
+    def visitBooleanDescription(self, anObject):
+        self.visited_methods.append(MABooleanDescription.__name__)
+        super().visitBooleanDescription(anObject)
 
     def visitMagnitudeDescription(self, anObject):
         self.visited_methods.append(MAMagnitudeDescription.__name__)
@@ -108,6 +113,7 @@ class MAVisitorTest(TestCase):
     descriptors_to_test = [
         MADescription,
         MAElementDescription,
+        MABooleanDescription,
         MAMagnitudeDescription,
         MANumberDescription,
         MAIntDescription,
@@ -142,7 +148,7 @@ class MAVisitorTest(TestCase):
                 self.assertTrue(False, f'{file_name} found. Add the class to one of then descriptors_to_test or descriptors_to_ignore lists')
 
     def get_inheritance_chain(self, cls):
-        return [base.__name__ for base in cls.__mro__ if base != object]
+        return [base.__name__ for base in cls.__mro__ if issubclass(base, MADescription)]
 
     def check_descriptor(self, descriptor):
         # Get expected inheritance chain

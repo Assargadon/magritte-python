@@ -1,4 +1,6 @@
 from unittest import TestCase
+import types
+
 from MADescription_class import MADescription
 from accessors.MAAccessor_class import MAAccessor
 from MAContainer_class import MAContainer
@@ -7,7 +9,10 @@ from MACondition import MACondition
 
 class TestProperties_of_MADescription(TestCase):
 
-    def get_test_value(self, prop_name, prop_type):
+    def get_test_value(self, prop_name):
+        matching_properties = [value for name, value, *isNonNullAccepting in self.properties if name == prop_name]
+        prop_type = matching_properties[0]
+        
         if prop_type == type:
             return list # Just because `list` is type which always exists
         elif prop_type == str:
@@ -17,7 +22,7 @@ class TestProperties_of_MADescription(TestCase):
         elif prop_type == int:
             return 42
         elif prop_name == 'conditions':
-            return [(MACondition.model >= 5, '>=5'), (MACondition.model == 36, '==36')]
+            return [(MACondition.model >= 5, 'custom label: >=5'), (MACondition.model == 36, 'custom label: ==36')]
         elif prop_type == list:
             return [1, 2, 3]
         elif prop_type == set:
@@ -46,24 +51,33 @@ class TestProperties_of_MADescription(TestCase):
         return self._properties()
 
     def _properties(self):
-        return { 
-            'kind': type,
-            'accessor': MAAccessor,
-            'readOnly': bool,
-            'required': bool,
-            'undefinedValue': None,
-            'name': str,
-            'comment': str,
-            'group': str,
-            'label': str,
-            'priority': int,
-            'conditions': list,
-            'visible': bool,
+        # add True as third parameter to tuple if property has non-null-accepting behavior,
+        # i.e. if assigning None to it forces it to re-init itself from default values,
+        # (for most metadescriptor fields, None is valid value, and may be assigned and stored,
+        # and lazy initilization happens if field was _read before initialization_)
+        # Set this third parameter to the type of expected non-null-accepting
+
+
+        return {
+            ('kind', type),
+            ('kindErrorMessage', str),
+            ('accessor', MAAccessor),
+            ('readOnly', bool),
+            ('required', bool),
+            ('undefinedValue', None),
+            ('name', str),
+            ('comment', str),
+            ('group', str),
+            ('label', str),
+            ('priority', int),
+            ('conditions', list, True),
+            ('visible', bool),
+            ('undefined', str, True),
             
-            'requiredErrorMessage': str,
-            'kindErrorMessage': str,
-            'multipleErrorsMessage': str,
-            'conflictErrorMessage': str,            
+            ('requiredErrorMessage', str),
+            ('kindErrorMessage', str),
+            ('multipleErrorsMessage', str),
+            ('conflictErrorMessage', str),
         }
 
 
@@ -81,28 +95,39 @@ class TestProperties_of_MADescription(TestCase):
             pass
 
     def check_read_write(self, prop, prop_type):
-        new_val = self.get_test_value(prop, prop_type)
+        new_val = self.get_test_value(prop)
         setattr(self.my_desc, prop, new_val)
         actual_val = getattr(self.my_desc, prop)
         self.assertEqual(actual_val, new_val, f'"{prop}" did not update correctly')
 
-    def check_assigning_null(self, prop):
+    def check_assigning_null_to_common_field(self, prop):
     # If default value is _also_ None, this check may generate false positive
     # This false positive, however, does not affect the functioning (None will be returned, even if by wrong branch)
         setattr(self.my_desc, prop, None)
         actual_val = getattr(self.my_desc, prop)
         self.assertIsNone(actual_val, f'"{prop}" did not correctly accept None value')
 
+    def check_assigning_null_to_non_null_accepting_field(self, prop, prop_type):
+        # non-null-accepting fields are fields which has special behavior:
+        # assigning None to them make them "non initialized", and they re-initialize themselves by default values
+        setattr(self.my_desc, prop, None)
+        self.check_default_value(prop, prop_type)
+
     def test_properties(self):
-        for prop, prop_type in self.properties.items():
+        for prop, prop_type, *isNonNullAccepting in self.properties:
             with self.subTest(property=prop, type=prop_type):
                 # print(f"{prop} => {prop_type}")
                 self.setUp()
                 self.check_default_value(prop, prop_type)
+                
                 self.setUp()
                 self.check_read_write(prop, prop_type)
+                
                 self.setUp()
-                self.check_assigning_null(prop)
+                if isNonNullAccepting:
+                    self.check_assigning_null_to_non_null_accepting_field(prop, prop_type)
+                else:
+                    self.check_assigning_null_to_common_field(prop)
 
 # ====================================================================
 
@@ -160,7 +185,7 @@ class TestProperties_of_MADescription(TestCase):
         self.assertFalse(getattr(self.my_desc, check_method)(), f"'{check_method}' should return False when '{prop}' is not set")
 
         # Assign a value to the property
-        new_val = self.get_test_value(prop, self.properties[prop]) # Assuming `self.properties` has the type info
+        new_val = self.get_test_value(prop) # Assuming `self.properties` has the type info
         setattr(self.my_desc, prop, new_val)
 
         # Check if the property is now reported as defined
@@ -227,27 +252,39 @@ class MADescriptionTest(TestCase):
         self.assertNotEqual(self.desc1, self.desc2, "Inequality check failed for comparing two independent description instances")
 
 
-    def test_undefined_default(self):
-        self.assertIsInstance(self.desc1.undefined, str)
-
-    def test_undefined_readWrite(self):
-        self.desc1.undefined = 'no value'
-        self.assertEqual(self.desc1.undefined, 'no value')
-        
-    def test_undefined_assignNone(self):
-        self.desc1.undefined = None
-        self.assertIsInstance(self.desc1.undefined, str, "After assigning None to .undefined it should be defaultUndefined, not None")
-
 
     def test_addCondition(self):
         self.assertEqual(len(self.desc1.conditions), 0)
+        
         self.desc1.addCondition((lambda model: True), "always true")
         self.assertEqual(len(self.desc1.conditions), 1)
+        self.assertIsInstance(self.desc1.conditions[0][0], types.LambdaType)
+        self.assertEqual(self.desc1.conditions[0][1], "always true")
+        
         self.desc1.addCondition((lambda model: False)) # label is ommited - None expected to be added as label
         self.assertEqual(len(self.desc1.conditions), 2)
-        
-        self.assertEqual(self.desc1.conditions[0][1], "always true")
+        self.assertIsInstance(self.desc1.conditions[1][0], types.LambdaType)
         self.assertIsNone(self.desc1.conditions[1][1])
+
+        self.desc1.addCondition(MACondition.model >= 5) #label is ommited, but MACondition generators have labels
+        self.assertEqual(len(self.desc1.conditions), 3)
+        self.assertIsInstance(self.desc1.conditions[2][0], MACondition)
+        self.assertIsInstance(self.desc1.conditions[2][1], str)
+        
+
+    def test_conditionsConvertionOnAssignment(self):
+        self.desc1.conditions = [MACondition.model >= 5, lambda x: x != 10, (MACondition.model == 36, "test custom label")]
+        self.assertEqual(len(self.desc1.conditions), 3)
+
+        self.assertIsInstance(self.desc1.conditions[0][0], MACondition)
+        self.assertIsInstance(self.desc1.conditions[0][1], str)
+        
+        self.assertIsInstance(self.desc1.conditions[1][0], types.LambdaType)
+        self.assertIsNone(self.desc1.conditions[1][1])
+        
+        self.assertIsInstance(self.desc1.conditions[2][0], MACondition)
+        self.assertEqual(self.desc1.conditions[2][1], "test custom label")
+        
 
     def test_validateConditions(self):
         self.assertEqual(len(self.desc1._validateConditions("test model")), 0, "Freshly initialized description with no conditions should return zero errors on `_validateConditions`")

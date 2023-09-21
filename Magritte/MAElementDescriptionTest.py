@@ -7,8 +7,7 @@ class TestProperties_of_MAElementDescription(MADescriptionTest.TestProperties_of
         return MAElementDescription()
 
     def _properties(self):
-        #{**dict1, **dict2} is actually a merge of two dictionaries
         return {
-            **super()._properties(),
-            'default': None
+            *super()._properties(),
+            ('default', None)
         }

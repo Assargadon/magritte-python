@@ -1,5 +1,6 @@
 from copy import copy
 from sys import intern
+from accessors.MAAttrAccessor_class import MAAttrAccessor
 from accessors.MANullAccessor_class import MANullAccessor
 from MAValidatorVisitor_class import MAValidatorVisitor
 
@@ -7,8 +8,9 @@ from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
 from errors.MAKindError import MAKindError
 from errors.MARequiredError import MARequiredError
+from MAModel_class import MAModel
 
-class MADescription:
+class MADescription(MAModel):
 
     @classmethod
     def isAbstract(cls):
@@ -49,7 +51,10 @@ class MADescription:
 
     @accessor.setter
     def accessor(self, anObject):
-        self._accessor = anObject
+        if isinstance(anObject, str):
+            self._accessor = MAAttrAccessor(anObject)
+        else:
+            self._accessor = anObject
 
     @classmethod
     def defaultAccessor(cls):
