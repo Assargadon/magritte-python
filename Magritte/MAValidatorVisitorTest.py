@@ -100,3 +100,19 @@ class MAToOneRelationDescriptionTest(TestCase):
         self.assertEqual(len(desc.validate({"str": "Test", "int": 100})), 1)
         self.assertEqual(len(desc.validate({"str": None, "int": None})), 2)
         self.assertEqual(len(desc.validate({"str": None, "int": 100})), 2)
+
+    def test_multipleErrorsByMultipleConditions(self):
+        desc = MAIntDescription(
+            min = 2,
+            max = 10,
+            conditions = [
+                MACondition.model != 0,
+                lambda x: x % 2 == 1 #should be odd
+            ]
+        )
+        
+        self.assertEqual(len(desc.validate(3)), 0)
+        self.assertEqual(len(desc.validate(1)), 1) # less than min
+        self.assertEqual(len(desc.validate(4)), 1) # even
+        self.assertEqual(len(desc.validate(12)), 2) # even, more than max
+        self.assertEqual(len(desc.validate(0)), 3) # even, less than min, equal to zero
