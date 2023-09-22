@@ -35,7 +35,6 @@ class MAValidatorVisitor(MAVisitor):
         errors = aDescription._validateSpecific(anObject)
         if errors:
             self._errors.extend(errors)
-            return
         errors = aDescription._validateConditions(anObject)
         if errors:
             self._errors.extend(errors)
