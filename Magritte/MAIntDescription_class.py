@@ -1,5 +1,4 @@
 from MANumberDescription_class import MANumberDescription
-from sys import intern
 
 
 class MAIntDescription(MANumberDescription):

@@ -1,5 +1,4 @@
 
-from sys import intern
 from MAElementDescription_class import MAElementDescription
 
 class MAStringDescription(MAElementDescription):

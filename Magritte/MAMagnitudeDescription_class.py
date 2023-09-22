@@ -1,4 +1,3 @@
-from sys import intern
 from MAElementDescription_class import MAElementDescription
 
 class MAMagnitudeDescription(MAElementDescription):

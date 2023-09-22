@@ -302,7 +302,7 @@ class MADescription(MAModel):
         return []
         
     def addCondition(self, condition, label=None):
-        if label is None: label = getattr(condition, "label", None)
+        if label is None: label = getattr(condition, intern('label'), None)
         self.conditions.append((condition, label)) # double parenthesis is not a typo: we add _tuple_ into `_conditions` list
 
     @property

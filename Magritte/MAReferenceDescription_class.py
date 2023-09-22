@@ -1,6 +1,5 @@
 
 from copy import copy
-from sys import intern
 from MAElementDescription_class import MAElementDescription
 from MAStringDescription_class import MAStringDescription
 

@@ -1,5 +1,4 @@
 
-from sys import intern
 from copy import copy
 from MAReferenceDescription_class import MAReferenceDescription
 

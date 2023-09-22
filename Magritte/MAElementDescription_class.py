@@ -1,5 +1,4 @@
 
-from sys import intern
 from MADescription_class import MADescription
 
 class MAElementDescription(MADescription):
