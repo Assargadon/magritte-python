@@ -28,14 +28,14 @@ class MAToMany_ValidationTest(MADescriptionTest.MADescription_ValidationTest):
             self.assertTrue(len(self.desc._validateRequired([])) == 0, "Empty collection is a valid value for optional MAToManyRelationDescription")
 
     def test_validateKind(self):
-        with self.subTest("no classes set"):
+        with self.subTest("no classes set - should always pass"):
             with self.assertRaises(TypeError):
                 self.desc._validateKind(None)
             with self.assertRaises(TypeError):
                 self.desc._validateKind(36)
-            self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 1)
-            self.assertTrue(len(self.desc._validateKind([None])) == 1)
-            self.assertTrue(len(self.desc._validateKind([36])) == 1)
+            self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 0)
+            self.assertTrue(len(self.desc._validateKind([None])) == 0)
+            self.assertTrue(len(self.desc._validateKind([36])) == 0)
 
         with self.subTest("classes set to str"):
             self.desc.classes = {str}

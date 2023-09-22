@@ -28,7 +28,7 @@ class MARelationDescription(MAReferenceDescription):
         self._classes = aCollection
 
     def commonClass(self):
-        if len(self.classes) == 0:
+        if not self.classes:
             return None
 
         current = next(iter(self.classes))

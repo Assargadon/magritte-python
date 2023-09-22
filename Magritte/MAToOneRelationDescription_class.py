@@ -18,7 +18,7 @@ class MAToOneRelationDescription(MARelationDescription):
         errors = super()._validateKind(model)
         if errors:
             return errors
-        if not any(isinstance(model, cls) for cls in self.classes):
+        if self.classes and not any(isinstance(model, cls) for cls in self.classes):
             return [MAKindError(aDescription=self, message=self.kindErrorMessage)]
         return []
 

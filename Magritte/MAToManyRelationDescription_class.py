@@ -26,7 +26,7 @@ class MAToManyRelationDescription(MARelationDescription):
         if errors:
             return errors
         for item in model:
-            if not any(isinstance(item, cls) for cls in self.classes):
+            if self.classes and not any(isinstance(item, cls) for cls in self.classes):
                 return [MAKindError(aDescription=self, message=self.kindErrorMessage)]
         return []
 
