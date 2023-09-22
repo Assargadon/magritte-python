@@ -6,6 +6,7 @@ from accessors.MAAttrAccessor_class import MAAttrAccessor
 from MACondition import MACondition
 from MAStringDescription_class import MAStringDescription
 from MAIntDescription_class import MAIntDescription
+from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAValidatorVisitor_class import MAValidatorVisitor
 from accessors.MADictAccessor_class import MADictAccessor
@@ -60,10 +61,10 @@ class MAToOneRelationDescriptionTest(TestCase):
         return len(description.validate(model)) == 0
 
     def test_optionalContainer(self):
-        optionalContainer = MAContainer()
+        optionalContainer = MAContainer(required = False)
         self.assertTrue(self.isSatisfiedBy(optionalContainer, None), "None is valid value for optional MAContainer")
 
-        mandatoryContainer = MAContainer()
+        mandatoryContainer = MAContainer(required = True)
         self.assertFalse(self.isSatisfiedBy(mandatoryContainer, None), "None is NOT valid value for non-optional/mandatored MAContainer")
         
     def test_toManyValidation(self):
