@@ -8,8 +8,7 @@ from MAStringDescription_class import MAStringDescription
 from MAIntDescription_class import MAIntDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAValidatorVisitor_class import MAValidatorVisitor
-
-
+from accessors.MADictAccessor_class import MADictAccessor
 
 class _ValidatorTestModel(MAModel):
     str_value = None
@@ -90,3 +89,13 @@ class MAToOneRelationDescriptionTest(TestCase):
         
         self.assertTrue(self.isSatisfiedBy(desc, TestObjectHolder(None)), "None is OK for optional field")
         self.assertTrue(self.isSatisfiedBy(desc, TestObjectHolder(_ValidatorTestModel)))
+
+    def test_multipleErrors(self):
+        desc = MAContainer()
+        desc += MAStringDescription(accessor = MADictAccessor("str"), required = True)
+        desc += MAIntDescription(accessor = MADictAccessor("int"), required = True, min = 13, max = 66 )
+        
+        self.assertEqual(len(desc.validate({"str": "Test", "int": 20})), 0)
+        self.assertEqual(len(desc.validate({"str": "Test", "int": 100})), 1)
+        self.assertEqual(len(desc.validate({"str": None, "int": None})), 2)
+        self.assertEqual(len(desc.validate({"str": None, "int": 100})), 2)
