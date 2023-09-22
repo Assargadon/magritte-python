@@ -5,10 +5,6 @@ from MAPriorityContainer_class import MAPriorityContainer
 
 class MARelationDescription(MAReferenceDescription):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._classes = self.defaultClasses()
-
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
@@ -21,14 +17,18 @@ class MARelationDescription(MAReferenceDescription):
 
     @property
     def classes(self):
-        return self._classes
+        try:
+            return self._classes
+        except AttributeError:
+            self._classes = self.defaultClasses()
+            return self._classes
 
     @classes.setter
     def classes(self, aCollection):
         self._classes = aCollection
 
     def commonClass(self):
-        if len(self._classes) == 0:
+        if not self.classes:
             return None
 
         current = next(iter(self.classes))

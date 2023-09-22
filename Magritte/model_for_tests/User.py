@@ -41,7 +41,7 @@ class User(MAModel):
 
     @staticmethod
     def generate_dateofbirth():
-        return datetime.datetime(random.randint(1970, 2004), random.randint(1, 12), random.randint(1, 30))
+        return datetime.datetime(random.randint(1970, 2004), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_gender():
