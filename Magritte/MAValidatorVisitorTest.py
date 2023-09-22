@@ -78,3 +78,15 @@ class MAToOneRelationDescriptionTest(TestCase):
         
         self.assertTrue(self.isSatisfiedBy(desc, TestArrayHolder([])), "Empty array do not holds elements to broke reference description validation")
         self.assertTrue(self.isSatisfiedBy(desc, TestArrayHolder([_ValidatorTestModel])))
+
+    def test_toOneValidation(self):
+
+        class TestObjectHolder(MAModel):
+            def __init__(self, obj):
+                self.obj = obj
+
+        desc = MAContainer()
+        desc += MAToOneRelationDescription(accessor = "obj", reference = self.desc_good1, required = False)
+        
+        self.assertTrue(self.isSatisfiedBy(desc, TestObjectHolder(None)), "None is OK for optional field")
+        self.assertTrue(self.isSatisfiedBy(desc, TestObjectHolder(_ValidatorTestModel)))
