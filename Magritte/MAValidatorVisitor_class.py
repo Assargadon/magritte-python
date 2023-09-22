@@ -1,4 +1,5 @@
 
+from MAModel_class import MAModel
 from MAVisitor_class import MAVisitor
 
 
@@ -49,7 +50,7 @@ class MAValidatorVisitor(MAVisitor):
         anObject = self._object
         if anObject is not None:
             for description in aDescription:
-                self.useDuring(anObject.readUsing(description), lambda: self.visit(description))
+                self.useDuring(MAModel.readUsingWrapper(anObject, description), lambda: self.visit(description))
 
     def visitDescription(self, aDescription):
         self.validateUsing(self._object, aDescription)
