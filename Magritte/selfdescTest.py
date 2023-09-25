@@ -29,11 +29,11 @@ class TestVisualizerVisitor(MAVisitor):
     
     def convert(self, model, description = None): #returns JSON representation of `model`
         if not description:
-            if hasattr(model, "magritteDescription"):
+            try:
                 description = model.magritteDescription()
-            else:
+            except (AttributeError, TypeError):
                 return f"?{model}?"
-
+    
         self.json = None
         self.model = model
         self.visit(description)
