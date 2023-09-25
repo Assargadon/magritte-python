@@ -11,6 +11,7 @@ from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
 from MADurationDescription_class import MADurationDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
+from MADateDescription_class import MADateDescription
 from MAOptionDescription_class import MAOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
@@ -30,6 +31,7 @@ class AbstractTest(TestCase):
         MAIntDescription,
         MAFloatDescription,
         MADurationDescription,
+        MADateDescription,
         MADateAndTimeDescription,
         MAOptionDescription,
         MAReferenceDescription,

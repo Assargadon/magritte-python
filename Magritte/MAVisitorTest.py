@@ -12,6 +12,7 @@ from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
 from MADurationDescription_class import MADurationDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
+from MADateDescription_class import MADateDescription
 from MAOptionDescription_class import MAOptionDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
@@ -58,6 +59,10 @@ class MATestingVisitor(MAVisitor):
     def visitDateAndTimeDescription(self, anObject):
         self.visited_methods.append(MADateAndTimeDescription.__name__)
         super().visitDateAndTimeDescription(anObject)
+
+    def visitDateDescription(self, anObject):
+        self.visited_methods.append(MADateDescription.__name__)
+        super().visitDateDescription(anObject)
 
     def visitDurationDescription(self, anObject):
         self.visited_methods.append(MADurationDescription.__name__)
@@ -120,6 +125,7 @@ class MAVisitorTest(TestCase):
         MAFloatDescription,
         MADurationDescription,
         MADateAndTimeDescription,
+        MADateDescription,
         MAOptionDescription,
         MASingleOptionDescription,
         MAReferenceDescription,
