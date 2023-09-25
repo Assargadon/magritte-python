@@ -10,7 +10,7 @@ class TestProperties_of_MADateDescription(MAMagnitudeDescriptionTest.TestPropert
         return MADateDescription()
 
 
-class MADateAndTimeDescriptionTest(TestCase):
+class MADateDescriptionTest(TestCase):
 
     def test_default_kind(self):
         desc = MADateDescription()
