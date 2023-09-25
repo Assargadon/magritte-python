@@ -11,7 +11,7 @@ class MAVisitor:
             anObject.acceptMagritte(self)
         except MAValidationError as err:
             errors.append(err)
-        if len(errors) > 0:
+        if errors:
             multipleErrors = MAMultipleErrors(errors=errors, message=anObject.label)
             raise multipleErrors
 

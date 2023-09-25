@@ -5,6 +5,7 @@ from MADescription_class import MADescription
 from accessors.MAAccessor_class import MAAccessor
 from MAValidatorVisitor_class import MAValidatorVisitor
 from MAContainer_class import MAContainer
+from errors.MARequiredError import MARequiredError
 from MACondition import MACondition
 
 class TestProperties_of_MADescription(TestCase):
@@ -75,6 +76,11 @@ class TestProperties_of_MADescription(TestCase):
             ('conditions', list, True),
             ('visible', bool),
             ('undefined', str, True),
+            
+            ('requiredErrorMessage', str),
+            ('kindErrorMessage', str),
+            ('multipleErrorsMessage', str),
+            ('conflictErrorMessage', str),
             ('validator', type(MAValidatorVisitor)) #not very clean - but I don't know what to do it properly. Good solution is to pass _instance_, not class
         }
 
@@ -195,6 +201,46 @@ class TestProperties_of_MADescription(TestCase):
                 # print(f"checkable prop: {prop_tuple}")
                 self.setUp()
                 self.check_property_defined(*prop_tuple)
+
+
+class MADescription_ValidationTest(TestCase):
+    def setUp(self):
+        self.desc = MADescription()
+        self.nonNullInstance = "Some value - it may be both complex object and scalar value"
+
+    def test_validateRequired(self):
+        with self.subTest("optional"):
+            self.desc.beOptional()
+            self.assertTrue(len(self.desc._validateRequired(self.nonNullInstance)) == 0)
+            self.assertTrue(len(self.desc._validateRequired(None)) == 0, "Description is optional, None should pass the test")
+        
+        with self.subTest("required"):
+            self.desc.beRequired()
+            self.assertTrue(len(self.desc._validateRequired(self.nonNullInstance)) == 0)
+            self.assertFalse(len(self.desc._validateRequired(None)) == 0)
+            self.assertIsInstance(self.desc._validateRequired(None)[0], MARequiredError)
+
+    def test_validateKind(self):
+        with self.subTest("kind is any object"):
+            self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 0)
+            self.assertTrue(len(self.desc._validateKind(None)) == 0)
+            self.assertTrue(len(self.desc._validateKind(36)) == 0)
+
+        with self.subTest("use a visitor"):
+            self.assertTrue(len(self.desc.validate(self.nonNullInstance)) == 0)
+            self.assertTrue(len(self.desc.validate(None)) == 0)
+            self.assertTrue(len(self.desc.validate(36)) == 0)
+
+        with self.subTest("kind is specific wrong class"):
+            self.desc.kind = Exception
+            self.assertTrue(len(self.desc._validateKind(self.nonNullInstance)) == 1)
+            self.assertTrue(len(self.desc._validateKind(None)) == 1)
+            self.assertTrue(len(self.desc._validateKind(36)) == 1)
+
+        with self.subTest("use a visitor"):
+            self.assertTrue(len(self.desc.validate(self.nonNullInstance)) == 1)
+            self.assertTrue(len(self.desc.validate(None)) == 0)   # none is undefinedValue for description - no error
+            self.assertTrue(len(self.desc.validate(36)) == 1)
 
 
 class MADescriptionTest(TestCase):

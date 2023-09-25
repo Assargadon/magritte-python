@@ -3,8 +3,11 @@ from sys import intern
 from accessors.MAAttrAccessor_class import MAAttrAccessor
 from accessors.MANullAccessor_class import MANullAccessor
 from MAValidatorVisitor_class import MAValidatorVisitor
+
 from errors.MAValidationError import MAValidationError
 from errors.MAConditionError import MAConditionError
+from errors.MAKindError import MAKindError
+from errors.MARequiredError import MARequiredError
 from MAModel_class import MAModel
 
 class MADescription(MAModel):
@@ -86,17 +89,6 @@ class MADescription(MAModel):
             return self._kind is not None
         except AttributeError:
             return False
-
-    @property
-    def kindErrorMessage(self):
-        try:
-            return self._kindErrorMessage
-        except AttributeError:
-            return 'Invalid input given'
-
-    @kindErrorMessage.setter
-    def kindErrorMessage(self, aStr):
-        self._kindErrorMessage = aStr
 
 
     @property
@@ -339,6 +331,116 @@ class MADescription(MAModel):
     def acceptMagritte(self, aVisitor):
         aVisitor.visitDescription(self)
 
+
+    # =========== attributes-messages-validation ===========
+
+    @property
+    def requiredErrorMessage(self):
+        try:
+            return self._requiredErrorMessage
+        except AttributeError:
+            return self.defaultRequiredErrorMessage()
+
+    @requiredErrorMessage.setter
+    def requiredErrorMessage(self, message):
+        self._requiredErrorMessage = message
+
+    @classmethod
+    def defaultRequiredErrorMessage(cls):
+        return 'Input is required but no input given'
+
+
+
+    @property
+    def kindErrorMessage(self):
+        try:
+            return self._kindErrorMessage
+        except AttributeError:
+            return self.defaultKindErrorMessage()
+
+    @kindErrorMessage.setter
+    def kindErrorMessage(self, message):
+        self._kindErrorMessage = message
+
+    @classmethod
+    def defaultKindErrorMessage(cls):
+        return 'Invalid input given - wrong type'
+
+
+
+    @property
+    def multipleErrorsMessage(self):
+        try:
+            return self._multipleErrorsMessage
+        except AttributeError:
+            return self.defaultMultipleErrorsMessage()
+
+    @multipleErrorsMessage.setter
+    def multipleErrorsMessage(self, message):
+        self._multipleErrorsMessage = message
+
+    @classmethod
+    def defaultMultipleErrorsMessage(cls):
+        return 'Multiple errors'
+
+
+
+    @property
+    def conflictErrorMessage(self):
+        try:
+            return self._conflictErrorMessage
+        except AttributeError:
+            return self.defaultConflictErrorMessage()  # Use cls.defaultConflictErrorMessage() instead
+    
+    @conflictErrorMessage.setter
+    def conflictErrorMessage(self, message):
+        self._conflictErrorMessage = message
+    
+    @classmethod
+    def defaultConflictErrorMessage(cls):
+        return 'Input is conflicting with concurrent modification'
+
+    # =========== /attributes-messages-validation ===========
+
+
+    # =========== validation ===========
+
+    @classmethod
+    def defaultValidator(cls):
+        return MAValidatorVisitor
+
+    @property
+    def validator(self):
+        try:
+            return self._validator
+        except AttributeError:
+            return self.defaultValidator()
+
+    @validator.setter
+    def validator(self, aVisitorClass):
+        self._validator = aVisitorClass
+
+    def validate(self, model):
+        visitor = self.validator()
+        errors = visitor.validateModelDescription(model, self)
+        return errors
+
+    def _validateRequired(self, model):
+        if self.isRequired() and model is None:
+            return [MARequiredError(message = self.requiredErrorMessage, aDescription = self)]
+        else:
+            return []
+
+    def _validateKind(self, model):
+        if not isinstance(model, self.kind):
+            return [MAKindError(message = self.kindErrorMessage, aDescription = self)]
+        else:
+            return []
+
+    def _validateSpecific(self, model):
+    # validates descriptions-specific conditions. Subclasses may override this method - see MAMAgnitudeDescription for example."
+        return []
+        
     def _validateConditions(self, model):
         errors = []
         
@@ -368,3 +470,6 @@ class MADescription(MAModel):
     @classmethod
     def defaultValidator(cls):
         return MAValidatorVisitor
+
+
+    # =========== /validation ===========

@@ -1,6 +1,7 @@
 
 from copy import copy
 from MAReferenceDescription_class import MAReferenceDescription
+from errors.MAKindError import MAKindError
 
 class MAOptionDescription(MAReferenceDescription):
 
@@ -107,3 +108,14 @@ class MAOptionDescription(MAReferenceDescription):
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitOptionDescription(self)
+
+
+    def _validateOptionKind(self, model):
+        if model in self._options:
+            return []
+        if self.isExtensible():
+            return self.reference.validate(model)
+        else:
+            return [MAKindError(aDescription=self, message=self.kindErrorMessage)]
+
+    # =========== / validation ===========
