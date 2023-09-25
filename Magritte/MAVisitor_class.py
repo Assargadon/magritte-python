@@ -44,6 +44,9 @@ class MAVisitor:
     def visitDateAndTimeDescription(self, anObject):
         self.visitMagnitudeDescription(anObject)
 
+    def visitDateDescription(self, anObject):
+        self.visitMagnitudeDescription(anObject)
+
     def visitDurationDescription(self, anObject):
         self.visitMagnitudeDescription(anObject)
 
