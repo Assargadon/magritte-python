@@ -3,6 +3,7 @@ import types
 
 from MADescription_class import MADescription
 from accessors.MAAccessor_class import MAAccessor
+from MAValidatorVisitor_class import MAValidatorVisitor
 from MAContainer_class import MAContainer
 from errors.MARequiredError import MARequiredError
 from MACondition import MACondition
@@ -29,6 +30,8 @@ class TestProperties_of_MADescription(TestCase):
             return {1, 2, 3}
         elif prop_type == MAAccessor:
             return MAAccessor()
+        elif prop_type == type(MAValidatorVisitor):
+            return MAValidatorVisitor
         elif prop_type == MADescription:
             return MADescription()
         elif prop_type == MAContainer:
@@ -78,6 +81,7 @@ class TestProperties_of_MADescription(TestCase):
             ('kindErrorMessage', str),
             ('multipleErrorsMessage', str),
             ('conflictErrorMessage', str),
+            ('validator', type(MAValidatorVisitor)) #not very clean - but I don't know what to do it properly. Good solution is to pass _instance_, not class
         }
 
 

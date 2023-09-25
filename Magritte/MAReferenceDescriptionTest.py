@@ -23,3 +23,7 @@ class MAReferenceDescriptionTest(TestCase):
     def test_copy(self):
         copy_test = self.inst1.__copy__()
         self.assertEqual(copy_test, self.inst1)
+
+    def test_reference(self):
+        self.assertIsInstance(self.inst1.reference, MADescription)
+        self.inst1.reference = MAStringDescription(name = "First Name")

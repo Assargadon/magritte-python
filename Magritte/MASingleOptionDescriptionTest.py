@@ -20,7 +20,6 @@ class TestProperties_of_MASingleOptionDescription(MAOptionDescriptionTest.TestPr
             ('groupBy', 'isGrouped')
         ]
 
-
 class MASingleOptionDescriptionTest(TestCase):
 
     def setUp(self):

@@ -1,17 +1,20 @@
-
 from copy import copy
 from MADescription_class import MADescription
 from accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 class MAContainer(MADescription):
 
+    def magritteDescription(self):
+        import MAContainer_selfdesc
+        return MAContainer_selfdesc.magritteDescription(self, super().magritteDescription())
+
     @classmethod
     def isAbstract(cls):
         return False
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         self._children = self.defaultCollection()
+        super().__init__(**kwargs)
 
     def __eq__(self, other):
         return super().__eq__(other) and self._children == other.children

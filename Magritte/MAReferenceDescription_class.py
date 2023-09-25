@@ -1,20 +1,19 @@
 
 from copy import copy
-from sys import intern
 from MAElementDescription_class import MAElementDescription
 from MAStringDescription_class import MAStringDescription
 
 class MAReferenceDescription(MAElementDescription):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._reference = self.defaultReference()
 
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
         clone.reference = copy(self.reference)
         return clone
+
+    def magritteDescription(self):
+        import MAReferenceDescription_selfdesc
+        return MAReferenceDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
     @classmethod
     def defaultReference(cls):
@@ -24,11 +23,12 @@ class MAReferenceDescription(MAElementDescription):
     def reference(self):
         try:
             if self._reference is None:
-                return self.defaultReference()
-            else:
-                return self._reference
+                self._reference = self.defaultReference()
         except AttributeError:
-            return self.defaultReference()
+            self._reference = self.defaultReference()
+ 
+        return self._reference
+        
 
     @reference.setter
     def reference(self, aDescription):

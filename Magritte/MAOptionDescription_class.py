@@ -5,15 +5,15 @@ from errors.MAKindError import MAKindError
 
 class MAOptionDescription(MAReferenceDescription):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._options = self.defaultOptions()
-
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
         clone.options = copy(self.options)
         return clone
+
+    def magritteDescription(self):
+        import MAOptionDescription_selfdesc
+        return MAOptionDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
     @classmethod
     def defaultOptions(cls):
@@ -21,7 +21,11 @@ class MAOptionDescription(MAReferenceDescription):
 
     @property
     def options(self):
-        return self._options
+        try:
+            return self._options
+        except AttributeError:
+            self._options = self.defaultOptions()
+            return self._options
 
     @options.setter
     def options(self, anArray):
@@ -51,6 +55,23 @@ class MAOptionDescription(MAReferenceDescription):
 
     def isExtensible(self):
         return self.extensible
+
+    @property
+    def groupBy(self):
+        try:
+            return self._groupBy
+        except AttributeError:
+            return None
+
+    @groupBy.setter
+    def groupBy(self, anMAAccessor):
+        self._groupBy = anMAAccessor
+
+    def isGrouped(self):
+        try:
+            return self._groupBy is not None
+        except AttributeError:
+            return False
 
 
 

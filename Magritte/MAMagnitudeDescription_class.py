@@ -1,9 +1,11 @@
-from sys import intern
 from MAElementDescription_class import MAElementDescription
 from errors.MARangeError import MARangeError
 
 class MAMagnitudeDescription(MAElementDescription):
 
+    def magritteDescription(self):
+        import MAMagnitudeDescription_selfdesc
+        return MAMagnitudeDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
     def isSortable(self):
         return True

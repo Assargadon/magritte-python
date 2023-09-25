@@ -12,9 +12,17 @@ from MAModel_class import MAModel
 
 class MADescription(MAModel):
 
+    def magritteDescription(self):
+        import MADescription_selfdesc
+        return MADescription_selfdesc.magritteDescription(self)
+    
     @classmethod
     def isAbstract(cls):
         return True
+
+    @property
+    def type(self):
+        return self.__class__.__name__
 
     def __init__(self, **kwargs):
         self._accessor = self.defaultAccessor()
@@ -132,18 +140,6 @@ class MADescription(MAModel):
     def beOptional(self):
         self.required = False
 
-
-    @property
-    def default(self):
-        return self.undefinedValue
-
-    @default.setter
-    def default(self, anObject):
-        pass
-
-    @classmethod
-    def defaultDefault(cls):
-        return None
 
     @property
     def undefinedValue(self):
@@ -298,7 +294,7 @@ class MADescription(MAModel):
         return []
         
     def addCondition(self, condition, label=None):
-        if label is None: label = getattr(condition, "label", None)
+        if label is None: label = getattr(condition, intern('label'), None)
         self.conditions.append((condition, label)) # double parenthesis is not a typo: we add _tuple_ into `_conditions` list
 
     @property
@@ -458,6 +454,22 @@ class MADescription(MAModel):
                 errors.append(e)
                 
         return errors
+
+    @property
+    def validator(self):
+        try:
+            return self._validator
+        except AttributeError:
+            self._validator = self.defaultValidator()
+            return self._validator
+
+    @validator.setter
+    def validator(self, validator):
+        self._validator = validator
+
+    @classmethod
+    def defaultValidator(cls):
+        return MAValidatorVisitor
 
 
     # =========== /validation ===========
