@@ -1,5 +1,5 @@
 from MAMagnitudeDescription_class import MAMagnitudeDescription
-from datetime import datetime
+from datetime import time
 
 class MATimeDescription(MAMagnitudeDescription):
 
@@ -9,7 +9,7 @@ class MATimeDescription(MAMagnitudeDescription):
 
     @classmethod
     def defaultKind(cls):
-        return datetime
+        return time
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitTimeDescription(self)

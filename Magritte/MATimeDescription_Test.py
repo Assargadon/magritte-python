@@ -1,6 +1,6 @@
 from unittest import TestCase
 from MATimeDescription_class import MATimeDescription
-from datetime import datetime
+from datetime import time
 import MAMagnitudeDescriptionTest
 
 
@@ -14,4 +14,4 @@ class MATimeDescriptionTest(TestCase):
 
     def test_default_kind(self):
         desc = MATimeDescription()
-        self.assertEqual(desc.kind, datetime)
+        self.assertEqual(desc.kind, time)

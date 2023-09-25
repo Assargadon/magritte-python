@@ -16,6 +16,7 @@ from MAOptionDescription_class import MAOptionDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
+from MATimeDescription_class import MATimeDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAStringDescription_class import MAStringDescription
@@ -79,6 +80,10 @@ class MATestingVisitor(MAVisitor):
         self.visited_methods.append(MARelationDescription.__name__)
         super().visitRelationDescription(anObject)
 
+    def visitTimeDescription(self, anObject):
+        self.visited_methods.append(MATimeDescription.__name__)
+        super().visitTimeDescription(anObject)
+
     def visitToOneRelationDescription(self, anObject):
         self.visited_methods.append(MAToOneRelationDescription.__name__)
         super().visitToOneRelationDescription(anObject)
@@ -124,6 +129,7 @@ class MAVisitorTest(TestCase):
         MASingleOptionDescription,
         MAReferenceDescription,
         MARelationDescription,
+        MATimeDescription,
         MAToOneRelationDescription,
         MAToManyRelationDescription,
         MAStringDescription,
