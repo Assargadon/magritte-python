@@ -24,6 +24,7 @@ from MASingleOptionDescription_class import MASingleOptionDescription
 from MARelationDescription_class import MARelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
+from MAUrlDescription_class import MAUrlDescription
 
 from MAVisitor_class import MAVisitor
 
@@ -163,7 +164,8 @@ class MagritteSelfDescriptionTest(TestCase):
         MASingleOptionDescription,
         MAStringDescription,
         MAToManyRelationDescription,
-        MAToOneRelationDescription
+        MAToOneRelationDescription,
+        MAUrlDescription
     ]  # Add other classes here
 
     descriptors_to_ignore = [
