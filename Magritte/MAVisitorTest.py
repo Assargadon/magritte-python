@@ -22,6 +22,7 @@ from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAUrlDescription_class import MAUrlDescription
 from MAStringDescription_class import MAStringDescription
+from MAMemoDescription_class import MAMemoDescription
 
 from MAContainer_class import MAContainer
 from MAPriorityContainer_class import MAPriorityContainer
@@ -106,6 +107,10 @@ class MATestingVisitor(MAVisitor):
         self.visited_methods.append(MAStringDescription.__name__)
         super().visitStringDescription(anObject)
 
+    def visitMemoDescription(self, anObject):
+        self.visited_methods.append(MAMemoDescription.__name__)
+        super().visitMemoDescription(anObject)
+
     def visitContainer(self, aMAContainer):
         self.visited_methods.append(MAContainer.__name__)
         super().visitContainer(aMAContainer)
@@ -146,7 +151,8 @@ class MAVisitorTest(TestCase):
         MAUrlDescription,
         MAStringDescription,
         MAContainer,
-        MAPriorityContainer
+        MAPriorityContainer,
+        MAMemoDescription
     ]  # Add other classes here
 
     descriptors_to_ignore = [
