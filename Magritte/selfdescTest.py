@@ -15,6 +15,8 @@ from MANumberDescription_class import MANumberDescription
 from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
+from MADateDescription_class import MADateDescription
+from MATimeDescription_class import MATimeDescription
 from MADurationDescription_class import MADurationDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MAOptionDescription_class import MAOptionDescription
@@ -153,6 +155,8 @@ class MagritteSelfDescriptionTest(TestCase):
         MAFloatDescription,
         MADurationDescription,
         MADateAndTimeDescription,
+        MADateDescription,
+        MATimeDescription,
         MAOptionDescription,
         MAReferenceDescription,
         MARelationDescription,
