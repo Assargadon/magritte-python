@@ -17,6 +17,7 @@ from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
 from MAStringDescription_class import MAStringDescription
+from MATimeDescription_class import MATimeDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 
@@ -38,6 +39,7 @@ class AbstractTest(TestCase):
         MARelationDescription,
         MASingleOptionDescription,
         MAStringDescription,
+        MATimeDescription,
         MAToManyRelationDescription,
         MAToOneRelationDescription
     ]  # Add other classes here
