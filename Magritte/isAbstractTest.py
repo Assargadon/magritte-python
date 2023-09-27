@@ -20,6 +20,7 @@ from MAStringDescription_class import MAStringDescription
 from MATimeDescription_class import MATimeDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
+from MAUrlDescription_class import MAUrlDescription
 
 class AbstractTest(TestCase):
 
@@ -41,7 +42,8 @@ class AbstractTest(TestCase):
         MAStringDescription,
         MATimeDescription,
         MAToManyRelationDescription,
-        MAToOneRelationDescription
+        MAToOneRelationDescription,
+        MAUrlDescription
     ]  # Add other classes here
 
     descriptors_to_ignore = [
@@ -50,6 +52,7 @@ class AbstractTest(TestCase):
 
     # абстрактные классы у которых не реализованы потомки, они проверяются насильно
     forcedAbstract = [
+        MAUrlDescription
     ]
 
     # неабстрактные классы, они проверяются насильно
