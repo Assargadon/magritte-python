@@ -9,7 +9,7 @@ class MAMemoDescription(MAStringDescription):
     @property
     def lineCount(self):
         try:
-            return self._lineCount()
+            return self._lineCount
         except AttributeError:
             return self.defaultLineCount()
 
