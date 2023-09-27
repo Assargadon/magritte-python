@@ -28,10 +28,7 @@ class MAValueJsonWriter(MAVisitor):
         return json.dumps(self.write_json(model))
 
     def visit(self, description: MADescription):
-        if description.accessor.canRead(self._model):
-            super().visit(description)
-        else:
-            raise ValueError("MAValueJsonWriter failed to read value from the model using the description provided.")
+        super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
         self._json = description.accessor.read(self._model)
