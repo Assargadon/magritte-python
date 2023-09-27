@@ -28,13 +28,15 @@ class MAValueJsonWriter(MAVisitor):
         return json.dumps(self.write_json(model))
 
     def visit(self, description: MADescription):
-        super().visit(description)
+        if self._model != description.undefinedValue:
+            super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
         self._json = description.accessor.read(self._model)
 
     def visitDateAndTimeDescription(self, description: MADescription):
-        self._json = description.accessor.read(self._model).isoformat()
+        value = description.accessor.read(self._model)
+        self._json = value.isoformat() if value else None
 
     def visitMagnitudeDescription(self, description: MADescription):
         # !TODO Override exact visit methods like visitDateAndTimeDescription for each type of magnitude when they are defined.
@@ -62,6 +64,10 @@ class MAObjectJsonWriter(MAVisitor):
         self._description = description
         self._model = None
         self._json = None
+
+    def visit(self, description: MADescription):
+        if self._model != description.undefinedValue:
+            super().visit(description)
 
     def write_json(self, model) -> Dict[str, Any]:
         self._model = model
