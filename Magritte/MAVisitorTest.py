@@ -13,6 +13,7 @@ from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MADateDescription_class import MADateDescription
 from MAOptionDescription_class import MAOptionDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
+from MAPasswordDescription_class import MAPasswordDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
 from MATimeDescription_class import MATimeDescription
@@ -68,6 +69,10 @@ class MATestingVisitor(MAVisitor):
     def visitDurationDescription(self, anObject):
         self.visited_methods.append(MADurationDescription.__name__)
         super().visitDurationDescription(anObject)
+
+    def visitPasswordDescription(self, anObject):
+        self.visited_methods.append(MAPasswordDescription.__name__)
+        super().visitPasswordDescription(anObject)
 
     def visitReferenceDescription(self, anObject):
         self.visited_methods.append(MAReferenceDescription.__name__)
