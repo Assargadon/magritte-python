@@ -13,6 +13,7 @@ from MADurationDescription_class import MADurationDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MADateDescription_class import MADateDescription
 from MAOptionDescription_class import MAOptionDescription
+from MAPasswordDescription_class import MAPasswordDescription
 from MAReferenceDescription_class import MAReferenceDescription
 from MARelationDescription_class import MARelationDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
@@ -36,6 +37,7 @@ class AbstractTest(TestCase):
         MADateDescription,
         MADateAndTimeDescription,
         MAOptionDescription,
+        MAPasswordDescription,
         MAReferenceDescription,
         MARelationDescription,
         MASingleOptionDescription,
@@ -57,6 +59,7 @@ class AbstractTest(TestCase):
 
     # неабстрактные классы, они проверяются насильно
     forcedNonAbstract = [
+        MAStringDescription
     ]
 
 

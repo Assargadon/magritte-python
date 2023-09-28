@@ -25,6 +25,7 @@ from MARelationDescription_class import MARelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAUrlDescription_class import MAUrlDescription
+from MAPasswordDescription_class import MAPasswordDescription
 
 from MAVisitor_class import MAVisitor
 
@@ -165,7 +166,8 @@ class MagritteSelfDescriptionTest(TestCase):
         MAStringDescription,
         MAToManyRelationDescription,
         MAToOneRelationDescription,
-        MAUrlDescription
+        MAUrlDescription,
+        MAPasswordDescription
     ]  # Add other classes here
 
     descriptors_to_ignore = [
