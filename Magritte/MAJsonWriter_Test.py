@@ -10,6 +10,8 @@ from MAFloatDescription_class import MAFloatDescription
 from accessors.MAIdentityAccessor_class import MAIdentityAccessor
 from MAIntDescription_class import MAIntDescription
 from MARelationDescription_class import MARelationDescription
+from MAToOneRelationDescription_class import MAToOneRelationDescription
+from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAStringDescription_class import MAStringDescription
 from MAJsonWriter_visitors import MAValueJsonWriter, MAObjectJsonWriter
 
@@ -29,6 +31,15 @@ class TestObject2:
         self.date_value = date_val
         self.float_value = float_val
         self.ref_object = ref_object
+
+
+class TestObject3:
+    def __init__(self, name: str, int_val: int, float_val: float, date_val: datetime, ref_objects: list[TestObject1]):
+        self.name = name
+        self.int_value = int_val
+        self.date_value = date_val
+        self.float_value = float_val
+        self.ref_objects = ref_objects
 
 
 class MAJsonWriter_Test(TestCase):
@@ -60,14 +71,13 @@ class MAJsonWriter_Test(TestCase):
 
         # ==================== Scalar relation value testing. ====================
         self.scalar_rel_value = self.int_value
-        self.scalar_rel_desc = MARelationDescription(
-            name='TestScalarRel', label='Test Scalar Relation', accessor=MAIdentityAccessor()
+        self.scalar_rel_desc = MAToOneRelationDescription(
+            name='TestScalarRel', label='Test Scalar Relation', accessor=MAIdentityAccessor(), reference=self.int_desc
             )
-        # Cannot set reference in constructor because of current MARelationDescription implementation.
-        self.scalar_rel_desc.reference = self.int_desc
 
         # ==================== Object encoding testing. ====================
         self.object1 = TestObject1('object1', 123, 1.23, self.time_now)
+        self.object2 = TestObject1('object2', 234, 2.34, self.time_now)
         self.object_desc = MAContainer()
         self.object_desc.setChildren(
             [
@@ -79,24 +89,43 @@ class MAJsonWriter_Test(TestCase):
             )
 
         # ==================== Object reference value testing. ====================
-        self.object_rel_desc = MARelationDescription(
+        self.object_rel_desc = MAToOneRelationDescription(
             name='TestObjectRel', label='Test Object Relation', accessor=MAIdentityAccessor()
-        )
+            )
         # Cannot set reference in constructor because of current MARelationDescription implementation.
         self.object_rel_desc.reference = self.object_desc
 
-        # ==================== Compound object with reference testing. ====================
-        self.compound_object = TestObject2('object2', 234, 2.34, self.time_now, self.object1)
+        # ==================== Compound object with to-one relation testing. ====================
+        self.compound_object = TestObject2('object3', 345, 3.45, self.time_now, self.object1)
         self.compound_object_desc = MAContainer()
-        self.compound_object_desc.setChildren([
-            MAStringDescription(label='Name', default='', accessor='name'),
-            MAIntDescription(label='Int Value', default=0, accessor='int_value'),
-            MAFloatDescription(label='Float Value', default=0.0, accessor='float_value'),
-            MADateAndTimeDescription(label='Date Value', default=self.time_now, accessor='date_value'),
-            MARelationDescription(label='Referenced Object', accessor='ref_object'),
-        ])
-        # Cannot set reference in constructor because of current MARelationDescription implementation.
-        self.compound_object_desc.children[4].reference = self.object_desc
+        self.compound_object_desc.setChildren(
+            [
+                MAStringDescription(label='Name', default='', accessor='name'),
+                MAIntDescription(label='Int Value', default=0, accessor='int_value'),
+                MAFloatDescription(label='Float Value', default=0.0, accessor='float_value'),
+                MADateAndTimeDescription(label='Date Value', default=self.time_now, accessor='date_value'),
+                MAToOneRelationDescription(
+                    label='Referenced Object', accessor='ref_object', reference=self.object_desc
+                    ),
+                ]
+            )
+
+        # ==================== Compound object with to-many relation testing. ====================
+        self.compound_object2 = TestObject3(
+            'object4', 456, 4.56, self.time_now, [self.object1, self.object2]
+            )
+        self.compound_object2_desc = MAContainer()
+        self.compound_object2_desc.setChildren(
+            [
+                MAStringDescription(label='Name', default='', accessor='name'),
+                MAIntDescription(label='Int Value', default=0, accessor='int_value'),
+                MAFloatDescription(label='Float Value', default=0.0, accessor='float_value'),
+                MADateAndTimeDescription(label='Date Value', default=self.time_now, accessor='date_value'),
+                MAToManyRelationDescription(
+                    label='Referenced Objects', accessor='ref_objects', reference=self.object_desc
+                    ),
+                ]
+            )
 
     def test_int_encoding(self):
         self.assertEqual(self.value_encoder.write_json(self.int_value, self.int_desc), 123)
@@ -128,22 +157,18 @@ class MAJsonWriter_Test(TestCase):
         with self.assertRaises(TypeError):
             self.value_encoder.write_json_string(self.scalar_rel_value, self.scalar_rel_desc)
 
-    # !TODO add test_error_container_description
-
     def test_error_object_value(self):
         with self.assertRaises(TypeError):
             self.value_encoder.write_json(self.object1, self.object_desc)
         with self.assertRaises(TypeError):
             self.value_encoder.write_json_string(self.object1, self.object_desc)
 
-    '''
-    Think whether we need this test.
+    # Think whether we need this test.
     def test_scalar_rel_encoding(self):
         self.assertEqual(self.object_encoder.write_json(self.scalar_rel_value, self.scalar_rel_desc), self.int_value)
         json_string = self.object_encoder.write_json_string(self.scalar_rel_value, self.scalar_rel_desc)
         obj = json.loads(json_string)
         self.assertEqual(obj, self.int_value)
-    '''
 
     def test_object_encoding(self):
         self.assertEqual(
@@ -175,7 +200,7 @@ class MAJsonWriter_Test(TestCase):
         self.assertEqual(
             self.object_encoder.write_json(self.compound_object, self.compound_object_desc),
             {
-                'name': 'object2', 'int_value': 234, 'float_value': 2.34, 'date_value': self.time_now.isoformat(),
+                'name': 'object3', 'int_value': 345, 'float_value': 3.45, 'date_value': self.time_now.isoformat(),
                 'ref_object': {
                     'name': 'object1', 'int_value': 123, 'float_value': 1.23, 'date_value': self.time_now.isoformat()
                     }
@@ -186,11 +211,47 @@ class MAJsonWriter_Test(TestCase):
         self.assertEqual(
             obj,
             {
-                "name": "object2", "int_value": 234, "float_value": 2.34, "date_value": f"{self.time_now.isoformat()}",
+                "name": "object3", "int_value": 345, "float_value": 3.45, "date_value": f"{self.time_now.isoformat()}",
                 "ref_object": {
                     "name": "object1", "int_value": 123, "float_value": 1.23,
                     "date_value": f"{self.time_now.isoformat()}"
                     }
+                }
+            )
+
+    def test_compound_object2_encoder(self):
+        self.assertEqual(
+            self.object_encoder.write_json(self.compound_object2, self.compound_object2_desc),
+            {
+                'name': 'object4', 'int_value': 456, 'float_value': 4.56, 'date_value': self.time_now.isoformat(),
+                'ref_objects': [
+                    {
+                        'name': 'object1', 'int_value': 123, 'float_value': 1.23,
+                        'date_value': self.time_now.isoformat()
+                        },
+                    {
+                        'name': 'object2', 'int_value': 234, 'float_value': 2.34,
+                        'date_value': self.time_now.isoformat()
+                        }
+                    ]
+                }
+            )
+        json_string = self.object_encoder.write_json_string(self.compound_object2, self.compound_object2_desc)
+        obj = json.loads(json_string)
+        self.assertEqual(
+            obj,
+            {
+                "name": "object4", "int_value": 456, "float_value": 4.56, "date_value": f"{self.time_now.isoformat()}",
+                "ref_objects": [
+                    {
+                        "name": "object1", "int_value": 123, "float_value": 1.23,
+                        "date_value": f"{self.time_now.isoformat()}"
+                        },
+                    {
+                        "name": "object2", "int_value": 234, "float_value": 2.34,
+                        "date_value": f"{self.time_now.isoformat()}"
+                        }
+                    ]
                 }
             )
 
