@@ -112,6 +112,8 @@ class MAObjectJsonWriter(MAVisitor):
         self._json = prev_json
         self._model = prev_model
 
+        return res
+
     def visit(self, description: MADescription):
         if self._model == description.undefinedValue:
             return
