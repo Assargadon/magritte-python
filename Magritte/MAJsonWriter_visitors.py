@@ -80,7 +80,7 @@ class MAObjectJsonWriter(MAVisitor):
                 f"MAObjectJsonWriter requires names for all the descriptions to be str to construct valid Json. "
                 f"Found: {type(name)}."
                 )
-        if name in self._json:
+        if self._json and name in self._json:
             raise ValueError(
                 f"MAObjectJsonWriter requires distinct names for all the descriptions to construct valid Json. "
                 f"Found duplicate: {name}."
@@ -123,6 +123,8 @@ class MAObjectJsonWriter(MAVisitor):
 
     def visitElementDescription(self, description: MADescription):
         self._validate_name(description)
+        if not self._json:
+            self._json = {}
         self._json[description.name] = self._value_encoder.write_json(self._model, description)
 
     def visitContainer(self, description: MADescription):
@@ -130,26 +132,34 @@ class MAObjectJsonWriter(MAVisitor):
             self._json = {}
             self.visitAll(description)
         else:
-            raise Exception("Shouldn't reach visitContainer with nonempty self.json")
+            raise Exception("Shouldn't reach visitContainer with nonempty self._json")
 
     def visitReferenceDescription(self, description):
         self._validate_name(description)
-        model = description.accessor.read(self._model)
-        if model is None:
+        if not self._json:
+            self._json = {}
+        ref_model = description.accessor.read(self._model)
+        if ref_model is None:
             self._json[description.name] = None
         else:
-            self._json[description.name] = self._deeper(model, description.reference)
+            self._json[description.name] = self._deeper(ref_model, description.reference)
 
     def visitMultipleOptionDescription(self, description):  # MAMultipleOptionDescription is not implemented yet
         self._validate_name(description)
+        if not self._json:
+            self._json = {}
         selected_options = description.accessor.read(self._model)
         if selected_options is None:
             self._json[description.name] = None
         else:
-            self._json[description.name] = {self._deeper(entry, description.reference) for entry in selected_options}
+            self._json[description.name] = {
+                self._deeper(entry, description.reference) for entry in selected_options
+                }
         
     def visitToManyRelationDescription(self, description):
         self._validate_name(description)
+        if not self._json:
+            self._json = {}
         collection = description.accessor.read(self._model)
         self._json[description.name] = [
             self._deeper(entry, description.reference) for entry in collection
