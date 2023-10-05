@@ -161,6 +161,8 @@ class MAObjectJsonWriter(MAVisitor):
         if not self._json:
             self._json = {}
         collection = description.accessor.read(self._model)
+        if collection is None:
+            self._json[description.name] = None
         self._json[description.name] = [
             self._deeper(entry, description.reference) for entry in collection
             ]
