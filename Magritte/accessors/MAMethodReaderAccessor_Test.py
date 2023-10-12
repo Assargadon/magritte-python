@@ -1,34 +1,48 @@
 from unittest import TestCase
 from . MAMethodReaderAccessor_class import MAMethodReaderAccessor
 
-class MethodReadable:
+class ModelWithReadMethod:
 
     def __init__(self, aValue):
         self.value = aValue
 
-    def AccessMethod(self):
+    def ReadMethod(self):
         return self.value
+
+class ModelUnreadable:
+    pass
+
+class ModelWithConsonantField:
+    def __init__(self):
+        self.AccessMethod = 0
 
 class MAMethodReaderAccessorTest(TestCase):
 
     def setUp(self):
-        self.Value = 10
-        self.Model = MethodReadable(self.Value)
-        self.MethodName = "AccessMethod"
-        self.Accessor = MAMethodReaderAccessor(self.MethodName)
+        self.value = 10
+        self.model                = ModelWithReadMethod(self.value)
+        self.model_without_method = ModelUnreadable()
+        self.model_with_consonant = ModelWithConsonantField()
+        self.accessor          = MAMethodReaderAccessor("ReadMethod")
+        self.wrongNameAccessor = MAMethodReaderAccessor("blah-blah")
 
     def test_canRead(self):
-        self.assertEqual(self.Accessor.canRead(self.Model), True)
+        self.assertEqual(self.accessor         .canRead(self.model               ), True)
+        self.assertEqual(self.wrongNameAccessor.canRead(self.model               ), False)
 
-        wrong_name_accessor = MAMethodReaderAccessor("blah-blah")
-        self.assertEqual(wrong_name_accessor.canRead(self.Model), False)
+        self.assertEqual(self.accessor         .canRead(self.model_without_method), False)
+        self.assertEqual(self.accessor         .canRead(self.model_with_consonant), False)
 
     def test_canWrite(self):
-        self.assertEqual(self.Accessor.canWrite(self.Model), False)
+        self.assertEqual(self.accessor.canWrite(self.model), False)
 
     def test_read(self):
-        self.assertEqual(self.Accessor.read(self.Model), self.Value)
+        self.assertEqual(self.accessor         .read(self.model               ), self.value)
+        self.assertEqual(self.wrongNameAccessor.read(self.model               ), None      )
+
+        self.assertEqual(self.accessor         .read(self.model_without_method), None      )
+        self.assertEqual(self.accessor         .read(self.model_with_consonant), None      )
 
     def test_write(self):
-        self.assertEqual(self.Accessor.write(self.Model, 0), None)
+        self.assertEqual(self.accessor.write(self.model, 0), None)
 
