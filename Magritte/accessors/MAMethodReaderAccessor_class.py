@@ -10,11 +10,8 @@ class MAMethodReaderAccessor(MAAccessor):
         return False
 
     def canRead(self, aModel):
-        attr = getattr(aModel, self._methodName, None)
-        if not attr:
-            return False
-
-        return  callable(attr)
+        reader_method = getattr(aModel, self._methodName, None)
+        return bool(reader_method) and callable(reader_method)
 
     def canWrite(self, aModel):
         return False
@@ -25,9 +22,8 @@ class MAMethodReaderAccessor(MAAccessor):
 
     def read(self, aModel):
         reader_method = getattr(aModel, self._methodName, None)
-        if not reader_method:
+        if not reader_method or not callable(reader_method):
             return None
-        if not callable(reader_method):
-            return None
+
         return reader_method()
 

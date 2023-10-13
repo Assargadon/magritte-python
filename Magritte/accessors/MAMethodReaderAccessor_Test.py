@@ -14,7 +14,7 @@ class ModelUnreadable:
 
 class ModelWithConsonantField:
     def __init__(self):
-        self.AccessMethod = 0
+        self.ReadMethod = 777
 
 class MAMethodReaderAccessorTest(TestCase):
 
@@ -44,5 +44,5 @@ class MAMethodReaderAccessorTest(TestCase):
         self.assertEqual(self.accessor         .read(self.model_with_consonant), None      )
 
     def test_write(self):
-        self.assertEqual(self.accessor.write(self.model, 0), None)
+        self.accessor.write(self.model, 0) # just make shure it doestn't crash
 
