@@ -12,9 +12,12 @@ class ModelWithReadMethod:
 class ModelUnreadable:
     pass
 
+readMethodName = "ReadMethod";
+
 class ModelWithConsonantField:
     def __init__(self):
-        self.ReadMethod = 777
+        #self.ReadMethod = 777
+        setattr(self, readMethodName, 777)
 
 class MAMethodReaderAccessorTest(TestCase):
 
@@ -23,7 +26,7 @@ class MAMethodReaderAccessorTest(TestCase):
         self.model                = ModelWithReadMethod(self.value)
         self.model_without_method = ModelUnreadable()
         self.model_with_consonant = ModelWithConsonantField()
-        self.accessor          = MAMethodReaderAccessor("ReadMethod")
+        self.accessor          = MAMethodReaderAccessor(readMethodName)#"ReadMethod")
         self.wrongNameAccessor = MAMethodReaderAccessor("blah-blah")
 
     def test_canRead(self):
