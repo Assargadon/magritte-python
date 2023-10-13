@@ -1,7 +1,7 @@
 from unittest import TestCase
 import json
 from datetime import datetime
-from CommonAncestorForTests import AbstractTestForAllDescriptions
+from AbstractTestForAllDescriptions import AbstractTestForAllDescriptions
 
 from MAContainer_class import MAContainer
 from MAPriorityContainer_class import MAPriorityContainer

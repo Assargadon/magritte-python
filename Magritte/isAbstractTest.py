@@ -1,4 +1,4 @@
-from CommonAncestorForTests import AbstractTestForAllDescriptions
+from AbstractTestForAllDescriptions import AbstractTestForAllDescriptions
 
 from MAStringDescription_class import MAStringDescription
 from MAUrlDescription_class import MAUrlDescription

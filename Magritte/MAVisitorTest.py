@@ -1,5 +1,5 @@
 from MAVisitor_class import MAVisitor
-from CommonAncestorForTests import AbstractTestForAllDescriptions
+from AbstractTestForAllDescriptions import AbstractTestForAllDescriptions
 
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
