@@ -1,5 +1,6 @@
 from CommonAncestorForTests import Ancestor
 
+from MAStringDescription_class import MAStringDescription
 from MAUrlDescription_class import MAUrlDescription
 from MAMemoDescription_class import MAMemoDescription
 

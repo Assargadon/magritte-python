@@ -13,8 +13,6 @@ from MADateAndTimeDescription_class import MADateAndTimeDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
-from MAUrlDescription_class import MAUrlDescription
-from MAMemoDescription_class import MAMemoDescription
 
 from MAVisitor_class import MAVisitor
 
