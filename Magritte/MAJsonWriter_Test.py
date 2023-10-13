@@ -1,5 +1,6 @@
 # ==================== For testing. ====================
 from datetime import datetime
+from typing import List
 from unittest import TestCase
 import json
 
@@ -33,7 +34,7 @@ class TestObject2:
 
 
 class TestObject3:
-    def __init__(self, name: str, int_val: int, float_val: float, date_val: datetime, ref_objects: list[TestObject1]):
+    def __init__(self, name: str, int_val: int, float_val: float, date_val: datetime, ref_objects: List[TestObject1]):
         self.name = name
         self.int_value = int_val
         self.date_value = date_val
