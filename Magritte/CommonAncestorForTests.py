@@ -21,6 +21,7 @@ from MATimeDescription_class import MATimeDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAUrlDescription_class import MAUrlDescription
+from MAMemoDescription_class import MAMemoDescription
 
 class Ancestor(TestCase):
 
@@ -43,7 +44,8 @@ class Ancestor(TestCase):
         MATimeDescription,
         MAToManyRelationDescription,
         MAToOneRelationDescription,
-        MAUrlDescription
+        MAUrlDescription,
+        MAMemoDescription
     ]  # Add other classes here
 
     descriptors_to_ignore = [
