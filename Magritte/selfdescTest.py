@@ -1,7 +1,7 @@
 from unittest import TestCase
 import json
 from datetime import datetime
-from CommonAncestorForTests import Ancestor
+from CommonAncestorForTests import AbstractTestForAllDescriptions
 
 from MAContainer_class import MAContainer
 from MAPriorityContainer_class import MAPriorityContainer
@@ -132,7 +132,7 @@ class MagritteSelfDescriptionVisualTest(TestCase):
         
         print(f"description's description (in JSON):\n{json.dumps(metadescriptor_json, indent=4)}")
         
-class MagritteSelfDescriptionTest(Ancestor):
+class MagritteSelfDescriptionTest(AbstractTestForAllDescriptions):
 
     def test_allDescriptorsHaveDescriptions(self):
         for desc in self.descriptors_to_test:

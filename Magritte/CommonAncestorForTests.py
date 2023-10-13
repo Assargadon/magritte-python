@@ -23,7 +23,7 @@ from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAUrlDescription_class import MAUrlDescription
 from MAMemoDescription_class import MAMemoDescription
 
-class Ancestor(TestCase):
+class AbstractTestForAllDescriptions(TestCase):
 
     descriptors_to_test = [
         MADescription,

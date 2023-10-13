@@ -1,5 +1,5 @@
 from MAVisitor_class import MAVisitor
-from CommonAncestorForTests import Ancestor
+from CommonAncestorForTests import AbstractTestForAllDescriptions
 
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
@@ -126,7 +126,7 @@ class MATestingVisitAllVisitor(MAVisitor):
             self.visited_descriptors.append(descriptor)
 
 
-class MAVisitorTest(Ancestor):
+class MAVisitorTest(AbstractTestForAllDescriptions):
 
     def get_inheritance_chain(self, cls):
         return [base.__name__ for base in cls.__mro__ if issubclass(base, MADescription)]

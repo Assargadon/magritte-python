@@ -1,10 +1,10 @@
-from CommonAncestorForTests import Ancestor
+from CommonAncestorForTests import AbstractTestForAllDescriptions
 
 from MAStringDescription_class import MAStringDescription
 from MAUrlDescription_class import MAUrlDescription
 from MAMemoDescription_class import MAMemoDescription
 
-class AbstractTest(Ancestor):
+class AbstractTest(AbstractTestForAllDescriptions):
 
     # абстрактные классы у которых не реализованы потомки, они проверяются насильно
     forcedAbstract = [
