@@ -37,11 +37,14 @@ class MAMethodReaderAccessorTest(TestCase):
         self.assertEqual(self.accessor.canWrite(self.model), False)
 
     def test_read(self):
-        self.assertEqual(self.accessor         .read(self.model               ), self.value)
-        self.assertEqual(self.wrongNameAccessor.read(self.model               ), None      )
-
-        self.assertEqual(self.accessor         .read(self.model_without_method), None      )
-        self.assertEqual(self.accessor         .read(self.model_with_consonant), None      )
+        self.assertEqual(
+            self.accessor                  .read(self.model), self.value)
+        with self.assertRaises(Exception):
+            self.wrongNameAccessor         .read(self.model)
+        with self.assertRaises(Exception):
+            self.accessor                  .read(self.model_without_method)
+        with self.assertRaises(Exception):
+            self.accessor                  .read(self.model_with_consonant)
 
     def test_write(self):
         self.accessor.write(self.model, 0) # just make shure it doestn't crash
