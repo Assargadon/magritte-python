@@ -1,30 +1,18 @@
 from unittest import TestCase
 import json
 from datetime import datetime
-from glob import glob
-import re
-        
-from MADescription_class import MADescription
+from AbstractTestForAllDescriptions import AbstractTestForAllDescriptions
+
 from MAContainer_class import MAContainer
 from MAPriorityContainer_class import MAPriorityContainer
-from MAElementDescription_class import MAElementDescription
 from MABooleanDescription_class import MABooleanDescription
 from MAStringDescription_class import MAStringDescription
-from MAMagnitudeDescription_class import MAMagnitudeDescription
-from MANumberDescription_class import MANumberDescription
 from MAIntDescription_class import MAIntDescription
 from MAFloatDescription_class import MAFloatDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
-from MADateDescription_class import MADateDescription
-from MATimeDescription_class import MATimeDescription
-from MADurationDescription_class import MADurationDescription
-from MAReferenceDescription_class import MAReferenceDescription
-from MAOptionDescription_class import MAOptionDescription
 from MASingleOptionDescription_class import MASingleOptionDescription
-from MARelationDescription_class import MARelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
-from MAUrlDescription_class import MAUrlDescription
 from MAPasswordDescription_class import MAPasswordDescription
 
 from MAVisitor_class import MAVisitor
@@ -145,47 +133,8 @@ class MagritteSelfDescriptionVisualTest(TestCase):
         
         print(f"description's description (in JSON):\n{json.dumps(metadescriptor_json, indent=4)}")
         
-class MagritteSelfDescriptionTest(TestCase):
 
-    descriptors_to_test = [
-        MADescription,
-        MAElementDescription,
-        MABooleanDescription,
-        MAMagnitudeDescription,
-        MANumberDescription,
-        MAIntDescription,
-        MAFloatDescription,
-        MADurationDescription,
-        MADateAndTimeDescription,
-        MADateDescription,
-        MATimeDescription,
-        MAOptionDescription,
-        MAReferenceDescription,
-        MARelationDescription,
-        MASingleOptionDescription,
-        MAStringDescription,
-        MAToManyRelationDescription,
-        MAToOneRelationDescription,
-        MAUrlDescription,
-        MAPasswordDescription
-    ]  # Add other classes here
-
-    descriptors_to_ignore = [
-
-    ]
-
-    def setUp(self):
-        # Проверка, что не появились новые классы дескрипторов. При появлении - выдаст assertion.
-        descriptions_file_list = glob('MA*Description_class.py')
-        descriptors_all = [x.__name__ for x in (self.descriptors_to_test + self.descriptors_to_ignore)]
-        pattern = "|".join(map(re.escape, descriptors_all))
-        regex = re.compile(pattern)
-
-        for file_name in descriptions_file_list:
-            match = regex.search(file_name)
-            if match is None:
-                self.assertTrue(False, f'{file_name} found. Add the class to one of then descriptors_to_test or descriptors_to_ignore lists')
-    
+class MagritteSelfDescriptionTest(AbstractTestForAllDescriptions):
 
     def test_allDescriptorsHaveDescriptions(self):
         for desc in self.descriptors_to_test:

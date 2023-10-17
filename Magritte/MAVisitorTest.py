@@ -1,7 +1,5 @@
-from unittest import TestCase
-from glob import glob
-import re
 from MAVisitor_class import MAVisitor
+from AbstractTestForAllDescriptions import AbstractTestForAllDescriptions
 
 from MADescription_class import MADescription
 from MAElementDescription_class import MAElementDescription
@@ -23,6 +21,7 @@ from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAUrlDescription_class import MAUrlDescription
 from MAStringDescription_class import MAStringDescription
+from MAMemoDescription_class import MAMemoDescription
 
 from MAContainer_class import MAContainer
 from MAPriorityContainer_class import MAPriorityContainer
@@ -111,6 +110,10 @@ class MATestingVisitor(MAVisitor):
         self.visited_methods.append(MAStringDescription.__name__)
         super().visitStringDescription(anObject)
 
+    def visitMemoDescription(self, anObject):
+        self.visited_methods.append(MAMemoDescription.__name__)
+        super().visitMemoDescription(anObject)
+
     def visitContainer(self, aMAContainer):
         self.visited_methods.append(MAContainer.__name__)
         super().visitContainer(aMAContainer)
@@ -128,48 +131,7 @@ class MATestingVisitAllVisitor(MAVisitor):
             self.visited_descriptors.append(descriptor)
 
 
-class MAVisitorTest(TestCase):
-
-    descriptors_to_test = [
-        MADescription,
-        MAElementDescription,
-        MABooleanDescription,
-        MAMagnitudeDescription,
-        MANumberDescription,
-        MAIntDescription,
-        MAFloatDescription,
-        MADurationDescription,
-        MADateAndTimeDescription,
-        MADateDescription,
-        MAOptionDescription,
-        MASingleOptionDescription,
-        MAPasswordDescription,
-        MAReferenceDescription,
-        MARelationDescription,
-        MATimeDescription,
-        MAToOneRelationDescription,
-        MAToManyRelationDescription,
-        MAUrlDescription,
-        MAStringDescription,
-        MAContainer,
-        MAPriorityContainer
-    ]  # Add other classes here
-
-    descriptors_to_ignore = [
-
-    ]
-
-    def setUp(self):
-        # Проверка, что не появились новые классы дескрипторов. При появлении - выдаст assertion.
-        descriptions_file_list = glob('MA*Description_class.py')
-        descriptors_all = [x.__name__ for x in (self.descriptors_to_test + self.descriptors_to_ignore)]
-        pattern = "|".join(map(re.escape, descriptors_all))
-        regex = re.compile(pattern)
-
-        for file_name in descriptions_file_list:
-            match = regex.search(file_name)
-            if match is None:
-                self.assertTrue(False, f'{file_name} found. Add the class to one of then descriptors_to_test or descriptors_to_ignore lists')
+class MAVisitorTest(AbstractTestForAllDescriptions):
 
     def get_inheritance_chain(self, cls):
         return [base.__name__ for base in cls.__mro__ if issubclass(base, MADescription)]
