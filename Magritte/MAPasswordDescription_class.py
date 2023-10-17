@@ -9,7 +9,10 @@ class MAPasswordDescription(MAStringDescription):
         return anObject is not None and isinstance(anObject, str) and len(anObject) > 0 and all(character == "*" for character in anObject)
 
     def obfuscated(self, anObject):
-        return "*" * len(str(anObject))
+        if isinstance(anObject, str):
+            return "*" * len(anObject)
+        else:
+            return ''
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitPasswordDescription(self)

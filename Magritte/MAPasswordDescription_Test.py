@@ -13,7 +13,13 @@ class MAPasswordDescriptionTest(TestCase):
         self.inst1 = MAPasswordDescription()
 
     def test_isObfuscated(self):
+        self.assertFalse(self.inst1.isObfuscated(''))
+        self.assertFalse(self.inst1.isObfuscated(None))
+        self.assertFalse(self.inst1.isObfuscated(123))
+        self.assertFalse(self.inst1.isObfuscated('**1'))
         self.assertTrue(self.inst1.isObfuscated('********'))
 
     def test_obfuscated(self):
+        self.assertEqual(self.inst1.obfuscated(None), '')
         self.assertEqual(self.inst1.obfuscated('Hello'), '*****')
+        self.assertEqual(self.inst1.obfuscated('foobar'), '******')

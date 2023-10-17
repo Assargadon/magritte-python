@@ -22,6 +22,7 @@ from MAToManyRelationDescription_class import MAToManyRelationDescription
 from MAToOneRelationDescription_class import MAToOneRelationDescription
 from MAUrlDescription_class import MAUrlDescription
 from MAMemoDescription_class import MAMemoDescription
+from MAPasswordDescription_class import MAPasswordDescription
 
 class AbstractTestForAllDescriptions(TestCase):
 
@@ -45,7 +46,8 @@ class AbstractTestForAllDescriptions(TestCase):
         MAToManyRelationDescription,
         MAToOneRelationDescription,
         MAUrlDescription,
-        MAMemoDescription
+        MAMemoDescription,
+        MAPasswordDescription
     ]  # Add other classes here
 
     descriptors_to_ignore = [
