@@ -1,5 +1,5 @@
-
 from MADescription_class import MADescription
+
 
 class MAElementDescription(MADescription):
 
@@ -26,3 +26,13 @@ class MAElementDescription(MADescription):
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitElementDescription(self)
+    
+    def readString(self, aModel):
+        from MAStringWriterVisitor import MAStringWriterVisitor
+        writer = MAStringWriterVisitor()
+        return writer.write_str(model=aModel, description=self)
+
+    def writeString(self, aModel):
+        from MAStringWriterVisitor import MAStringReaderVisitor
+        reader = MAStringReaderVisitor()
+        return reader.read_str(model=aModel, description=self)
