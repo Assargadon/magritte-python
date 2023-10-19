@@ -37,14 +37,6 @@ def parse_timedelta(duration_str):
 class MAStringVisitor(MAVisitor):
     def __init__(self):
         self._model = None
-
-    def visit(self, description: MADescription):
-        if description.accessor.read(self._model) != description.undefinedValue:
-            super().visit(description)
-        else:
-            raise TypeError(
-                "MAStringSerializer cannot encode or decode undefined value."
-        )
     
     def visitContainer(self, description: MAContainer):
         raise TypeError(
