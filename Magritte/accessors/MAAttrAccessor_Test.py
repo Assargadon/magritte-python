@@ -10,6 +10,7 @@ class Person:
         self._age = None
         self.age = aAge
         self.gender = aGender
+        self.noneAttr = None
 
     def information(self):
         print(f'{self.name} {self.surname} {self.age} {self.gender}')
@@ -35,18 +36,21 @@ class MAAttrAccessorTest(TestCase):
         self.accessor_property = MAAttrAccessor("age")
         self.accessor_readOnly = MAAttrAccessor("name")
         self.accessor_missingAttr = MAAttrAccessor("read")
+        self.accessor_noneAttr = MAAttrAccessor("noneAttr")
 
     def test_canRead(self):
         self.assertEqual(self.accessor_field.canRead(self.aModel), True)
         self.assertEqual(self.accessor_property.canRead(self.aModel), True)
         self.assertEqual(self.accessor_readOnly.canRead(self.aModel), True)
         self.assertEqual(self.accessor_missingAttr.canRead(self.aModel), False)
+        self.assertEqual(self.accessor_noneAttr.canRead(self.aModel), True)
 
     def test_canWrite(self):
         self.assertEqual(self.accessor_field.canWrite(self.aModel), True)
         self.assertEqual(self.accessor_property.canWrite(self.aModel), True)
         self.assertEqual(self.accessor_readOnly.canWrite(self.aModel), False)
         self.assertEqual(self.accessor_missingAttr.canWrite(self.aModel), False)
+        self.assertEqual(self.accessor_noneAttr.canWrite(self.aModel), True)
 
     def test_read(self):
         self.assertEqual(self.accessor_field.read(self.aModel), "Hofman")
