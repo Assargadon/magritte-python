@@ -1,6 +1,5 @@
-from typing import Dict, Any, Union, List
+from typing import Any
 from datetime import timedelta, datetime
-from loguru import logger
 
 from MAVisitor_class import MAVisitor
 from MADescription_class import MADescription
@@ -12,6 +11,8 @@ from MAFloatDescription_class import MAFloatDescription
 from MADateDescription_class import MADateDescription
 from MADurationDescription_class import MADurationDescription
 from MADateAndTimeDescription_class import MADateAndTimeDescription
+from MAContainer_class import MAContainer
+from MATimeDescription_class import MATimeDescription
 
 
 def parse_timedelta(duration_str):
@@ -38,12 +39,21 @@ class MAStringVisitor(MAVisitor):
         self._model = None
 
     def visit(self, description: MADescription):
-        if self._model != description.undefinedValue:
+        if description.accessor.read(self._model) != description.undefinedValue:
             super().visit(description)
-
-    def visitReferenceDescription(self, description: MAReferenceDescription):
+        else:
+            raise TypeError(
+                "MAStringSerializer cannot encode or decode undefined value."
+        )
+    
+    def visitContainer(self, description: MAContainer):
         raise TypeError(
-            "MAStringWriterVisitor cannot encode using reference description."
+            "MAStringSerializer cannot encode or decode using container values description."
+        )
+
+    def visitDescription(self, description: MADescription):
+        raise TypeError(
+            "MAStringWriterVisitor cannot encode or decode using description."
         )
 
 
@@ -61,14 +71,20 @@ class MAStringWriterVisitor(MAStringVisitor):
         self._str = str(description.accessor.read(self._model))
 
     def visitBooleanDescription(self, description: MABooleanDescription):
-        if type(description.accessor.read(self._model)) == bool:
-            self._str = str(description.accessor.read(self._model))
-        elif type(description.accessor.read(self._model)) in (tuple, list):
+        value = description.accessor.read(self._model)
+        if type(value) == bool:
+            self._str = str(value)
+        elif type(value) in (tuple, list):
             self._str = str(description.accessor.read(self._model)[0])
         else:
             raise TypeError(
-                "The bollean value cannot be serialized into a string"
+                "The boolean value cannot be serialized into a string"
             )
+    
+    def visitReferenceDescription(self, description: MAReferenceDescription):
+        raise TypeError(
+            "MAStringWriterVisitor cannot encode using reference description."
+        )
 
 
 class MAStringReaderVisitor(MAStringVisitor):
@@ -97,6 +113,10 @@ class MAStringReaderVisitor(MAStringVisitor):
     def visitDateDescription(self, description: MADateDescription):
         datetime_str = description.accessor.read(self._model)
         self._val = datetime.strptime(datetime_str, '%Y-%m-%d').date()
+
+    def visitTimeDescription(self, description: MATimeDescription):
+        datetime_str = description.accessor.read(self._model)
+        self._val = datetime.strptime(datetime_str, '%H:%M:%S').time()
     
     def visitDurationDescription(self, description: MADurationDescription):
         date_time_str = description.accessor.read(self._model)
@@ -117,3 +137,8 @@ class MAStringReaderVisitor(MAStringVisitor):
             raise TypeError(
                 "The string cannot be deserialized into a boolean value"
             )
+    
+    def visitReferenceDescription(self, description: MAReferenceDescription):
+        raise TypeError(
+            "MAStringReaderVisitor cannot encode using reference description."
+        )

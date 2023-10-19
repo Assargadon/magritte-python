@@ -28,11 +28,11 @@ class MAElementDescription(MADescription):
         aVisitor.visitElementDescription(self)
     
     def readString(self, aModel):
-        from MAStringWriterVisitor import MAStringWriterVisitor
+        from MAStringSerializationVisitor import MAStringWriterVisitor
         writer = MAStringWriterVisitor()
         return writer.write_str(model=aModel, description=self)
 
     def writeString(self, aModel):
-        from MAStringWriterVisitor import MAStringReaderVisitor
+        from MAStringSerializationVisitor import MAStringReaderVisitor
         reader = MAStringReaderVisitor()
         return reader.read_str(model=aModel, description=self)

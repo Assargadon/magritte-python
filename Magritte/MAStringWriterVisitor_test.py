@@ -1,8 +1,10 @@
 from unittest import TestCase
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 
 from MAStringDescription_class import MAStringDescription
+from MAElementDescription_class import MAElementDescription
 from MADateDescription_class import MADateDescription
+from MATimeDescription_class import MATimeDescription
 from MAIntDescription_class import MAIntDescription
 from MABooleanDescription_class import MABooleanDescription
 from MAFloatDescription_class import MAFloatDescription
@@ -21,7 +23,8 @@ class TestPerson():
             alive, 
             active, 
             last_acitve,
-            period_active
+            period_active,
+            current_time
     ):
         self.first_name = first_name
         self.dob = dob
@@ -31,6 +34,7 @@ class TestPerson():
         self.active = active,
         self.last_active = last_acitve
         self.period_active = period_active
+        self.current_time = current_time
 
 
 class MAStringWriterVisiorTest(TestCase):
@@ -43,7 +47,8 @@ class MAStringWriterVisiorTest(TestCase):
             alive=True,
             active=False,
             last_acitve=datetime(2023, 1, 1, 10, 10, 10),
-            period_active=datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1)
+            period_active=datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1),
+            current_time=time(18, 4, 12)
         )
 
     def test_str(self):
@@ -75,6 +80,17 @@ class MAStringWriterVisiorTest(TestCase):
 
         self.assertEqual(last_active.readString(self.model), 
                          str(datetime(2023, 1, 1, 10, 10, 10))
+        )
+    
+    def test_time(self):
+        current_time = MATimeDescription(
+            accessor='current_time', 
+            label='Current time', 
+            required=False
+        )
+
+        self.assertEqual(current_time.readString(self.model), 
+                         str(time(18, 4, 12))
         )
     
     def test_int(self):
@@ -121,7 +137,7 @@ class MAStringWriterVisiorTest(TestCase):
         ref = MAReferenceDescription(accessor = "obj", reference = self.model, required = False)
 
         with self.assertRaises(TypeError):
-            MAReferenceDescription._validateKind(ref)
+            MAReferenceDescription.readString(ref)
 
 
 class MAStringReaderVisiorTest(TestCase):
@@ -134,7 +150,8 @@ class MAStringReaderVisiorTest(TestCase):
             alive="True",
             active="False",
             last_acitve=str(datetime(2023, 10, 30, 10, 10, 10)),
-            period_active="30 days, 0:00:00"
+            period_active="30 days, 0:00:00",
+            current_time="18:04:12"
         )
 
     def test_str(self):
@@ -159,13 +176,24 @@ class MAStringReaderVisiorTest(TestCase):
     
     def test_datetime(self):
         last_active = MADateAndTimeDescription(
-            accessor='last_active', 
-            label='Last time active', 
+            accessor='last_active',
+            label='Last time active',
             required=False
         )
 
         self.assertEqual(last_active.writeString(self.model), 
                          datetime(2023, 10, 30, 10, 10, 10)
+        )
+    
+    def test_time(self):
+        current_time = MATimeDescription(
+            accessor='current_time',
+            label='Current time',
+            required=False
+        )
+
+        self.assertEqual(current_time.writeString(self.model), 
+                         time(18, 4, 12)
         )
     
     def test_int(self):
