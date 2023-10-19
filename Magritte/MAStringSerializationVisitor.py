@@ -61,6 +61,12 @@ class MAStringWriterVisitor(MAStringVisitor):
     """Encodes the value described by the descriptions into string."""
     def __init__(self):
         self._str = None
+    
+    def visit(self, description: MADescription):
+        if description.accessor.read(self._model) != description.undefinedValue:
+            super().visit(description)
+        else:
+            self._str = description.undefined
 
     def write_str(self, model: Any, description: MADescription) -> str:
         self._model = model
@@ -91,6 +97,12 @@ class MAStringReaderVisitor(MAStringVisitor):
     """Decodes the string into an appropriate value."""
     def __init__(self):
         self._val = None
+    
+    def visit(self, description: MADescription):
+        if description.accessor.read(self._model) != description.undefined:
+            super().visit(description)
+        else:
+            self._val = description.undefinedValue
 
     def read_str(self, model: Any, description: MADescription):
         self._model = model

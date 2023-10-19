@@ -70,7 +70,7 @@ class MAStringWriterVisiorTest(TestCase):
         self.assertEqual(date_of_birth.readString(self.model), 
                          str(date(1990, 1, 1))
         )
-    
+
     def test_datetime(self):
         last_active = MADateAndTimeDescription(
             accessor='last_active', 
@@ -81,7 +81,7 @@ class MAStringWriterVisiorTest(TestCase):
         self.assertEqual(last_active.readString(self.model), 
                          str(datetime(2023, 1, 1, 10, 10, 10))
         )
-    
+
     def test_time(self):
         current_time = MATimeDescription(
             accessor='current_time', 
@@ -92,7 +92,7 @@ class MAStringWriterVisiorTest(TestCase):
         self.assertEqual(current_time.readString(self.model), 
                          str(time(18, 4, 12))
         )
-    
+
     def test_int(self):
         height = MAIntDescription(
             accessor='height', 
@@ -101,11 +101,11 @@ class MAStringWriterVisiorTest(TestCase):
         )
 
         self.assertEqual(height.readString(self.model), "180")
-    
+
     def test_float(self):
         age = MAFloatDescription(accessor='age', label='age', required=False)
         self.assertEqual(age.readString(self.model), "33.8")
-    
+
     def test_bool(self):
         alive = MABooleanDescription(
             accessor='alive', 
@@ -134,10 +134,44 @@ class MAStringWriterVisiorTest(TestCase):
         )
     
     def test_relation(self):
-        ref = MAReferenceDescription(accessor = "obj", reference = self.model, required = False)
+        ref = MAReferenceDescription(
+            accessor = "obj", 
+            reference = self.model, 
+            required = False
+        )
 
         with self.assertRaises(TypeError):
             MAReferenceDescription.readString(ref)
+    
+    def test_undefined(self):
+        height_desc = MAIntDescription(
+            accessor = "height", 
+            required = False, 
+            undefined='-'
+        )
+
+        self.model.height = None
+        self.assertEqual(
+            height_desc.readString(self.model), '-'
+        )
+    
+    def test_undefined_value(self):
+        height_desc = MAIntDescription(
+            accessor = "height", 
+            required = False, 
+            undefinedValue=-1, 
+            undefined='-'
+        )
+
+        self.model.height = -1
+        self.assertEqual(
+            height_desc.readString(self.model), '-'
+        )
+
+        self.model.height = None
+        self.assertNotEqual(
+            height_desc.readString(self.model), '-'
+        )
 
 
 class MAStringReaderVisiorTest(TestCase):
@@ -244,7 +278,41 @@ class MAStringReaderVisiorTest(TestCase):
         )
     
     def test_relation(self):
-        ref = MAReferenceDescription(accessor = "obj", reference = self.model, required = False)
+        ref = MAReferenceDescription(
+            accessor = "obj", 
+            reference = self.model, 
+            required = False
+        )
 
         with self.assertRaises(TypeError):
             MAReferenceDescription._validateKind(ref)
+    
+    def test_undefined(self):
+        height_desc = MAIntDescription(
+            accessor = "height", 
+            required = False, 
+            undefined='-'
+        )
+
+        self.model.height = '-'
+        self.assertEqual(
+            height_desc.writeString(self.model), None
+        )
+    
+    def test_undefined_value(self):
+        height_desc = MAElementDescription(
+            accessor = "height", 
+            required = False, 
+            undefinedValue=-1, 
+            undefined='-'
+        )
+
+        self.model.height = '-'
+        self.assertEqual(
+            height_desc.writeString(self.model), -1
+        )
+
+        self.model.height = 'None'
+        self.assertEqual(
+            height_desc.writeString(self.model), 'None'
+        )
