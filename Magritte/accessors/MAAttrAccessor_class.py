@@ -17,8 +17,6 @@ class MAAttrAccessor(MAAccessor):
                 return attr.fget is not None
             else:
                 return False
-        #attr = getattr(aModel, self._attrName, None)
-        #return attr is not None
         return hasattr(aModel, self._attrName)
 
     def canWrite(self, aModel):
@@ -28,8 +26,6 @@ class MAAttrAccessor(MAAccessor):
                 return attr.fset is not None
             else:
                 return False
-        #attr = getattr(aModel, self._attrName, None)
-        #return attr is not None
         return hasattr(aModel, self._attrName)
 
 
