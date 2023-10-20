@@ -1,5 +1,5 @@
 from unittest import TestCase
-from MAStringDescription_class import MAStringDescription
+from descriptions.MAStringDescription_class import MAStringDescription
 from accessors.MAAttrAccessor_class import MAAttrAccessor
 from . User import User
 

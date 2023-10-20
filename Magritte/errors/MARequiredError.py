@@ -1,4 +1,4 @@
-from . MAValidationError import MAValidationError
+from errors.MAValidationError import MAValidationError
 
 
 class MARequiredError(MAValidationError):

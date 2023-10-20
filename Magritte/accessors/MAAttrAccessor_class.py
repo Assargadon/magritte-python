@@ -30,7 +30,6 @@ class MAAttrAccessor(MAAccessor):
         attr = getattr(aModel, self._attrName, None)
         return attr is not None
 
-
     @property
     def name(self):
         return self._attrName

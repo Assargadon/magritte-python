@@ -1,6 +1,6 @@
 
 from MAModel_class import MAModel
-from MAContainer_class import MAContainer
+from descriptions.MAContainer_class import MAContainer
 from errors.MAReadError import MAReadError
 from errors.MAWriteError import MAWriteError
 
@@ -28,4 +28,3 @@ class MAAdaptiveModel(MAModel):
         if description not in self.magritteDescription:
             raise MAWriteError()
         self.values[description] = value
-

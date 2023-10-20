@@ -1,4 +1,0 @@
-
-class MAValidationError(Exception):
-
-    pass
