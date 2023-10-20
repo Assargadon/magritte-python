@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 from datetime import timedelta, datetime
 
 from MAVisitor_class import MAVisitor
@@ -15,7 +15,7 @@ from MAContainer_class import MAContainer
 from MATimeDescription_class import MATimeDescription
 
 
-def parse_timedelta(duration_str):
+def parse_timedelta(duration_str: str) -> timedelta:
     parts = duration_str.split(', ')
 
     days = seconds = minutes = hours = 0
@@ -32,6 +32,15 @@ def parse_timedelta(duration_str):
                 
     return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
+
+def is_bool_tuple(val: Union[bool, tuple], description: MADescription) -> bool:
+    """
+    Bool accessor returns True for true value and (False, ) for False value,
+    so we will check both cases for now until we refactor
+    """
+    if type(val) == tuple:
+        return type(val[0]) == bool
+    return type(val) in (description.defaultKind(), tuple)
 
 
 class MAStringVisitor(MAVisitor):
@@ -56,7 +65,13 @@ class MAStringWriterVisitor(MAStringVisitor):
     
     def visit(self, description: MADescription):
         if description.accessor.read(self._model) != description.undefinedValue:
-            super().visit(description)
+            val = description.accessor.read(self._model)
+            if is_bool_tuple(val=val, description=description):
+                super().visit(description)
+            else:
+                raise TypeError(
+                    "Wrong value type"
+                )
         else:
             self._str = description.undefined
 

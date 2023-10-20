@@ -168,10 +168,31 @@ class MAStringWriterVisiorTest(TestCase):
             height_desc.readString(self.model), '-'
         )
 
-        self.model.height = None
-        self.assertNotEqual(
-            height_desc.readString(self.model), '-'
+        with self.assertRaises(TypeError):
+            self.model.height = None
+            height_desc.readString(self.model), None
+
+        height_desc = MAIntDescription(
+            accessor = "height", 
+            required = False, 
+            undefinedValue=-1, 
+            undefined='NaN'
         )
+
+        self.model.height = -1
+        self.assertEqual(
+            height_desc.readString(self.model), 'NaN'
+        )
+
+    def test_wrong_value(self):
+        height_desc = MAIntDescription(
+            accessor = "height", 
+            required = False, 
+            undefined='-'
+        )
+        
+        with self.assertRaises(TypeError):
+            MAIntDescription.readString(height_desc)
 
 
 class MAStringReaderVisiorTest(TestCase):
@@ -315,4 +336,16 @@ class MAStringReaderVisiorTest(TestCase):
         self.model.height = 'None'
         self.assertEqual(
             height_desc.writeString(self.model), 'None'
+        )
+
+        height_desc = MAElementDescription(
+            accessor = "height", 
+            required = False, 
+            undefinedValue=None, 
+            undefined='-'
+        )
+
+        self.model.height = '-'
+        self.assertEqual(
+            height_desc.writeString(self.model), None
         )
