@@ -1,10 +1,13 @@
 from typing import Any
+import logging
 
 from MABooleanDescription_class import MABooleanDescription
 from MAStringDescription_class import MAStringDescription
 from MAMagnitudeDescription_class import MAMagnitudeDescription
 from MADescription_class import MADescription
 from MAVisitor_class import MAVisitor
+
+logger = logging.getLogger(__name__)
 
 
 class MAInequalityFound(Exception):
@@ -24,7 +27,21 @@ class MAEqualityTester(MAVisitor):
         self._equal_nested = []
         return self._test_for_equality(model1, model2, description)
 
+    def _validate(self, model: Any, description: MADescription) -> bool:
+        validation_errors = description.validate(model)
+        if len(validation_errors) > 0:
+            logger.error(
+                f"Model {model!r} is not valid for description {description}. "
+                f"Errors: {validation_errors}."
+                )
+            raise ValueError(
+                f"Model {model!r} is not valid for description {description}. "
+                f"Errors: {validation_errors}."
+                )
+
     def _test_for_equality(self, model1: Any, model2: Any, description: MADescription) -> bool:
+        self._validate(model1, description)
+        self._validate(model2, description)
         self._model1 = model1
         self._model2 = model2
         try:
