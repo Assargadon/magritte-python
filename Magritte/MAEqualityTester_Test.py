@@ -548,3 +548,10 @@ class MAEqualityTester_Test(TestCase):
         self.assertFalse(self.equality_tester.equal(self.object8_3, self.object8_3_not_equal, self.object8_3_desc_alt))
         self.assertFalse(self.equality_tester.equal(self.object8_3, self.object8_3_not_equal2, self.object8_3_desc))
         self.assertFalse(self.equality_tester.equal(self.object8_3, self.object8_3_not_equal2, self.object8_3_desc_alt))
+
+    def test_object_equality_with_none(self):
+        self.assertTrue(self.equality_tester.equal(None, None, self.object_desc))
+        self.assertFalse(self.equality_tester.equal(None, self.object1, self.object_desc))
+        self.assertFalse(self.equality_tester.equal(self.object1, None, self.object_desc))
+        self.assertFalse(self.equality_tester.equal(None, self.object2, self.object_desc))
+        self.assertFalse(self.equality_tester.equal(self.object2, None, self.object_desc))
