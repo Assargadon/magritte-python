@@ -78,6 +78,13 @@ class MAEqualityTester(MAVisitor):
 
         return res
 
+    def visit(self, description: MADescription):
+        if self._model1 is None or self._model2 is None:
+            if self._model1 is not self._model2:
+                raise MAInequalityFound()
+            return  # both models are None
+        super().visit(description)  # both models are not None
+
     def visitElementDescription(self, description: MADescription):
         if description.accessor.read(self._model1) != description.accessor.read(self._model2):
             raise MAInequalityFound()
