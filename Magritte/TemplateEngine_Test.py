@@ -7,6 +7,10 @@
 
 # TODO - unit test
 
+from unittest import TestCase
+
+import Cheetah.ErrorCatchers
+
 from model_for_tests.Host import Host
 from model_for_tests.Port import Port
 from accessors.MAAttrAccessor_class import MAAttrAccessor
@@ -17,30 +21,47 @@ from MAToManyRelationDescription_class import MAToManyRelationDescription
 from template_engine import MAModelCheetahTemplateAdapter
 
 
-magritteModel = Host.random_host()
+class MADateDescriptionTest(TestCase):
 
-portDesc = MAContainer()
-portDesc += MAIntDescription(name='numofport', accessor=MAAttrAccessor('numofport'))
+    def setUp(self):
+        self.magritteModel = Host.random_host()
 
-desc = MAContainer()
-desc += MAStringDescription(name='ip', accessor=MAAttrAccessor('ip'))
-desc += MAToManyRelationDescription(
-        name='ports',
-        default=desc.defaultCollection(),
-        classes=[Port],
-        reference=portDesc,
-        accessor=MAAttrAccessor('ports')
-    )
+        portDesc = MAContainer()
+        portDesc += MAIntDescription(name='numofport', accessor=MAAttrAccessor('numofport'))
 
-sTemplate = """
-    Host IP: $magritteModel.ip
-    #for $port in $magritteModel.ports
-        Port Number: $port.numofport
-    #end for
-"""
+        desc = MAContainer()
+        desc += MAStringDescription(name='ip', accessor=MAAttrAccessor('ip'))
+        desc += MAToManyRelationDescription(
+                name='ports',
+                default=desc.defaultCollection(),
+                classes=[Port],
+                reference=portDesc,
+                accessor=MAAttrAccessor('ports')
+            )
+        self.magritteDescription = desc
+        self.adapter = MAModelCheetahTemplateAdapter(self.magritteModel, self.magritteDescription)
 
-adapter = MAModelCheetahTemplateAdapter(magritteModel, desc)
-s = adapter.respondTo(sTemplate)
-print(s)
 
-#MAModelCheetahTemplateAdapter
+    def test_host_template(self):
+        sTemplate = """
+            Host IP: $magritteModel.ip
+            #for $port in $magritteModel.ports
+                Port Number: $port.numofport
+            #end for
+        """
+        sHostResponse = f"Host IP: {self.magritteModel.ip}"
+        sPortResponses = [f"Port Number: {port.numofport}" for port in self.magritteModel.ports]
+
+        response = self.adapter.respondTo(sTemplate)
+
+        self.assertTrue(sHostResponse in response, "Host IP string must exist in template response")
+        for sPortResponse in sPortResponses:
+            self.assertTrue(sPortResponse in response, "Port Number string must exist in template response")
+
+
+    def test_unexistent_property_template(self):
+        sTemplate = """
+            Host unexistent property: $magritteModel.unexistent
+        """
+        with self.assertRaises(Cheetah.ErrorCatchers.NotFound):
+            self.adapter.respondTo(sTemplate)
