@@ -86,7 +86,7 @@ class TestPerson():
         self.age = age
         self.height = height
         self.alive = alive
-        self.active = active,
+        self.active = active
 
 class MABoolAttrAccessorTest(TestCase):
 
