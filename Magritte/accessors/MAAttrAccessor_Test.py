@@ -71,3 +71,40 @@ class MAAttrAccessorTest(TestCase):
     def test_name(self):
 
         self.assertEqual(self.accessor_field.name, "surname")
+
+
+class TestPerson():
+    def __init__(
+            self, 
+            first_name, 
+            age, 
+            height, 
+            alive, 
+            active, 
+    ):
+        self.first_name = first_name
+        self.age = age
+        self.height = height
+        self.alive = alive
+        self.active = active,
+
+class MABoolAttrAccessorTest(TestCase):
+
+    def testSimplePrint(self):
+        
+        model = TestPerson(
+            first_name="Bob", 
+            age=33.8, 
+            height=180, 
+            alive=False,
+            active=False
+        )
+
+        aliveAccessor = MAAttrAccessor('alive')
+        activeAccessor = MAAttrAccessor('active')
+
+#        print(f'alive: ${aliveAccessor.read(model)}')
+#        print(f'active: ${activeAccessor.read(model)}')
+
+        self.assertIsInstance(aliveAccessor.read(model), bool)
+        self.assertIsInstance(activeAccessor.read(model), bool)
