@@ -85,14 +85,11 @@ class MAStringWriterVisitor(MAStringVisitor):
 
     def visitBooleanDescription(self, description: MABooleanDescription):
         value = description.accessor.read(self._model)
-        if type(value) == bool:
+        try:
             self._str = str(value)
-        elif type(value) in (tuple, list):
-            self._str = str(description.accessor.read(self._model)[0])
-        else:
+        except TypeError as e:
             raise TypeError(
-                "The boolean value cannot be serialized into a string"
-            )
+                "The boolean value cannot be serialized into a string")
     
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
@@ -142,11 +139,7 @@ class MAStringReaderVisitor(MAStringVisitor):
         self._val = parse_timedelta(date_time_str)
 
     def visitBooleanDescription(self, description: MABooleanDescription):
-        value = description.accessor.read(self._model)
-        if type(value) == str:
-            bool_str = description.accessor.read(self._model).lower()
-        elif type(value) in (tuple, list):
-            bool_str = value[0].lower()
+        bool_str = description.accessor.read(self._model).lower()
 
         if bool_str in description.defaultTrueStrings():
             self._val = True
