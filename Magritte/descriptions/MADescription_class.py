@@ -10,6 +10,7 @@ from Magritte.errors.MAKindError import MAKindError
 from Magritte.errors.MARequiredError import MARequiredError
 from Magritte.MAModel_class import MAModel
 
+
 class MADescription(MAModel):
 
     def magritteDescription(self):
