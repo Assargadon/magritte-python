@@ -1,6 +1,6 @@
 
-from MAModel_class import MAModel
 import random
+from MAModel_class import MAModel
 
 class Port(MAModel):
     COMMON_PORTS = [20,  # FTP
@@ -17,7 +17,7 @@ class Port(MAModel):
                    995] # POP3S
 
     def __init__(self, host, numofport=None):
-        from . Host import Host
+        from model_for_tests.Host import Host
         assert isinstance(host, Host), "Expected host to be an instance of Host"
         assert numofport is not None, "numofport cannot be None"
         
