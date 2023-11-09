@@ -140,10 +140,13 @@ class User(MAModel):
 
     @property
     def setofaccounts(self):
+        '''
         logins = []
         for acc in self._setofaccounts:
             logins.append(acc.login)
         return logins
+        '''
+        return self._setofaccounts
 
     @setofaccounts.setter
     def setofaccounts(self, new_setofaccounts):
