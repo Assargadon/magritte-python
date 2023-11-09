@@ -167,7 +167,7 @@ class TestModelDescriptor:
 
 if __name__ == "__main__":
 
-    # from model_for_tests.TestEnvironmentProvider import TestEnvironmentProvider
+    from model_for_tests.TestEnvironmentProvider import TestEnvironmentProvider
 
     org_desc = TestModelDescriptor.description_for("Organization")
     user_desc = TestModelDescriptor.description_for("User")
@@ -175,7 +175,6 @@ if __name__ == "__main__":
     host_desc = TestModelDescriptor.description_for("Host")
     port_desc = TestModelDescriptor.description_for("Port")
 
-    '''
     test_env_provider = TestEnvironmentProvider()
     org = test_env_provider.organization
     users = test_env_provider.users
@@ -188,6 +187,7 @@ if __name__ == "__main__":
     accounts = [account for user in users for account in user.setofaccounts]
     hosts = org.listcomp
     ports = [port for host in hosts for port in host.ports]
+    '''
 
     print("Validating organization...")
     errs = org_desc.validate(org)
