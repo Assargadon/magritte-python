@@ -10,9 +10,8 @@ from fastapi_websocket_rpc.websocket_rpc_endpoint import WebsocketRPCEndpoint
 from descriptions.MAContainer_class import MAContainer
 from descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
 
-
-#from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonWriter, MAObjectJsonWriter
-#from Magritte.visitors.MAStringSerializationVisitor import MAStringWriterVisitor, MAStringReaderVisitor
+from visitors.MAJsonWriter_visitors import MAObjectJsonWriter, MAValueJsonWriter
+from visitors.MAStringSerializationVisitor import MAStringReaderVisitor
 
 
 class MAWebsocketRPCEndpoint(WebsocketRPCEndpoint):
@@ -27,11 +26,14 @@ async def get_token_header(x_token: str = Header(...)):
 
 def _deserialize_params(json_desc: str) -> MAContainer:
     """Convert json string into a MA model description"""
-    pass
+    json_reader = MAStringReaderVisitor()
+    return json_reader.read_str(json_desc)
 
 def _serialize_response(ma_output: MAContainer) -> str:
     """Convert MA model description into a json string"""
-    pass
+    json_writer = MAObjectJsonWriter(description=ma_output)
+    json_desc = json_writer.write_json(ma_output)
+    return json_desc
 
 def _validate_model(ma_model) -> bool:
     pass
