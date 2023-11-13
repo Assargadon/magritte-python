@@ -29,7 +29,6 @@ class MAAttrAccessor(MAAccessor):
         return hasattr(aModel, self._attrName)
 
 
-
     @property
     def name(self):
         return self._attrName

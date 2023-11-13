@@ -1,14 +1,7 @@
 #!/bin/bash
+root_directory="."
 
-for file in accessors/*Test.py
-do
-  if [ -f "$file" ]; then
-    echo "Running $file"
-    python3 -m unittest "$file"
-  fi
-done
-
-for file in *Test.py
+find "$root_directory" -type f -name "*Test.py" | while read -r file
 do
   if [ -f "$file" ]; then
     echo "Running $file"

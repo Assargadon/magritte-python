@@ -1,5 +1,3 @@
-import types
-
 '''
 Magritte conditions are just Callables returning True or False and accepting model as parameter
 MACondition is just a syntax sugar for commonly used cases:

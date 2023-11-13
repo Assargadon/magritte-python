@@ -1,4 +1,4 @@
-from . MAAccessor_class import MAAccessor
+from accessors.MAAccessor_class import MAAccessor
 
 
 class MAPluggableAccessor(MAAccessor):
