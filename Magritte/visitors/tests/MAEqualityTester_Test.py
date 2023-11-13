@@ -3,16 +3,16 @@ from unittest import TestCase
 
 from typing import List
 
-from MAContainer_class import MAContainer
-from MADateAndTimeDescription_class import MADateAndTimeDescription
-from MAFloatDescription_class import MAFloatDescription
-from MAOptionDescription_class import MAOptionDescription
-from MAToManyRelationDescription_class import MAToManyRelationDescription
-from MAToOneRelationDescription_class import MAToOneRelationDescription
+from descriptions.MAContainer_class import MAContainer
+from descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
+from descriptions.MAFloatDescription_class import MAFloatDescription
+from descriptions.MAOptionDescription_class import MAOptionDescription
+from descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
+from descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
+from descriptions.MAIntDescription_class import MAIntDescription
+from descriptions.MAStringDescription_class import MAStringDescription
 from accessors.MAIdentityAccessor_class import MAIdentityAccessor
-from MAIntDescription_class import MAIntDescription
-from MAStringDescription_class import MAStringDescription
-from MAEqualityTester_visitor import MAEqualityTester
+from visitors.MAEqualityTester_visitor import MAEqualityTester
 
 
 class TestObject1:
