@@ -1,8 +1,8 @@
-from Host import Host
-from Port import Port
-from Account import Account
-from Organization import Organization
-from User import User
+
+from model_for_tests.Host import Host
+from model_for_tests.Account import Account
+from model_for_tests.Organization import Organization
+
 
 class TestEnvironmentProvider:
     def __init__(self, num_hosts=3, num_ports_per_host=12, num_accounts=3, num_users=3):

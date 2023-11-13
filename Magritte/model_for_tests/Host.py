@@ -1,7 +1,7 @@
 
-from MAModel_class import MAModel
 import random
-from . Port import Port
+from MAModel_class import MAModel
+from model_for_tests.Port import Port
 
 class Host(MAModel):
 
