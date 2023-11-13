@@ -85,11 +85,13 @@ class MAStringWriterVisitor(MAStringVisitor):
 
     def visitBooleanDescription(self, description: MABooleanDescription):
         value = description.accessor.read(self._model)
+
         try:
             self._str = str(value)
         except TypeError as e:
             raise TypeError(
                 "The boolean value cannot be serialized into a string")
+
     
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
@@ -140,6 +142,7 @@ class MAStringReaderVisitor(MAStringVisitor):
 
     def visitBooleanDescription(self, description: MABooleanDescription):
         bool_str = description.accessor.read(self._model).lower()
+
 
         if bool_str in description.defaultTrueStrings():
             self._val = True

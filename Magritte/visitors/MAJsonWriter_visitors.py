@@ -61,110 +61,99 @@ class MAValueJsonWriter(MAVisitor):
             )
 
 
-class MAObjectJsonWriter(MAVisitor):
-    """Encodes the object described by the descriptions into JSON."""
+class MAValueJsonWriter(MAVisitor):
+    """Encodes the value described by the descriptions into JSON."""
 
-    def __init__(self):
+    def __init__(self, description: MADescription):
+        if description.isContainer():
+            raise TypeError(
+                "MAValueJsonWriter cannot encode using container description. Only scalar values are allowed. Use MAObjectJsonWriter instead."
+            )
+        self._description = description
         self._model = None
         self._json = None
-        self._value_encoder = MAValueJsonWriter()
 
-    def _validate_name(self, description: MADescription) -> None:
-        name = description.name
-        if name is None:
-            raise ValueError(
-                f"MAObjectJsonWriter requires names for all the descriptions to construct valid Json. "
-                f"Found None value for {description.label}."
-                )
-        if not isinstance(name, str):
-            raise ValueError(
-                f"MAObjectJsonWriter requires names for all the descriptions to be str to construct valid Json. "
-                f"Found: {type(name)}."
-                )
-        if self._json and name in self._json:
-            raise ValueError(
-                f"MAObjectJsonWriter requires distinct names for all the descriptions to construct valid Json. "
-                f"Found duplicate: {name}."
-                )
-
-    def write_json(self, model: Any, description: MADescription) -> Union[Dict, List, Any, None]:
+    def write_json(self, model) -> Any:
         self._model = model
-        self._json = None
-        self.visit(description)
+        self._json = self._description.undefinedValue
+        self.visit(self._description)
         return self._json
 
-    def write_json_string(self, model: Any, description: MADescription) -> str:
-        return json.dumps(self.write_json(model, description))
-
-    def _deeper(self, model: Any, description: MADescription) -> Union[Dict, List, Any, None]:
-        if model is None:
-            return None
-        # if isinstance(model, (int, float, str, bool, datetime)):
-        # Better to check the type of the description, not the model, since the model can be an object but accessor can
-        # return a scalar value.
-        if isinstance(description, (MABooleanDescription, MAMagnitudeDescription, MAStringDescription)):
-            return self._value_encoder.write_json(model, description)
-
-        prev_json = self._json
-        prev_model = self._model
-
-        res = self.write_json(model, description)
-
-        self._json = prev_json
-        self._model = prev_model
-
-        return res
+    def write_json_string(self, model) -> str:
+        return json.dumps(self.write_json(model))
 
     def visit(self, description: MADescription):
-        if self._model == description.undefinedValue:
-            return
-        if not description.visible:
-            return
-        super().visit(description)
+        if description.accessor.canRead(self._model):
+            super().visit(description)
+        else:
+            raise ValueError("MAValueJsonWriter failed to read value from the model using the description provided.")
 
     def visitElementDescription(self, description: MADescription):
-        self._validate_name(description)
-        if not self._json:
-            self._json = {}
-        self._json[description.name] = self._value_encoder.write_json(self._model, description)
+        self._json = description.accessor.read(self._model)
 
-    def visitContainer(self, description: MADescription):
-        if not self._json:
-            self._json = {}
-            self.visitAll(description)
-        else:
-            raise Exception("Shouldn't reach visitContainer with nonempty self._json")
+    def visitDateAndTimeDescription(self, description: MADescription):
+        self._json = description.accessor.read(self._model).isoformat()
 
-    def visitReferenceDescription(self, description):
-        self._validate_name(description)
-        if not self._json:
-            self._json = {}
-        ref_model = description.accessor.read(self._model)
-        if ref_model is None:
-            self._json[description.name] = None
-        else:
-            self._json[description.name] = self._deeper(ref_model, description.reference)
+    def visitMagnitudeDescription(self, description: MADescription):
+        # !TODO Override exact visit methods like visitDateAndTimeDescription for each type of magnitude when they are defined.
+        self._json = description.accessor.read(self._model)
 
-    def visitMultipleOptionDescription(self, description):  # MAMultipleOptionDescription is not implemented yet
-        self._validate_name(description)
-        if not self._json:
-            self._json = {}
-        selected_options = description.accessor.read(self._model)
-        if selected_options is None:
-            self._json[description.name] = None
+    def visitReferenceDescription(self, description: MAReferenceDescription):
+        if description.reference.isContainer():
+            # referenced value is an object
+            nested_encoder = MAObjectJsonWriter(description.reference)
         else:
-            self._json[description.name] = {
-                self._deeper(entry, description.reference) for entry in selected_options
-                }
+            # referenced value is a scalar value
+            nested_encoder = MAValueJsonWriter(description.reference)
+        self._json = nested_encoder.write_json(description.accessor.read(self._model))
+
+
+class MAObjectJsonWriter(MAVisitor):
+    """Encodes the object described by the descriptions into JSON."""
+    def __init__(self, description: MAContainer):
+        if not description.isContainer():
+            raise TypeError(
+                "MAObjectJsonWriter cannot encode using scalar description. Only container values are allowed. Use MAValueJsonWriter instead."
+            )
+        self._description = description
+        self._model = None
+        self._json = None
+
+    def write_json(self, model) -> Dict[str, Any]:
+        self._model = model
+        self._json = {}  # Reset the json dict.
+        for elementDescription in self._description:
+            self.visit(elementDescription)
+        return self._json
+
+    def write_json_string(self, model) -> str:
+        return json.dumps(self.write_json(model))
+
+    def visitElementDescription(self, description: MADescription):
+        if not description.visible: return
+
+        value_encoder = MAValueJsonWriter(description)
+        name = description.name
+        if name is None:
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to construct valid Json. Found None value for {description.label}")
+        if not isinstance(name, str):
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to be str to construct valid Json. Found: {type(name)}")
+        if name in self._json:
+            raise ValueError(f"MAObjectJsonWriter requires distinct names for all the descriptions to construct valid Json. Found duplicate: {name}.")
+        self._json[name] = value_encoder.write_json(self._model)
         
+
     def visitToManyRelationDescription(self, description):
-        self._validate_name(description)
-        if not self._json:
-            self._json = {}
-        collection = description.accessor.read(self._model)
-        if collection is None:
-            self._json[description.name] = None
-        self._json[description.name] = [
-            self._deeper(entry, description.reference) for entry in collection
-            ]
-        
+        if not description.visible: return
+
+        name = description.name
+        if name is None:
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to construct valid Json. Found None value for {description.label}")
+        if not isinstance(name, str):
+            raise ValueError(f"MAObjectJsonWriter requires names for all the descriptions to be str to construct valid Json. Found: {type(name)}")
+        if name in self._json:
+            raise ValueError(f"MAObjectJsonWriter requires distinct names for all the descriptions to construct valid Json. Found duplicate: {name}.")
+
+        object_encoder = MAObjectJsonWriter(description.reference)
+        collection = description.accessor.read(self._model) # TODO: replace on model.readUsing or description.read (both are not implemented yet)
+        self._json[name] = [object_encoder.write_json(entry) for entry in collection]    
