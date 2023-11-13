@@ -31,7 +31,8 @@ class TestPerson():
         self.age = age
         self.height = height
         self.alive = alive
-        self.active = active,
+        self.active = active
+
         self.last_active = last_acitve
         self.period_active = period_active
         self.current_time = current_time
