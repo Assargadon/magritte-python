@@ -4,6 +4,8 @@ from typing import Any
 from typing import Self
 from Magritte.MAContainer_class import MAContainer
 
+from MagritteSQL.lib.MagritteSQL.sqlalchemy_model_writer import SQLAlchemyModelWriter
+
 class DbDeployer:
 
     def __init__(self, engine: Engine):
@@ -16,7 +18,9 @@ class DbDeployer:
         return DbDeployer(engine)
 
     def register_model(self, magrittedescription: MAContainer) -> None:
-        pass
+        writer = SQLAlchemyModelWriter()
+        model = writer.write_model(magrittedescription)
+        self.models[model.__tablename__] = model
 
     def deploy_table(self, model_name: str) -> None:
         pass
