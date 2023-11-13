@@ -1,5 +1,6 @@
 from . MAAccessor_class import MAAccessor
 
+
 class MAMethodReaderAccessor(MAAccessor):
 
     def __init__(self, aMethodName):
