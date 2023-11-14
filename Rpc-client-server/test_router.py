@@ -13,19 +13,19 @@ from datetime import datetime, timedelta, date, time
 from client import MAWebSocketRpcCLient, WaitingClient
 from server import MAWebsocketRPCEndpoint, MAConcatServer, _serialize_response, _deserialize_params
 
-from descriptions.MAStringDescription_class import MAStringDescription
-from descriptions.MAElementDescription_class import MAElementDescription
-from descriptions.MADateDescription_class import MADateDescription
-from descriptions.MATimeDescription_class import MATimeDescription
-from descriptions.MAIntDescription_class import MAIntDescription
-from descriptions.MABooleanDescription_class import MABooleanDescription
-from descriptions.MAFloatDescription_class import MAFloatDescription
-from descriptions.MADurationDescription_class import MADurationDescription
-from descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
-from descriptions.MAReferenceDescription_class import MAReferenceDescription
-from descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MADateDescription_class import MADateDescription
+from Magritte.descriptions.MATimeDescription_class import MATimeDescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAFloatDescription_class import MAFloatDescription
+from Magritte.descriptions.MADurationDescription_class import MADurationDescription
+from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MAContainer_class import MAContainer
 
-from visitors.MAJsonWriter_visitors import MAObjectJsonWriter, MAValueJsonWriter
+from Magritte.visitors.MAJsonWriter_visitors import MAObjectJsonWriter, MAValueJsonWriter
 
 
 # Configurable
@@ -99,27 +99,27 @@ processing_timestamp = MADateAndTimeDescription(
             default=datetime.now()
         )
 
-ma_desc = MAContainer()
-ma_desc.label = "Test Request description"
-ma_desc += first_name_desc
-ma_desc += date_of_birth
-ma_desc += last_active
-ma_desc += current_time
-ma_desc += height
-ma_desc += age
-ma_desc += alive
-ma_desc += active
-ma_desc += period_active
-ma_desc += height_desc
+ma_req_desc = MAContainer()
+ma_req_desc.label = "Test Request description"
+ma_req_desc += first_name_desc
+ma_req_desc += date_of_birth
+ma_req_desc += last_active
+ma_req_desc += current_time
+ma_req_desc += height
+ma_req_desc += age
+ma_req_desc += alive
+ma_req_desc += active
+ma_req_desc += period_active
+ma_req_desc += height_desc
 
-ma_resp_test = MAContainer()
-ma_resp_test.label = "Test Response description"
-ma_resp_test += first_name_desc
-ma_resp_test += active
-ma_resp_test += period_active
-ma_resp_test += processing_timestamp
+ma_resp_desc = MAContainer()
+ma_resp_desc.label = "Test Response description"
+ma_resp_desc += first_name_desc
+ma_resp_desc += active
+ma_resp_desc += period_active
+ma_resp_desc += processing_timestamp
 
-json_desc = json.dumps({
+json_req_desc = json.dumps({
     "label": "Test Request description",
     "elements": [
         {
@@ -185,7 +185,7 @@ json_desc = json.dumps({
     ]    
 })
 
-json_resp = json.dumps({
+json_resp_desq = json.dumps({
     "label": "Test Response description",
     "elements": [
         {
@@ -266,7 +266,7 @@ class TestRPCMethods(unittest.TestCase):
             current_time="18:04:12"
         )
 
-        self.ma_desc = ma_desc
+        self.ma_desc = ma_resp_desc
 
     @classmethod
     def setUpClass(cls):
@@ -343,23 +343,17 @@ class TestRPCMethods(unittest.TestCase):
     def test_call_callable(self):
         async def run_test():
             async with MAWebSocketRpcCLient(uri, MAConcatServer(), default_response_timeout=4) as client:
-                #try:
-                    logging.debug(self.func_name)
-                    json_model = await _serialize_response(ma_output=ma_desc)
+                logging.debug(self.func_name)
+                json_model = await _serialize_response(ma_output=ma_req_desc)
 
-                    #assert json_model == json_desc
+                #assert json_model == json_req_desc
         
-                    response = await client.other.get_user_status(person=json_model)
+                response = await client.other.get_user_status(person=json_model)
 
-                    #assert response == json_resp
+                ma_resp = await _deserialize_params(json_desc=response)
 
-                    ma_resp = await _deserialize_params(json_desc=response)
-
-                    #assert ma_resp == ma_resp_test
-                #except Exception as e:
-                #    logging.exception("Call handler failed")
-                #    response = False
-                    assert response
+                assert ma_resp == json_resp_desq
+                assert response
 
         asyncio.run(run_test())
 

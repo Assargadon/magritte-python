@@ -7,11 +7,11 @@ from fastapi import APIRouter, FastAPI, Depends, Header, HTTPException, WebSocke
 from fastapi_websocket_rpc.rpc_methods import RpcUtilityMethods
 from fastapi_websocket_rpc.websocket_rpc_endpoint import WebsocketRPCEndpoint
 
-from descriptions.MAContainer_class import MAContainer
-from descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
+from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
 
-from visitors.MAJsonWriter_visitors import MAObjectJsonWriter, MAValueJsonWriter
-from visitors.MAStringSerializationVisitor import MAStringReaderVisitor
+from Magritte.visitors.MAJsonWriter_visitors import MAObjectJsonWriter, MAValueJsonWriter
+from Magritte.visitors.MAStringSerializationVisitor import MAStringReaderVisitor
 
 
 class MAWebsocketRPCEndpoint(WebsocketRPCEndpoint):
