@@ -1,13 +1,13 @@
 
 import random
-from MAModel_class import MAModel
+from Magritte.MAModel_class import MAModel
 
 
 class Organization(MAModel):
 
     def __init__(self, Name, Address, Active, ListUsers, ListComp):
-        from model_for_tests.User import User
-        from model_for_tests.Host import Host
+        from Magritte.model_for_tests.User import User
+        from Magritte.model_for_tests.Host import Host
         assert Name is not None, "Name cannot be None"
         assert Address is not None, "Address cannot be None"
         assert Active is not None, "Active cannot be None"
@@ -38,17 +38,17 @@ class Organization(MAModel):
 
     @staticmethod
     def generate_listUsers():
-        from model_for_tests.User import User
+        from Magritte.model_for_tests.User import User
         return [User.random_user() for _ in range(5)]
 
     @staticmethod
     def generate_listComps():
-        from model_for_tests.Host import Host
+        from Magritte.model_for_tests.Host import Host
         return [Host.random_host() for _ in range(5)]
 
     @classmethod
     def random_organization(cls, numofsusers=5):
-        from model_for_tests.User import User
+        from Magritte.model_for_tests.User import User
         name = cls.generate_name()
         address = cls.generate_address()
         active = cls.generate_active()

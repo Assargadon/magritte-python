@@ -1,5 +1,5 @@
-from errors.MAValidationError_class import MAValidationError
-from errors.MAMultipleErrors_class import MAMultipleErrors
+from Magritte.errors.MAValidationError_class import MAValidationError
+from Magritte.errors.MAMultipleErrors_class import MAMultipleErrors
 
 
 class MAVisitor:

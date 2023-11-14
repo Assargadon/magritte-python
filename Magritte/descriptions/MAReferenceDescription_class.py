@@ -1,7 +1,7 @@
 
 from copy import copy
-from descriptions.MAElementDescription_class import MAElementDescription
-from descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 
 class MAReferenceDescription(MAElementDescription):
 
@@ -12,7 +12,7 @@ class MAReferenceDescription(MAElementDescription):
         return clone
 
     def magritteDescription(self):
-        from descriptions import MAReferenceDescription_selfdesc
+        from Magritte.descriptions import MAReferenceDescription_selfdesc
         return MAReferenceDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
     @classmethod

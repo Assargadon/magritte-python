@@ -2,7 +2,7 @@
 from bisect import insort
 from copy import copy
 
-from descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MAContainer_class import MAContainer
 
 
 class MAPriorityContainer(MAContainer):

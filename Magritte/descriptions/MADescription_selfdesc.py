@@ -1,10 +1,10 @@
 from sys import intern
 
-from descriptions.MAPriorityContainer_class import MAPriorityContainer
-from descriptions.MAElementDescription_class import MAElementDescription
-from descriptions.MAStringDescription_class import MAStringDescription
-from descriptions.MAIntDescription_class import MAIntDescription
-from descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAPriorityContainer_class import MAPriorityContainer
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
 
 
 def magritteDescription(self):

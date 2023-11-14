@@ -1,10 +1,10 @@
-from descriptions.MADescription_class import MADescription
+from Magritte.descriptions.MADescription_class import MADescription
 
 
 class MAElementDescription(MADescription):
 
     def magritteDescription(self):
-        from descriptions import MAElementDescription_selfdesc
+        from Magritte.descriptions import MAElementDescription_selfdesc
         return MAElementDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
 
@@ -28,11 +28,11 @@ class MAElementDescription(MADescription):
         aVisitor.visitElementDescription(self)
     
     def readString(self, aModel):
-        from visitors.MAStringSerializationVisitor import MAStringWriterVisitor
+        from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
         writer = MAStringWriterVisitor()
         return writer.write_str(model=aModel, description=self)
 
     def writeString(self, aModel):
-        from visitors.MAStringSerializationVisitor import MAStringReaderVisitor
+        from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor
         reader = MAStringReaderVisitor()
         return reader.read_str(model=aModel, description=self)

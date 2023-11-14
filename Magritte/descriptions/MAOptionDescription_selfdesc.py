@@ -1,9 +1,9 @@
 from sys import intern
 
-from descriptions.MAStringDescription_class import MAStringDescription
-from descriptions.MABooleanDescription_class import MABooleanDescription
-from descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
-from descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 
 
 def magritteDescription(self, parentDescription):

@@ -1,5 +1,5 @@
-from descriptions.MARelationDescription_class import MARelationDescription
-from errors.MAKindError import MAKindError
+from Magritte.descriptions.MARelationDescription_class import MARelationDescription
+from Magritte.errors.MAKindError import MAKindError
 
 
 class MAToOneRelationDescription(MARelationDescription):

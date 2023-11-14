@@ -1,19 +1,19 @@
 from copy import copy
 from sys import intern
-from accessors.MAAttrAccessor_class import MAAttrAccessor
-from accessors.MANullAccessor_class import MANullAccessor
-from visitors.MAValidatorVisitor_class import MAValidatorVisitor
+from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
+from Magritte.accessors.MANullAccessor_class import MANullAccessor
+from Magritte.visitors.MAValidatorVisitor_class import MAValidatorVisitor
 
-from errors.MAValidationError import MAValidationError
-from errors.MAConditionError import MAConditionError
-from errors.MAKindError import MAKindError
-from errors.MARequiredError import MARequiredError
-from MAModel_class import MAModel
+from Magritte.errors.MAValidationError import MAValidationError
+from Magritte.errors.MAConditionError import MAConditionError
+from Magritte.errors.MAKindError import MAKindError
+from Magritte.errors.MARequiredError import MARequiredError
+from Magritte.MAModel_class import MAModel
 
 class MADescription(MAModel):
 
     def magritteDescription(self):
-        from descriptions import MADescription_selfdesc
+        from Magritte.descriptions import MADescription_selfdesc
         return MADescription_selfdesc.magritteDescription(self)
     
     @classmethod

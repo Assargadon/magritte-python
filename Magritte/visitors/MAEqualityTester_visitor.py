@@ -1,11 +1,11 @@
 from typing import Any
 import logging
 
-from descriptions.MABooleanDescription_class import MABooleanDescription
-from descriptions.MAStringDescription_class import MAStringDescription
-from descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
-from descriptions.MADescription_class import MADescription
-from visitors.MAVisitor_class import MAVisitor
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
+from Magritte.descriptions.MADescription_class import MADescription
+from Magritte.visitors.MAVisitor_class import MAVisitor
 
 logger = logging.getLogger(__name__)
 

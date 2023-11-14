@@ -1,8 +1,8 @@
 
 from copy import copy
 
-from descriptions.MAReferenceDescription_class import MAReferenceDescription
-from errors.MAKindError import MAKindError
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.errors.MAKindError import MAKindError
 
 
 class MAOptionDescription(MAReferenceDescription):
@@ -14,7 +14,7 @@ class MAOptionDescription(MAReferenceDescription):
         return clone
 
     def magritteDescription(self):
-        from descriptions import MAOptionDescription_selfdesc
+        from Magritte.descriptions import MAOptionDescription_selfdesc
         return MAOptionDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
     @classmethod

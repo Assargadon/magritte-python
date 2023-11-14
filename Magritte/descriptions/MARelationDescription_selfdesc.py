@@ -1,6 +1,6 @@
 from sys import intern
 
-from descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 
 
 def magritteDescription(self, parentDescription):

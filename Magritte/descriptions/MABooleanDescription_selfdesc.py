@@ -1,6 +1,6 @@
 from sys import intern
 
-from descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 
 
 def magritteDescription(self, parentDescription):

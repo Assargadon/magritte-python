@@ -1,5 +1,5 @@
-from descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
-from MACondition import MACondition
+from Magritte.descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
+from Magritte.MACondition import MACondition
 
 
 class MANumberDescription(MAMagnitudeDescription):

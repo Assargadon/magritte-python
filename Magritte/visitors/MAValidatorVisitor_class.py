@@ -1,4 +1,4 @@
-from MAModel_class import MAModel
+from Magritte.MAModel_class import MAModel
 from . MAVisitor_class import MAVisitor
 
 

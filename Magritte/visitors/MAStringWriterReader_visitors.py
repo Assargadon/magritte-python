@@ -1,18 +1,18 @@
 from typing import Any, Union
 from datetime import timedelta, datetime
 
-from MAVisitor_class import MAVisitor
-from descriptions.MADescription_class import MADescription
-from descriptions.MAReferenceDescription_class import MAReferenceDescription
-from descriptions.MAElementDescription_class import MAElementDescription
-from descriptions.MAIntDescription_class import MAIntDescription
-from descriptions.MABooleanDescription_class import MABooleanDescription
-from descriptions.MAFloatDescription_class import MAFloatDescription
-from descriptions.MADateDescription_class import MADateDescription
-from descriptions.MADurationDescription_class import MADurationDescription
-from descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
-from descriptions.MAContainer_class import MAContainer
-from descriptions.MATimeDescription_class import MATimeDescription
+from Magritte.visitors.MAVisitor_class import MAVisitor
+from Magritte.descriptions.MADescription_class import MADescription
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAFloatDescription_class import MAFloatDescription
+from Magritte.descriptions.MADateDescription_class import MADateDescription
+from Magritte.descriptions.MADurationDescription_class import MADurationDescription
+from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
+from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MATimeDescription_class import MATimeDescription
 
 
 def parse_timedelta(duration_str: str) -> timedelta:

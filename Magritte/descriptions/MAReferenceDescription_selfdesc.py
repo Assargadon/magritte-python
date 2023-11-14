@@ -1,6 +1,6 @@
 from sys import intern
-from descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
-from descriptions.MADescription_class import MADescription
+from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
+from Magritte.descriptions.MADescription_class import MADescription
 
 def magritteDescription(self, parentDescription):
     desc = parentDescription

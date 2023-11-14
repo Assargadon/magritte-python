@@ -1,4 +1,4 @@
-from descriptions.MANumberDescription_class import MANumberDescription
+from Magritte.descriptions.MANumberDescription_class import MANumberDescription
 
 
 class MAFloatDescription(MANumberDescription):

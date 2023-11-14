@@ -1,4 +1,4 @@
-from descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 
 
 class MAMemoDescription(MAStringDescription):

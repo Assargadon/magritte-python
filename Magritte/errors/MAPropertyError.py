@@ -1,4 +1,4 @@
-from errors.MAError import MAError
+from Magritte.errors.MAError import MAError
 
 
 class MAPropertyError(MAError):

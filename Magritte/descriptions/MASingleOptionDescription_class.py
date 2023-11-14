@@ -1,5 +1,5 @@
 
-from descriptions.MAOptionDescription_class import MAOptionDescription
+from Magritte.descriptions.MAOptionDescription_class import MAOptionDescription
 
 class MASingleOptionDescription(MAOptionDescription):
 

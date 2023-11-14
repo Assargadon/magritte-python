@@ -1,11 +1,11 @@
 from copy import copy
-from descriptions.MADescription_class import MADescription
-from accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.descriptions.MADescription_class import MADescription
+from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 class MAContainer(MADescription):
 
     def magritteDescription(self):
-        import descriptions.MAContainer_selfdesc as MAContainer_selfdesc
+        import Magritte.descriptions.MAContainer_selfdesc as MAContainer_selfdesc
         return MAContainer_selfdesc.magritteDescription(self, super().magritteDescription())
 
     @classmethod

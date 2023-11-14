@@ -1,8 +1,8 @@
 
-from MAModel_class import MAModel
-from descriptions.MAContainer_class import MAContainer
-from errors.MAReadError import MAReadError
-from errors.MAWriteError import MAWriteError
+from Magritte.MAModel_class import MAModel
+from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.errors.MAReadError import MAReadError
+from Magritte.errors.MAWriteError import MAWriteError
 
 
 class MAAdaptiveModel(MAModel):

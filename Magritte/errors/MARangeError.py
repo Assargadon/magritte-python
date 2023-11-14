@@ -1,4 +1,4 @@
-from errors.MAValidationError import MAValidationError
+from Magritte.errors.MAValidationError import MAValidationError
 
 
 class MARangeError(MAValidationError):

@@ -1,14 +1,14 @@
 import json
 from typing import Dict, Any, Union, List
 
-from descriptions.MABooleanDescription_class import MABooleanDescription
-from descriptions.MAStringDescription_class import MAStringDescription
-from descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
-from descriptions.MAContainer_class import MAContainer
-from descriptions.MADescription_class import MADescription
-from descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
+from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MADescription_class import MADescription
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
-from visitors.MAVisitor_class import MAVisitor
+from Magritte.visitors.MAVisitor_class import MAVisitor
 
 
 class MAValueJsonWriter(MAVisitor):

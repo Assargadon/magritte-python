@@ -1,7 +1,7 @@
 from sys import intern
-from accessors.MAIdentityAccessor_class import MAIdentityAccessor
-from descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
-from descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 
 def magritteDescription(self, parentDescription):
     desc = parentDescription

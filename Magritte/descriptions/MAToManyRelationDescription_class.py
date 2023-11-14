@@ -1,8 +1,8 @@
 from collections.abc import Sequence
 
-from descriptions.MARelationDescription_class import MARelationDescription
-from errors.MARequiredError import MARequiredError
-from errors.MAKindError import MAKindError
+from Magritte.descriptions.MARelationDescription_class import MARelationDescription
+from Magritte.errors.MARequiredError import MARequiredError
+from Magritte.errors.MAKindError import MAKindError
 
 class MAToManyRelationDescription(MARelationDescription):
 

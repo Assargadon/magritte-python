@@ -1,6 +1,6 @@
 from sys import intern
 
-from descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
+from Magritte.descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
 
 
 def magritteDescription(self, parentDescription):

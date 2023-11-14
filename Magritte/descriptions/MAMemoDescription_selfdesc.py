@@ -1,6 +1,6 @@
 from sys import intern
 
-from descriptions.MANumberDescription_class import MANumberDescription
+from Magritte.descriptions.MANumberDescription_class import MANumberDescription
 
 
 def magritteDescription(self, parentDescription):

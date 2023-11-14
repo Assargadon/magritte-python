@@ -1,12 +1,12 @@
 
 from copy import copy
-from descriptions.MAReferenceDescription_class import MAReferenceDescription
-from descriptions.MAPriorityContainer_class import MAPriorityContainer
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MAPriorityContainer_class import MAPriorityContainer
 
 class MARelationDescription(MAReferenceDescription):
 
     def magritteDescription(self):
-        from descriptions import MARelationDescription_selfdesc
+        from Magritte.descriptions import MARelationDescription_selfdesc
         return MARelationDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
 

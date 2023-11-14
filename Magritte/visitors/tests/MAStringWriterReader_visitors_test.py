@@ -1,16 +1,16 @@
 from unittest import TestCase
 from datetime import datetime, timedelta, date, time
 
-from descriptions.MAStringDescription_class import MAStringDescription
-from descriptions.MAElementDescription_class import MAElementDescription
-from descriptions.MADateDescription_class import MADateDescription
-from descriptions.MATimeDescription_class import MATimeDescription
-from descriptions.MAIntDescription_class import MAIntDescription
-from descriptions.MABooleanDescription_class import MABooleanDescription
-from descriptions.MAFloatDescription_class import MAFloatDescription
-from descriptions.MADurationDescription_class import MADurationDescription
-from descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
-from descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MADateDescription_class import MADateDescription
+from Magritte.descriptions.MATimeDescription_class import MATimeDescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAFloatDescription_class import MAFloatDescription
+from Magritte.descriptions.MADurationDescription_class import MADurationDescription
+from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
 
 class TestPerson():

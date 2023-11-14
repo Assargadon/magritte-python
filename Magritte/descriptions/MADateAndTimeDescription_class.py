@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
+from Magritte.descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
 
 
 class MADateAndTimeDescription(MAMagnitudeDescription):

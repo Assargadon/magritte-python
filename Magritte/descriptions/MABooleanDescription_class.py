@@ -1,4 +1,4 @@
-from descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 
 class MABooleanDescription(MAElementDescription):
     
@@ -8,7 +8,7 @@ class MABooleanDescription(MAElementDescription):
     # I omit it here - looks like a trick, not natural for the system. But beware in case I'm wrong.  
 
     def magritteDescription(self):
-        from descriptions import MABooleanDescription_selfdesc
+        from Magritte.descriptions import MABooleanDescription_selfdesc
         return MABooleanDescription_selfdesc.magritteDescription(self, super().magritteDescription())
 
 

@@ -1,4 +1,4 @@
-from descriptions.MAElementDescription_class import MAElementDescription
+from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 
 
 class MAUrlDescription(MAElementDescription):
