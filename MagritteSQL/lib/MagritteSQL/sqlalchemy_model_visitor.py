@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any, Optional
 
-from Magritte.MAVisitor_class import MAVisitor
+from Magritte.visitors.MAVisitor_class import MAVisitor
 
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped

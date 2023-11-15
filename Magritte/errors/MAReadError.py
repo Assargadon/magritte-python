@@ -1,4 +1,4 @@
-from . MAError import MAError
+from Magritte.errors.MAError import MAError
 
 
 class MAReadError(MAError):

@@ -1,9 +1,8 @@
 
-from MAModel_class import MAModel
-from . Port import Port
-from . Host import Host
 import datetime
 import random
+from Magritte.MAModel_class import MAModel
+from Magritte.model_for_tests.Port import Port
 
 
 class Account(MAModel):

@@ -1,1 +1,11 @@
-
+#from .descriptions import MAStringDescription_class
+#from .Magritte.descriptions.MAStringDescription_class import MAStringDescription
+#from .Magritte.descriptions.MAElementDescription_class import MAElementDescription
+#from .Magritte.descriptions.MADateDescription_class import MADateDescription
+#from .Magritte.descriptions.MATimeDescription_class import MATimeDescription
+#from .Magritte.descriptions.MAIntDescription_class import MAIntDescription
+#from .Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+#from .Magritte.descriptions.MAFloatDescription_class import MAFloatDescription
+#from .Magritte.descriptions.MADurationDescription_class import MADurationDescription
+#from .Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
+#from .Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription

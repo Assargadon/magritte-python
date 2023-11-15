@@ -13,11 +13,11 @@ from sqlalchemy import create_engine
 from sqlalchemy import select
 from sqlalchemy import Engine
 
-from Magritte.MAContainer_class import MAContainer
-from Magritte.MABooleanDescription_class import MABooleanDescription
-from Magritte.MAStringDescription_class import MAStringDescription
-from Magritte.MAIntDescription_class import MAIntDescription
-from Magritte.MADateDescription_class import MADateDescription
+from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
+from Magritte.descriptions.MADateDescription_class import MADateDescription
 
 from lib.MagritteSQL.db_deployer import DbDeployer
 

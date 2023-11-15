@@ -1,5 +1,6 @@
-from . MAAccessor_class import MAAccessor
 import random
+
+from Magritte.accessors.MAAccessor_class import MAAccessor
 
 
 class MANullAccessor(MAAccessor):

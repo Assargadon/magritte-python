@@ -1,5 +1,4 @@
-
-from MACondition_class import MACondition
+from Magritte.MACondition import MACondition
 
 
 class MAPluggableCondition(MACondition):

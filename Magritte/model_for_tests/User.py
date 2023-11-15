@@ -1,15 +1,15 @@
 
-from MAModel_class import MAModel
-from . Account import Account
 import datetime
 import random
+from Magritte.MAModel_class import MAModel
+from Magritte.model_for_tests.Account import Account
 
 
 class User(MAModel):
 
     def __init__(self, RegNum, FIO, DateOfBirth, Gender, organization,
                  DateOfAdmission, DateOfDeparture, SetOfAccounts):
-        from . Organization import Organization
+        from Magritte.model_for_tests.Organization import Organization
         assert RegNum is not None, "RegNum cannot be None"
         assert FIO is not None, "FIO cannot be None"
         assert DateOfBirth is not None, "DateOfBirth cannot be None"
@@ -49,7 +49,7 @@ class User(MAModel):
 
     @staticmethod
     def generate_organization():
-        from . Organization import Organization
+        from Magritte.model_for_tests.Organization import Organization
         return Organization.random_organization()
 
     @staticmethod
@@ -62,8 +62,8 @@ class User(MAModel):
 
     @staticmethod
     def generate_setofaccounts():
-        from . Port import Port
-        from . Host import Host
+        from Magritte.model_for_tests.Port import Port
+        from Magritte.model_for_tests.Host import Host
         return [Account.random_account(Port.randomPortForHost(Host.random_host())) for _ in range(5)]
 
     @classmethod
@@ -140,10 +140,13 @@ class User(MAModel):
 
     @property
     def setofaccounts(self):
+        '''
         logins = []
         for acc in self._setofaccounts:
             logins.append(acc.login)
         return logins
+        '''
+        return self._setofaccounts
 
     @setofaccounts.setter
     def setofaccounts(self, new_setofaccounts):

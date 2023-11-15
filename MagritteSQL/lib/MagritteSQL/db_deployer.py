@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Engine
 from typing import Any
 from typing import Self
-from Magritte.MAContainer_class import MAContainer
+from Magritte.descriptions.MAContainer_class import MAContainer
 
 from MagritteSQL.lib.MagritteSQL.sqlalchemy_model_writer import SQLAlchemyModelWriter
 
