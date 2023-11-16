@@ -4,8 +4,8 @@ from datetime import timedelta, datetime
 import logging
 import sys
 
-logging.basicConfig(level=logging.DEBUG)
-sys.stdout = open('output.txt', 'w')
+#logging.basicConfig(level=logging.DEBUG)
+#sys.stdout = open('output.txt', 'w')
 
 from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
 from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
@@ -193,15 +193,12 @@ class MAValueJsonReader(MAVisitor):
     def __init__(self):
         self._model = None
         self._attr_value = None
-    
+
     def visit(self, description: MADescription):
-        #print('---')
-        #print(description.accessor.read(self._model))
-        if description.accessor.read(self._model) != description.undefined:
-            #print(description)
+        if self._model != description.undefinedValue:
             super().visit(description)
         else:
-            self._attr_value = description.undefinedValue
+            self._val = description.undefinedValue
 
     def read_json(self, json_val: Any, description: MADescription) -> Any:
         self._model = json_val
@@ -212,26 +209,22 @@ class MAValueJsonReader(MAVisitor):
         self._attr_value = description.accessor.read(self._model)
 
     def visitDateAndTimeDescription(self, description: MADateAndTimeDescription):
-        datetime_str = description.accessor.read(self._model)
         try:
-            self._attr_value = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+            self._attr_value = datetime.strptime(self._model, '%Y-%m-%d %H:%M:%S')
         except ValueError:
-            self._attr_value = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S.%f')
+            self._attr_value = datetime.strptime(self._model, '%Y-%m-%d %H:%M:%S.%f')
 
     def visitDateDescription(self, description: MADateDescription):
-        datetime_str = description.accessor.read(self._model)
-        self._attr_value = datetime.strptime(datetime_str, '%Y-%m-%d').date()
+        self._attr_value = datetime.strptime(self._model, '%Y-%m-%d').date()
 
     def visitTimeDescription(self, description: MATimeDescription):
-        datetime_str = description.accessor.read(self._model)
         try:
-            self._attr_value = datetime.strptime(datetime_str, '%H:%M:%S').time()
+            self._attr_value = datetime.strptime(self._model, '%H:%M:%S').time()
         except ValueError:
-            self._attr_value = datetime.strptime(datetime_str, '%H:%M:%S.%f')
+            self._attr_value = datetime.strptime(self._model, '%H:%M:%S.%f')
     
     def visitDurationDescription(self, description: MADurationDescription):
-        date_time_str = description.accessor.read(self._model)
-        self._attr_value = parse_timedelta(date_time_str)
+        self._attr_value = parse_timedelta(self._model)
 
     def visitBooleanDescription(self, description: MABooleanDescription):
         bool_str = description.accessor.read(self._model).lower()
@@ -284,41 +277,18 @@ class MAObjectJsonReader(MAVisitor):
     @staticmethod
     def _json_loader(src: str) -> Any:
         try:
-            json.loads(src)
+            return json.loads(src)
         except (ValueError, TypeError):
-            raise
-        else:
-            return src
-    
-    '''
-    def write_json(self, model: Any, description: MADescription) -> Union[Dict, List, Any, None]:
-        self._model = model
-        self._json = None
-        self.visit(description)
-        return self._json
-    '''
+            raise TypeError
+
     def read_json(self, json_obj: str, description: MADescription) -> Any:
         self._model = self._json_loader(json_obj)
         self._obj = None
         self.visit(description)
         return self._obj
 
-    '''
-    def visitElementDescription(self, description: MADescription):
-        self._validate_name(description)
-        if not self._json:
-            self._json = {}
-        self._json[description.name] = self._value_encoder.write_json(self._model, description)
-
     def visit(self, description: MADescription):
-        if self._model == description.undefinedValue:
-            return
-        if not description.visible:
-            return
-        super().visit(description)
-    '''
-    def visit(self, description: MADescription):
-        if self._model == description.undefinedValue:
+        if self._model == description.undefined:
             return
         if not description.visible:
             return
@@ -328,10 +298,6 @@ class MAObjectJsonReader(MAVisitor):
         self._validate_name(description)
         if not self._obj:
             self._obj = ResponseObject()
-        #setattr(self._obj, description.name, None)
-        #atrr_value = self._value_decoder.read_json(self._obj, description=description)
-        print(description.name)
-        print(self._model)
         setattr(self._obj, description.name, self._value_decoder.read_json(self._model, description))
     
     def _deeper(self, model: Any, description: MADescription) -> Union[Dict, List, Any, None]:
@@ -356,9 +322,24 @@ class MAObjectJsonReader(MAVisitor):
     def visitContainer(self, description: MADescription):
         if not self._obj:
             self._obj = ResponseObject()
-            self.visitAll(description)
+            for elem in zip(self._model.items(), description):
+                key = elem[0][0]
+                value = elem[0][1]
+                description = elem[1]
+                if type(description) in (
+                        MAStringDescription, 
+                        MAIntDescription, 
+                        MAFloatDescription
+                    ):
+                    setattr(self._obj, key, value)
+                else:
+                    attr_value = self._value_decoder.read_json(json_val=str(value), description=description)
+                    setattr(self._obj, key, attr_value)
         else:
             raise Exception("Shouldn't reach visitContainer with nonempty self._obj")
+
+
+
     '''
     def visitReferenceDescription(self, description):
         self._validate_name(description)
