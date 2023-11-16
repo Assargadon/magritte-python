@@ -56,7 +56,7 @@ class TestObject4:
         self.name = name
         self.selection = selection
 
-"""
+
 class MAJsonWriter_Test(TestCase):
     def setUp(self):
         # ==================== Encoders for testing. ====================
@@ -312,7 +312,7 @@ class MAJsonWriter_Test(TestCase):
                 }
             )
 
-"""
+
 class MAJsonReader_Test(TestCase):
     def setUp(self):
         self.value_decoder = MAValueJsonReader()
@@ -388,6 +388,14 @@ class MAJsonReader_Test(TestCase):
         attr_value = self.value_decoder.read_json(json.loads(self.json_1)['date_value'], self.date_desc)
         self.assertEqual(attr_value, self.time_now)
 
+
+class ResponseObject:
+    def __init__(self, name: str, int_val: int, float_val: float, date_val: datetime):
+        self.name = name
+        self.int_value = int_val
+        self.date_value = date_val
+        self.float_value = float_val
+
 class MAJsonObjectReader_Test(TestCase):
     def setUp(self):
         self.object_decoder = MAObjectJsonReader()
@@ -416,23 +424,23 @@ class MAJsonObjectReader_Test(TestCase):
         )
 
         # ==================== Object encoding testing. ====================
-        self.object_1 = TestObject1('object1', 123, 1.23, self.time_now)
-        self.object_2 = TestObject1('object2', 234, 2.34, self.time_now)
+        self.object_1 = ResponseObject('object_1', 123, 1.23, self.time_now)
+        self.object_2 = ResponseObject('object_2', 234, 2.34, self.time_now)
 
         self.json_1 = json.dumps(
             {
                 "name": "object_1", 
-                "int_val": 123, 
-                "float_val": 1.23, 
-                "date_val": str(self.time_now)
+                "int_value": 123, 
+                "float_value": 1.23, 
+                "date_value": str(self.time_now)
             }
         )
         self.json_2 = json.dumps(
             {
                 "name": "object_2", 
-                "int_val": 234, 
-                "float_val": 2.34, 
-                "date_val": str(self.time_now)
+                "int_value": 234, 
+                "float_value": 2.34, 
+                "date_value": str(self.time_now)
             }
         )
 
@@ -440,18 +448,19 @@ class MAJsonObjectReader_Test(TestCase):
         self.object_desc.setChildren(
             [
                 MAStringDescription(label='Name', default='', accessor='name'),
-                MAIntDescription(label='Int Value', default=0, accessor='int_val'),
-                MAFloatDescription(label='Float Value', default=0.0, accessor='float_val'),
-                MADateAndTimeDescription(label='Date Value', default=self.time_now, accessor='date_val'),
+                MAIntDescription(label='Int Value', default=0, accessor='int_value'),
+                MAFloatDescription(label='Float Value', default=0.0, accessor='float_value'),
+                MADateAndTimeDescription(label='Date Value', default=self.time_now, accessor='date_value'),
             ]
         )
 
     def test_object_decoding(self):
-        obj = self.object_decoder.read_json(self.json_1, self.object_desc),
-        self.assertEqual(obj, self.object_1)
+        obj = self.object_decoder.read_json(self.json_1, self.object_desc)
+        
+        self.assertEqual(obj.__dict__, self.object_1.__dict__)
 
         obj = self.object_decoder.read_json(self.json_2, self.object_desc)
-        self.assertEqual(obj, self.object_2)
+        self.assertEqual(obj.__dict__, self.object_2.__dict__)
 
     '''
     def test_compound_object_encoder(self):
