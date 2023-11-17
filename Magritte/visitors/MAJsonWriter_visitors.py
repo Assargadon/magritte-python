@@ -19,6 +19,7 @@ from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.descriptions.MATimeDescription_class import MATimeDescription
+from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.visitors.MAStringWriterReader_visitors import parse_timedelta
 
 from Magritte.visitors.MAVisitor_class import MAVisitor
@@ -233,13 +234,13 @@ class MAValueJsonReader(MAVisitor):
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
             "MAValueJsonReader cannot encode using reference description."
-            " Only scalar values are allowed. Use MAObjectJsonWriter instead."
+            " Only scalar values are allowed. Use MAObjectJsonReader instead."
         )
 
     def visitContainer(self, description: MAContainer):
         raise TypeError(
             "MAValueJsonReader cannot encode using container description."
-            " Only scalar values are allowed. Use MAObjectJsonWriter instead."
+            " Only scalar values are allowed. Use MAObjectJsonReader instead."
         )
 
 
@@ -278,7 +279,7 @@ class MAObjectJsonReader(MAVisitor):
     def _json_loader(src: str) -> Any:
         try:
             return json.loads(src)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as e:
             raise TypeError
 
     def read_json(self, json_obj: str, description: MADescription) -> Any:
@@ -300,19 +301,17 @@ class MAObjectJsonReader(MAVisitor):
             self._obj = ResponseObject()
         setattr(self._obj, description.name, self._value_decoder.read_json(self._model, description))
     
-    def _deeper(self, model: Any, description: MADescription) -> Union[Dict, List, Any, None]:
+    def _deeper(self, model: Any, description: MADescription) -> ResponseObject:
         if model is None:
             return None
-        # if isinstance(model, (int, float, str, bool, datetime)):
-        # Better to check the type of the description, not the model, since the model can be an object but accessor can
-        # return a scalar value.
+
         if isinstance(description, (MABooleanDescription, MAMagnitudeDescription, MAStringDescription)):
             return self._value_decoder.read_json(model, description)
 
         prev_obj = self._obj
         prev_model = self._model
 
-        res = self.read_json(model, description)
+        res = self.read_json(json.dumps(model), description)
 
         self._obj = prev_obj
         self._model = prev_model
@@ -326,34 +325,37 @@ class MAObjectJsonReader(MAVisitor):
                 key = elem[0][0]
                 value = elem[0][1]
                 description = elem[1]
-                if type(description) in (
-                        MAStringDescription, 
-                        MAIntDescription, 
-                        MAFloatDescription
-                    ):
+                if isinstance(
+                    description, (MAStringDescription, MAIntDescription, MAFloatDescription)
+                ):
                     setattr(self._obj, key, value)
+                elif isinstance (
+                    description, (MAReferenceDescription, MAToOneRelationDescription)
+                ):
+                    self.visit(description=description)
                 else:
                     attr_value = self._value_decoder.read_json(json_val=str(value), description=description)
                     setattr(self._obj, key, attr_value)
         else:
             raise Exception("Shouldn't reach visitContainer with nonempty self._obj")
 
-
-
-    '''
     def visitReferenceDescription(self, description):
         self._validate_name(description)
         if not self._obj:
             self._obj = ResponseObject()
-        ref_model = description.accessor.read(self._model)
+
+        try:
+            ref_model = self._model["ref_object"]
+        except KeyError:
+        #ref_model = description.accessor.read(self._model)
+            ref_model = None
 
         if ref_model is None:
-            #self._json[description.name] = None
             setattr(self._obj, description.name, None)
         else:
-            #self._json[description.name] = self._deeper(ref_model, description.reference)
             setattr(self._obj, description.name, self._deeper(ref_model, description.reference))
 
+    '''
     def visitMultipleOptionDescription(self, description):  # MAMultipleOptionDescription is not implemented yet
         self._validate_name(description)
         if not self._obj:
