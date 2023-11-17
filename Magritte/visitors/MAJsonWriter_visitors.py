@@ -343,11 +343,9 @@ class MAObjectJsonReader(MAVisitor):
         self._validate_name(description)
         if not self._obj:
             self._obj = ResponseObject()
-
         try:
             ref_model = self._model["ref_object"]
         except KeyError:
-        #ref_model = description.accessor.read(self._model)
             ref_model = None
 
         if ref_model is None:
@@ -355,31 +353,17 @@ class MAObjectJsonReader(MAVisitor):
         else:
             setattr(self._obj, description.name, self._deeper(ref_model, description.reference))
 
-    '''
-    def visitMultipleOptionDescription(self, description):  # MAMultipleOptionDescription is not implemented yet
+    def visitToManyRelationDescription(self, description):
         self._validate_name(description)
         if not self._obj:
             self._obj = ResponseObject()
-        selected_options = description.accessor.read(self._model)
-
-        if selected_options is None:
-            #self._json[description.name] = None
-            setattr(self._obj, description.name, None)
-        else:
-            self._json[description.name] = {
-                self._deeper(entry, description.reference) for entry in selected_options
-            }
-            setattr(self._obj, description.name, None)
-        
-    def visitToManyRelationDescription(self, description):
-        self._validate_name(description)
-        if not self.obj:
-            self._obj = ResponseObject()
-        collection = description.accessor.read(self._model)
+        try:
+            collection = self._model["ref_objects"]
+        except KeyError:
+            collection = None
 
         if collection is None:
-            self._json[description.name] = None
-        self._json[description.name] = [
-            self._deeper(entry, description.reference) for entry in collection
-        ]
-    '''
+            setattr(self._obj, description.name, None)
+        setattr(self._obj, description.name, [])
+        for entry in collection:
+            getattr(self._obj, description.name).append(self._deeper(entry, description.reference))
