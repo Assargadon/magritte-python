@@ -16,7 +16,7 @@ from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
-from Magritte.visitors.MAJsonWriter_visitors import MAObjectJsonReader, MAValueJsonReader, MAValueJsonWriter, MAObjectJsonWriter
+from Magritte.visitors.MAJsonWriterReader_visitors import MAObjectJsonReader, MAValueJsonReader, MAValueJsonWriter, MAObjectJsonWriter
 
 #sys.stdout = open('output.txt', 'w')
 
