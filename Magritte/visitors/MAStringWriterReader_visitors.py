@@ -32,16 +32,6 @@ def parse_timedelta(duration_str: str) -> timedelta:
                 
     return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
-'''
-def is_bool_tuple(val: Union[bool, tuple], description: MADescription) -> bool:
-    """
-    Bool accessor returns True for true value and (False, ) for False value,
-    so we will check both cases for now until we refactor
-    """
-    if type(val) == tuple:
-        return type(val[0]) == bool
-    return type(val) in (description.defaultKind(), tuple)
-'''
 
 class MAStringVisitor(MAVisitor):
     def __init__(self):
@@ -62,11 +52,11 @@ class MAStringWriterVisitor(MAStringVisitor):
     """Encodes the value described by the descriptions into string."""
     def __init__(self):
         self._str = None
-    '''
+
     def visit(self, description: MADescription):
         if description.accessor.read(self._model) != description.undefinedValue:
             val = description.accessor.read(self._model)
-            if is_bool_tuple(val=val, description=description):
+            if type(val) == description.defaultKind():
                 super().visit(description)
             else:
                 raise TypeError(
@@ -74,12 +64,6 @@ class MAStringWriterVisitor(MAStringVisitor):
                 )
         else:
             self._str = description.undefined
-    '''
-    def visit(self, description: MADescription):
-        if description.accessor.read(self._model) != description.undefinedValue:
-            super().visit(description)
-        else:
-            self._val = description.undefined
 
     def write_str(self, model: Any, description: MADescription) -> str:
         self._model = model
