@@ -40,16 +40,19 @@ async def on_connect(channel):
     # now tell the client it can start sending us queries
     asyncio.create_task(channel.other.allow_queries())
 
-def setup_server():
-    """Initialize server with FastAPI app and router"""
-    app = FastAPI()
-    router = APIRouter()
-    endpoint = WebsocketRPCEndpoint(MAServer(), on_connect=[on_connect])
 
-    @router.websocket("/ws/{client_id}")
-    async def websocket_rpc_endpoint(websocket: WebSocket, client_id: str):
-        await endpoint.main_loop(websocket, client_id)
+"""Initialize server with FastAPI app and router"""
+app = FastAPI()
+router = APIRouter()
+endpoint = WebsocketRPCEndpoint(MAServer(), on_connect=[on_connect])
 
-    endpoint.register_route(app)
-    app.include_router(router)
+@router.websocket("/ws/{client_id}")
+async def websocket_rpc_endpoint(websocket: WebSocket, client_id: str):
+    await endpoint.main_loop(websocket, client_id)
+
+endpoint.register_route(app)
+app.include_router(router)
+
+
+if __name__ == '__main__':
     uvicorn.run(app, port=PORT)
