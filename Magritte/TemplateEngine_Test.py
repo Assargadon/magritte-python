@@ -10,6 +10,7 @@
 from unittest import TestCase
 
 import Cheetah.ErrorCatchers
+import Cheetah.Template
 
 from model_for_tests.Host import Host
 from model_for_tests.Port import Port
@@ -18,7 +19,7 @@ from MAContainer_class import MAContainer
 from MAStringDescription_class import MAStringDescription
 from MAIntDescription_class import MAIntDescription
 from MAToManyRelationDescription_class import MAToManyRelationDescription
-from template_engine import MAModelCheetahTemplateAdapter
+from template_engine.MAModelCheetahTemplateAdapter_class import MAModelCheetahTemplateAdapter
 
 
 class MADateDescriptionTest(TestCase):
@@ -52,7 +53,8 @@ class MADateDescriptionTest(TestCase):
         sHostResponse = f"Host IP: {self.magritteModel.ip}"
         sPortResponses = [f"Port Number: {port.numofport}" for port in self.magritteModel.ports]
 
-        response = self.adapter.respondTo(sTemplate)
+        compiledTemplate = Cheetah.Template.Template(sTemplate, searchList=[self])
+        response = compiledTemplate.respond()
 
         self.assertTrue(sHostResponse in response, "Host IP string must exist in template response")
         for sPortResponse in sPortResponses:
@@ -64,4 +66,5 @@ class MADateDescriptionTest(TestCase):
             Host unexistent property: $magritteModel.unexistent
         """
         with self.assertRaises(Cheetah.ErrorCatchers.NotFound):
-            self.adapter.respondTo(sTemplate)
+            compiledTemplate = Cheetah.Template.Template(sTemplate, searchList=[self])
+            _ = compiledTemplate.respond()
