@@ -45,8 +45,8 @@ class MADateDescriptionTest(TestCase):
 
     def test_host_template(self):
         sTemplate = """
-            Host IP: $magritteModel.ip
-            #for $port in $magritteModel.ports
+            Host IP: $adapter.ip
+            #for $port in $adapter.ports
                 Port Number: $port.numofport
             #end for
         """
