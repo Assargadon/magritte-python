@@ -1,4 +1,46 @@
 
+from visitors.MAVisitor_class import MAVisitor
+from MAModel_class import MAModel
+
+
+class MAModelCheetahTemplateAdapterVisitor2(MAVisitor):
+    def __init__(self, model):
+        self.model = model
+        self.result = None
+
+    def visitReferenceDescription(self, description):
+        childModel = MAModel.readUsingWrapper(self.model, description)
+        self.result = MAModelCheetahTemplateAdapter(childModel, description)
+
+    def visitElementDescription(self, description):
+        self.result = description.writeString(self.model)
+
+    def visitDescription(self, description):
+        self.result = MAModel.readUsingWrapper(self.model, description)
+
+class MAModelCheetahTemplateAdapterVisitor1(MAVisitor):
+    def __init__(self, model, item):
+        self.model = model
+        self.item = item
+        self.result = None
+
+    def visitToManyRelationDescription(self, description):
+        childModel = self.model[self.item]
+        childDescription = description.reference
+        self.result = MAModelCheetahTemplateAdapter(childModel, childDescription)
+
+    def visitContainer(self, description):
+        children = description.children
+        childDescription = next(d for d in children if d.name == self.item)
+        if childDescription is None:
+            raise AttributeError()
+        visitor = MAModelCheetahTemplateAdapterVisitor2(self.model)
+        childDescription.acceptMagritte(visitor)
+        self.result = visitor.result
+
+    def visitDescription(self):
+        raise AttributeError()
+
 class MAModelCheetahTemplateAdapter:
 
     def __init__(self, model, description):
@@ -11,26 +53,6 @@ class MAModelCheetahTemplateAdapter:
         return len(self.model)
 
     def __getitem__(self, item):
-        from descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
-        if isinstance(self.description, MAToManyRelationDescription):
-            childModel = self.model[item]
-            childDescription = self.description.reference
-            adapter = MAModelCheetahTemplateAdapter(childModel, childDescription)
-            return adapter
-        else:
-            from MAModel_class import MAModel
-            from descriptions.MAElementDescription_class import MAElementDescription
-            from descriptions.MAContainer_class import MAContainer
-            from descriptions.MAReferenceDescription_class import MAReferenceDescription
-            if isinstance(self.description, MAContainer):
-                children = self.description.children
-                childDescription = next(d for d in children if d.name == item)
-                if isinstance(childDescription, MAReferenceDescription):
-                    childModel = MAModel.readUsingWrapper(self.model, childDescription)
-                    adapter = MAModelCheetahTemplateAdapter(childModel, childDescription)
-                    return adapter
-                elif isinstance(childDescription, MAElementDescription):
-                    return childDescription.writeString(self.model)
-                else:
-                    return MAModel.readUsingWrapper(self.model, childDescription)
-            raise AttributeError()
+        visitor = MAModelCheetahTemplateAdapterVisitor1(self.model, item)
+        self.description.acceptMagritte(visitor)
+        return visitor.result
