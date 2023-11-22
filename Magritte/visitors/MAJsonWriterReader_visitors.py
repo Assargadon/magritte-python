@@ -24,6 +24,21 @@ from Magritte.visitors.MAStringWriterReader_visitors import parse_timedelta
 
 from Magritte.visitors.MAVisitor_class import MAVisitor
 
+import logging
+import json
+import os
+import sys
+from typing import Any
+sys.stdout = open('output.txt', 'w')
+
+#DebugPrint.py
+import logging
+
+
+DEBUGMODE=True
+
+logging.basicConfig(level=logging.DEBUG)
+log=logging.getLogger('=>')
 
 class MAValueJsonWriter(MAVisitor):
     """Encodes the value described by the descriptions into JSON."""
@@ -34,6 +49,7 @@ class MAValueJsonWriter(MAVisitor):
 
     @staticmethod
     def _test_jsonable(src: Any) -> Any:
+        print(src)
         try:
             json.dumps(src)
         except (ValueError, TypeError):
@@ -44,7 +60,6 @@ class MAValueJsonWriter(MAVisitor):
 
     def write_json(self, model: Any, description: MADescription) -> Any:
         self._model = model
-        self._json = self._test_jsonable(description.undefinedValue)
         self.visit(description)
         return self._json
 
@@ -228,8 +243,16 @@ class MAValueJsonReader(MAVisitor):
         self._attr_value = parse_timedelta(self._model)
 
     def visitBooleanDescription(self, description: MABooleanDescription):
-        bool_str = description.accessor.read(self._model).lower()
-        self._attr_value = bool_str
+        bool_str = str(self._model).lower()
+
+        if bool_str in description.defaultTrueStrings():
+            self._attr_value = True
+        elif bool_str in description.defaultFalseStrings():
+            self._attr_value = False
+        else:
+            raise TypeError(
+                "The string cannot be deserialized into a boolean value"
+            )
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
@@ -280,7 +303,7 @@ class MAObjectJsonReader(MAVisitor):
         try:
             return json.loads(src)
         except (ValueError, TypeError) as e:
-            raise TypeError
+            raise 
 
     def read_json(self, json_obj: str, description: MADescription) -> Any:
         self._model = self._json_loader(json_obj)
@@ -322,6 +345,7 @@ class MAObjectJsonReader(MAVisitor):
         if not self._obj:
             self._obj = ResponseObject()
             for elem in zip(self._model.items(), description):
+                #print(elem)
                 key = elem[0][0]
                 value = elem[0][1]
                 description = elem[1]

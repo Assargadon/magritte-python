@@ -15,6 +15,7 @@ from RPC_client_server.rpc_handler import MAWebSocketRpcBase
 from datetime import datetime, timedelta, date, time
 
 from RPC_client_server.client import MAWaitingClient
+from RPC_client_server.server import _deserialize_params, _serialize_response
 
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.descriptions.MADateDescription_class import MADateDescription
@@ -124,31 +125,6 @@ ma_resp_desc.setChildren(
 
 
 class TestServer(MAWebSocketRpcBase):
-    '''
-    async def gen_user_status(self, person_json: str) -> Any:
-        #asyncio.create_task(self.channel.other.allow_exit())
-        log.debug('GEN_USER_STATUS_1')
-        person_obj = await _deserialize_params(json_obj=person_json, desc=ma_req_desc)
-
-        log.debug('GEN_USER_STATUS_2: _deserealize params OK')
-        log.debug(f"PERSON OBJ: {person_obj}")
-        response_obj = ResponseObject()
-
-        setattr(response_obj, 'active', person_obj.active)
-        setattr(response_obj, 'period_active', person_obj.period_active)
-        setattr(response_obj, 'name', person_obj.name)
-        setattr(response_obj, 'processing_timestamp', datetime.now())
-
-        log.debug('GEN_USER_STATUS_3: respobse object OK')
-        log.debug(f"RESP OBJ: {response_obj}")
-
-        resp_json = await _serialize_response(obj=response_obj, desc=ma_req_desc)
-
-        log.debug('GEN_USER_STATUS_4: resp_json OK')
-        log.debug(f"RESP JSON: {resp_json}")
-        return resp_json
-    '''
-
     async def concat(self, a="", b=""):
         return a + b
     
@@ -170,6 +146,7 @@ async def on_connect(channel):
     # now tell the client it can start sending us queries
     asyncio.create_task(channel.other.allow_queries())
 
+
 def setup_server():
     app = FastAPI()
     router = APIRouter()
@@ -184,76 +161,53 @@ def setup_server():
     app.include_router(router)
     uvicorn.run(app, port=PORT)
 
-    assert endpoint.server
-
 
 """
 Tests models and Descs for future serialize and deserialize
 """
 json_req_desq = json.dumps({
-        "first_name": "Paul",
+        "first_name": "Bob",
         "dob": str(date(1990, 11, 14)), 
-        "height": 180, 
-        "age": 33.5,
+        "last_active": str(datetime(2023, 10, 30, 10, 10, 10)),
+        "current_time": str(time(18, 4, 12)),
+        "height": 180,
+        "age": 33.8,
         "alive": True,
         "active": False,
-        "period_active": str(datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1)),
-        "last_active": str(datetime(2023, 10, 30, 10, 10, 10)),
-        "current_time": str(time(18, 4, 12))
+        "period_active": str(datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1))
     }
 )
 
 json_resp_desq = json.dumps({
-        "name": "Paul",
+        "name": "Bob",
         "active": False,
         "period_active": str(datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1)),
-        "processing_timestamp": str(datetime.now())
+        "processing_timestamp": str(time(18, 4, 12))
     }
 )
-
-"""Obj model for future tests"""
-
-class TestPerson():
-    def __init__(
-            self, 
-            first_name, 
-            age, 
-            dob, 
-            height, 
-            alive, 
-            active, 
-            last_acitve,
-            period_active,
-            current_time
-    ):
-        self.first_name = first_name
-        self.dob = dob
-        self.age = age
-        self.height = height
-        self.alive = alive
-        self.active = active,
-        self.last_active = last_acitve
-        self.period_active = period_active
-        self.current_time = current_time
 
 
 class TestRPCMethods(unittest.TestCase):
     def setUp(self):
-        self.handler_name = 'person_handler'
-
-        self.model = TestPerson(
-            first_name="Bob",
-            dob=date(1990, 11, 14),
-            age=33.8,
-            height=180,
-            alive=True,
-            active=False,
-            last_acitve=datetime(2023, 10, 30, 10, 10, 10),
-            period_active=datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1),
-            current_time=time(18, 4, 12)
-        )
+        """Obj model for future tests"""
+        self.model = ResponseObject()
+        self.model.first_name="Bob"
+        self.model.dob=date(1990, 11, 14)
+        self.model.last_active=datetime(2023, 10, 30, 10, 10, 10)
+        self.model.current_time=time(18, 4, 12)
+        self.model.height=180
+        self.model.age=33.8
+        self.model.alive=True
+        self.model.active=False
+        self.model.period_active=datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1)
 
         self.ma_desc = ma_resp_desc
+
+        self.resp_model = ResponseObject()
+        self.resp_model.first_name = "Bob"
+        self.resp_model.active = False
+        self.resp_model.period_active=datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1)
+        self.resp_model.processing_timestamp=time(18, 4, 12)
 
     @classmethod
     def setUpClass(cls):
@@ -268,8 +222,24 @@ class TestRPCMethods(unittest.TestCase):
         """
         Cleanup after the tests
         """
+        logging.debug(cls.proc)
         cls.proc.terminate()
         cls.proc.join()
+
+    def test_serialize_deserialize(self):
+        async def run_test():
+            ma_req_model = await _deserialize_params(json_obj=json_req_desq, desc=ma_req_desc)
+
+            req_obj_dict = {k: v for k, v in ma_req_model.__dict__.items() if k != 'self'}
+            model_obj_dict = {k: v for k, v in self.model.__dict__.items() if k != 'self'}
+            self.assertEqual(
+                req_obj_dict, 
+                model_obj_dict, 
+                f"Object mismatch: {req_obj_dict} != {model_obj_dict}"
+            )
+            #ma_resp_model = await _serialize_response(obj=self.model, desc=ma_resp_desc)
+ 
+        asyncio.run(run_test())
 
     def test_echo(self):
         """

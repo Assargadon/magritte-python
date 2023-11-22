@@ -21,7 +21,10 @@ from Magritte.visitors.MAJsonWriterReader_visitors import MAObjectJsonReader, MA
 #sys.stdout = open('output.txt', 'w')
 
 class Testobject1:
-    def __init__(self, name: str, int_val: int, float_val: float, date_val: datetime):
+    def __init__(
+            self, name: str, int_val: int, 
+            float_val: float, date_val: datetime
+        ):
         self.name = name
         self.int_value = int_val
         self.date_value = date_val
@@ -29,8 +32,9 @@ class Testobject1:
 
 
 class Testobject2:
-    def __init__(self, name: str, int_val: int, float_val: float, 
-                 date_val: datetime, ref_object: Testobject1
+    def __init__(
+            self, name: str, int_val: int, float_val: float, 
+            date_val: datetime, ref_object: Testobject1
         ):
         self.name = name
         self.int_value = int_val
@@ -40,7 +44,10 @@ class Testobject2:
 
 
 class Testobject3:
-    def __init__(self, name: str, int_val: int, float_val: float, date_val: datetime, ref_objects: List[Testobject1]):
+    def __init__(
+            self, name: str, int_val: int, float_val: float, 
+            date_val: datetime, ref_objects: List[Testobject1]
+        ):
         self.name = name
         self.int_value = int_val
         self.date_value = date_val
