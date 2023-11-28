@@ -59,7 +59,7 @@ class MAStringWriterVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(first_name_desc.readString(self.model), "Bob")
+        self.assertEqual(first_name_desc.writeString(self.model), "Bob")
 
     def test_date(self):
         date_of_birth = MADateDescription(
@@ -68,7 +68,7 @@ class MAStringWriterVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(date_of_birth.readString(self.model), 
+        self.assertEqual(date_of_birth.writeString(self.model), 
                          str(date(1990, 1, 1))
         )
 
@@ -79,7 +79,7 @@ class MAStringWriterVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(last_active.readString(self.model), 
+        self.assertEqual(last_active.writeString(self.model), 
                          str(datetime(2023, 1, 1, 10, 10, 10))
         )
 
@@ -90,7 +90,7 @@ class MAStringWriterVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(current_time.readString(self.model), 
+        self.assertEqual(current_time.writeString(self.model), 
                          str(time(18, 4, 12))
         )
 
@@ -101,11 +101,11 @@ class MAStringWriterVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(height.readString(self.model), "180")
+        self.assertEqual(height.writeString(self.model), "180")
 
     def test_float(self):
         age = MAFloatDescription(accessor='age', label='age', required=False)
-        self.assertEqual(age.readString(self.model), "33.8")
+        self.assertEqual(age.writeString(self.model), "33.8")
 
     def test_bool(self):
         alive = MABooleanDescription(
@@ -119,8 +119,8 @@ class MAStringWriterVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(alive.readString(self.model), "True")
-        self.assertEqual(active.readString(self.model), "False")
+        self.assertEqual(alive.writeString(self.model), "True")
+        self.assertEqual(active.writeString(self.model), "False")
     
     def test_period(self):
         period_active = MADurationDescription(
@@ -130,7 +130,7 @@ class MAStringWriterVisiorTest(TestCase):
         )
 
         self.assertEqual(
-            period_active.readString(self.model), 
+            period_active.writeString(self.model), 
             str(datetime(2023,2,1,14,0)-datetime(2023,3,8,16,1))
         )
     
@@ -142,7 +142,7 @@ class MAStringWriterVisiorTest(TestCase):
         )
 
         with self.assertRaises(TypeError):
-            MAReferenceDescription.readString(ref)
+            MAReferenceDescription.writeString(ref)
     
     def test_undefined(self):
         height_desc = MAIntDescription(
@@ -153,7 +153,7 @@ class MAStringWriterVisiorTest(TestCase):
 
         self.model.height = None
         self.assertEqual(
-            height_desc.readString(self.model), '-'
+            height_desc.writeString(self.model), '-'
         )
     
     def test_undefined_value(self):
@@ -166,12 +166,12 @@ class MAStringWriterVisiorTest(TestCase):
 
         self.model.height = -1
         self.assertEqual(
-            height_desc.readString(self.model), '-'
+            height_desc.writeString(self.model), '-'
         )
 
         with self.assertRaises(TypeError):
             self.model.height = None
-            height_desc.readString(self.model), None
+            height_desc.writeString(self.model), None
 
         height_desc = MAIntDescription(
             accessor = "height", 
@@ -182,7 +182,7 @@ class MAStringWriterVisiorTest(TestCase):
 
         self.model.height = -1
         self.assertEqual(
-            height_desc.readString(self.model), 'NaN'
+            height_desc.writeString(self.model), 'NaN'
         )
 
     def test_wrong_value(self):
@@ -193,7 +193,7 @@ class MAStringWriterVisiorTest(TestCase):
         )
         
         with self.assertRaises(TypeError):
-            MAIntDescription.readString(height_desc)
+            MAIntDescription.writeString(height_desc)
 
 
 class MAStringReaderVisiorTest(TestCase):
@@ -217,7 +217,7 @@ class MAStringReaderVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(first_name_desc.writeString(self.model), "Bob")
+        self.assertEqual(first_name_desc.readString(self.model), "Bob")
 
     def test_date(self):
         date_of_birth = MADateDescription(
@@ -226,7 +226,7 @@ class MAStringReaderVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(date_of_birth.writeString(self.model), 
+        self.assertEqual(date_of_birth.readString(self.model), 
                          date(1990, 11, 14)
         )
     
@@ -237,7 +237,7 @@ class MAStringReaderVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(last_active.writeString(self.model), 
+        self.assertEqual(last_active.readString(self.model), 
                          datetime(2023, 10, 30, 10, 10, 10)
         )
     
@@ -248,7 +248,7 @@ class MAStringReaderVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(current_time.writeString(self.model), 
+        self.assertEqual(current_time.readString(self.model), 
                          time(18, 4, 12)
         )
     
@@ -259,11 +259,11 @@ class MAStringReaderVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(height.writeString(self.model), 180)
+        self.assertEqual(height.readString(self.model), 180)
     
     def test_float(self):
         age = MAFloatDescription(accessor='age', label='age', required=False)
-        self.assertEqual(age.writeString(self.model), 33.8)
+        self.assertEqual(age.readString(self.model), 33.8)
     
     def test_bool(self):
         alive = MABooleanDescription(
@@ -277,8 +277,8 @@ class MAStringReaderVisiorTest(TestCase):
             required=False
         )
 
-        self.assertEqual(alive.writeString(self.model), True)
-        self.assertEqual(active.writeString(self.model), False)
+        self.assertEqual(alive.readString(self.model), True)
+        self.assertEqual(active.readString(self.model), False)
     
     def test_period(self):
         period_active = MADurationDescription(
@@ -288,14 +288,14 @@ class MAStringReaderVisiorTest(TestCase):
         )
 
         self.assertEqual(
-            period_active.writeString(self.model), 
+            period_active.readString(self.model), 
             timedelta(days=30)
         )
 
         self.model.period_active="36 days, 8:30:00"
 
         self.assertEqual(
-            period_active.writeString(self.model), 
+            period_active.readString(self.model), 
             datetime(2023,3,9,8,30)-datetime(2023,2,1,0,0)
         )
     
@@ -318,7 +318,7 @@ class MAStringReaderVisiorTest(TestCase):
 
         self.model.height = '-'
         self.assertEqual(
-            height_desc.writeString(self.model), None
+            height_desc.readString(self.model), None
         )
     
     def test_undefined_value(self):
@@ -331,12 +331,12 @@ class MAStringReaderVisiorTest(TestCase):
 
         self.model.height = '-'
         self.assertEqual(
-            height_desc.writeString(self.model), -1
+            height_desc.readString(self.model), -1
         )
 
         self.model.height = 'None'
         self.assertEqual(
-            height_desc.writeString(self.model), 'None'
+            height_desc.readString(self.model), 'None'
         )
 
         height_desc = MAElementDescription(
@@ -348,5 +348,5 @@ class MAStringReaderVisiorTest(TestCase):
 
         self.model.height = '-'
         self.assertEqual(
-            height_desc.writeString(self.model), None
+            height_desc.readString(self.model), None
         )
