@@ -27,12 +27,12 @@ class MAElementDescription(MADescription):
     def acceptMagritte(self, aVisitor):
         aVisitor.visitElementDescription(self)
     
-    def readString(self, aModel):
+    def writeString(self, aModel):
         from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
         writer = MAStringWriterVisitor()
         return writer.write_str(model=aModel, description=self)
 
-    def writeString(self, aModel):
+    def readString(self, aModel):
         from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor
         reader = MAStringReaderVisitor()
         return reader.read_str(model=aModel, description=self)
