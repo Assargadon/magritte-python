@@ -14,13 +14,19 @@ from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 from Magritte.descriptions.MADateDescription_class import MADateDescription
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.template_engine.MAModelCheetahTemplateAdapter_class import MAModelCheetahTemplateAdapter
+from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
 
 class TestObject:
     def __init__(self, first, second, third):
         self.first = first
         self.second = second
         self.third = third
-                
+
+class TestStringWriter(MAStringWriterVisitor):
+                    
+    def visitDateDescription(self, description: MADateDescription):
+        datetime_str = description.accessor.read(self._model)
+        self._val = datetime.strptime(datetime_str, '%d.%m.%Y').date()
 
 class MAAdapterTest(TestCase):
 
@@ -56,3 +62,15 @@ class MAAdapterTest(TestCase):
         
         adapted_model = MAModelCheetahTemplateAdapter(model, desc)
         self.check_adapted_model(adapted_model)
+        
+    def test_different_stringifications(self):
+        model = date(2023, 3, 3)
+        
+        desc = MAContainer()
+        desc += MADateDescription(name="standard", accessor=MAIdentityAccessor())
+        desc += MADateDescription(name="custom", accessor=MAIdentityAccessor(), stringWriter=TestStringWriter())
+
+        adapted_model = MAModelCheetahTemplateAdapter(model, desc)
+        print(f"standard: {adapted_model['standard']}, custom: {adapted_model['custom']}")
+        
+        
