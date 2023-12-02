@@ -2,6 +2,14 @@ from Magritte.descriptions.MADescription_class import MADescription
 
 
 class MAElementDescription(MADescription):
+    def __init__(self, stringReader=None, stringWriter=None, **kwargs):
+        from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor
+        from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
+        if not stringReader:
+            self.stringReader = MAStringReaderVisitor()
+        if not stringWriter:
+            self.stringWriter = MAStringWriterVisitor()
+        super().__init__(**kwargs)
 
     def magritteDescription(self):
         from Magritte.descriptions import MAElementDescription_selfdesc
@@ -28,11 +36,7 @@ class MAElementDescription(MADescription):
         aVisitor.visitElementDescription(self)
     
     def writeString(self, aModel):
-        from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
-        writer = MAStringWriterVisitor()
-        return writer.write_str(model=aModel, description=self)
+        return self.stringWriter.write_str(model=aModel, description=self)
 
     def readString(self, aModel):
-        from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor
-        reader = MAStringReaderVisitor()
-        return reader.read_str(model=aModel, description=self)
+        return self.stringReader.read_str(model=aModel, description=self)
