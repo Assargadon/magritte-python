@@ -2,15 +2,6 @@ from Magritte.descriptions.MADescription_class import MADescription
 
 
 class MAElementDescription(MADescription):
-    def __init__(self, stringReader=None, stringWriter=None, **kwargs):
-        from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor
-        from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
-        if not stringReader:
-            self.stringReader = MAStringReaderVisitor()
-        if not stringWriter:
-            self.stringWriter = MAStringWriterVisitor()
-        super().__init__(**kwargs)
-
     def magritteDescription(self):
         from Magritte.descriptions import MAElementDescription_selfdesc
         return MAElementDescription_selfdesc.magritteDescription(self, super().magritteDescription())
@@ -22,6 +13,30 @@ class MAElementDescription(MADescription):
             return self._default
         except AttributeError:
             return self.defaultDefault()
+    
+    @property
+    def defaultStringReader(self):
+        from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor
+        return MAStringReaderVisitor
+    
+    @property
+    def defaultStringWriter(self):
+        from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
+        return MAStringWriterVisitor
+
+    @property
+    def stringWriter(self):
+        try:
+            return self._stringWriter
+        except AttributeError:
+            return self.defaultStringWriter()
+    
+    @property
+    def stringReader(self):
+        try:
+            return self._stringReader
+        except AttributeError:
+            return self.defaultStringReader()
 
     @default.setter
     def default(self, anObject):
