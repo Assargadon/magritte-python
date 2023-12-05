@@ -116,4 +116,37 @@ class MAAdapterTest(TestCase):
         for adapted, original in zip(adapted_model['fibbo'], model[1]):
             self.assertIsInstance(adapted, str)
             self.assertEqual(adapted, str(original))
-          
+            
+    def test_to_many_objects(self):
+        model = ("object with array of objects",
+        [
+            (1, "first",  1),
+            (2, "second", 1),
+            (3, "third",  2),
+            (4, "fourth", 3),
+            (5, "fifth",  5),
+            (6, "sixth",  8)
+        ])
+
+        inner_desc = MAContainer()
+        inner_desc += MAIntDescription(name="index", accessor=MAPluggableAccessor(lambda model: model[0], None))
+        inner_desc += MAStringDescription(name="index_str", accessor=MAPluggableAccessor(lambda model: model[1], None))
+        inner_desc += MAIntDescription(name="fibbo", accessor=MAPluggableAccessor(lambda model: model[2], None))
+
+        desc = MAContainer()
+        desc += MAIntDescription(name="title", accessor=MAPluggableAccessor(lambda model: model[0], None))
+        desc += MAToManyRelationDescription(name="fibbos", accessor=MAPluggableAccessor(lambda model: model[1], None), reference = inner_desc)
+        
+        adapted_model = MAModelCheetahTemplateAdapter(model, desc)
+
+        self.assertEqual(len(adapted_model['fibbos']), len(model[1]))
+        
+        for inner_adapted in adapted_model['fibbos']:
+            self.assertIsInstance(inner_adapted['index'], str)
+            self.assertIsInstance(inner_adapted['index_str'], str)
+            self.assertIsInstance(inner_adapted['fibbo'], str)
+        
+        self.assertEqual(adapted_model['fibbos'][5]['index'], "6")
+        self.assertEqual(adapted_model['fibbos'][5]['index_str'], "sixth")
+        self.assertEqual(adapted_model['fibbos'][5]['fibbo'], "8")
+        
