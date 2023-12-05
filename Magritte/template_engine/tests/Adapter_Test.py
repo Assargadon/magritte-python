@@ -102,7 +102,7 @@ class MAAdapterTest(TestCase):
         # print(f"root level: {adapted_model['num_field']}, 2nd level: {adapted_model['obj_field']['num_field']}, 3rd level: {adapted_model['obj_field']['obj_field']['num_field']}")
         
 
-    def test_to_many_scalar(self):
+    def test_to_many_scalars(self):
         model = ("object with array field", [1, 1, 2, 3, 5, 8, 13, 21])
  
         desc = MAContainer()
