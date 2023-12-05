@@ -12,6 +12,11 @@ class MAModelCheetahTemplateAdapterVisitor2(MAVisitor):
         childModel = MAModel.readUsingWrapper(self.model, description)
         self.result = MAModelCheetahTemplateAdapter(childModel, description)
 
+    def visitToOneRelationDescription(self, description):
+        childModel = MAModel.readUsingWrapper(self.model, description)
+        childDescription = description.reference
+        self.result = MAModelCheetahTemplateAdapter(childModel, childDescription)
+
     def visitElementDescription(self, description):
         self.result = description.writeString(self.model)
 
@@ -38,7 +43,14 @@ class MAModelCheetahTemplateAdapterVisitor1(MAVisitor):
         childDescription.acceptMagritte(visitor)
         self.result = visitor.result
 
-    def visitDescription(self):
+    def visitToOneRelationDescription(self, description):
+        childModel = MAModel.readUsingWrapper(self.model, description)
+        childDescription = description.reference
+        visitor = MAModelCheetahTemplateAdapterVisitor2(childModel)
+        childDescription.acceptMagritte(visitor)
+        self.result = visitor.result
+
+    def visitDescription(self, description):
         raise AttributeError()
 
 class MAModelCheetahTemplateAdapter:
