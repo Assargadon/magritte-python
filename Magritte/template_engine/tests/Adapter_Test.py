@@ -107,7 +107,7 @@ class MAAdapterTest(TestCase):
  
         desc = MAContainer()
         desc += MAIntDescription(name="title", accessor=MAPluggableAccessor(lambda model: model[0], None))
-        desc += MAToManyRelationDescription(name="fibbo", accessor=MAPluggableAccessor(lambda model: model[1], None), reference = MAIntDescription())
+        desc += MAToManyRelationDescription(name="fibbo", accessor=MAPluggableAccessor(lambda model: model[1], None), reference = MAIntDescription(accessor=MAIdentityAccessor()))
 
         adapted_model = MAModelCheetahTemplateAdapter(model, desc)
         

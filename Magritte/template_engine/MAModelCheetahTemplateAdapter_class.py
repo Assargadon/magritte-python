@@ -68,3 +68,8 @@ class MAModelCheetahTemplateAdapter:
         visitor = MAModelCheetahTemplateAdapterVisitor1(self.model, item)
         self.description.acceptMagritte(visitor)
         return visitor.result
+
+    def __str__(self):
+        visitor = MAModelCheetahTemplateAdapterVisitor2(self.model)
+        self.description.acceptMagritte(visitor)
+        return visitor.result
