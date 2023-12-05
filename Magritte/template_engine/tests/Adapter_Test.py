@@ -101,3 +101,19 @@ class MAAdapterTest(TestCase):
         self.assertEqual(adapted_model['obj_field']['obj_field']['num_field'], "3")
         # print(f"root level: {adapted_model['num_field']}, 2nd level: {adapted_model['obj_field']['num_field']}, 3rd level: {adapted_model['obj_field']['obj_field']['num_field']}")
         
+
+    def test_to_many_scalar(self):
+        model = ("object with array field", [1, 1, 2, 3, 5, 8, 13, 21])
+ 
+        desc = MAContainer()
+        desc += MAIntDescription(name="title", accessor=MAPluggableAccessor(lambda model: model[0], None))
+        desc += MAToManyRelationDescription(name="fibbo", accessor=MAPluggableAccessor(lambda model: model[1], None), reference = MAIntDescription())
+
+        adapted_model = MAModelCheetahTemplateAdapter(model, desc)
+        
+        self.assertEqual(len(adapted_model['fibbo']), len(model[1]))       
+
+        for adapted, original in zip(adapted_model['fibbo'], model[1]):
+            self.assertIsInstance(adapted, str)
+            self.assertEqual(adapted, str(original))
+          
