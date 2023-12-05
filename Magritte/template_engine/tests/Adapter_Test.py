@@ -88,12 +88,12 @@ class MAAdapterTest(TestCase):
         inner_desc = MAContainer()
         inner_desc += MAIntDescription(name="num_field", accessor=MAPluggableAccessor(lambda model: model[0], None))
         inner_desc += MAStringDescription(name="str_field", accessor=MAPluggableAccessor(lambda model: model[1], None))
-        inner_desc += MAToOneRelationDescription(name="obj_field", accessor=MAPluggableAccessor(lambda model: model[1], None), reference=inner_inner_desc)
+        inner_desc += MAToOneRelationDescription(name="obj_field", accessor=MAPluggableAccessor(lambda model: model[2], None), reference=inner_inner_desc)
         
         desc = MAContainer()
         desc += MAIntDescription(name="num_field", accessor=MAPluggableAccessor(lambda model: model[0], None))
         desc += MAStringDescription(name="str_field", accessor=MAPluggableAccessor(lambda model: model[1], None))
-        desc += MAToOneRelationDescription(name="obj_field", accessor=MAPluggableAccessor(lambda model: model[1], None), reference=inner_desc)
+        desc += MAToOneRelationDescription(name="obj_field", accessor=MAPluggableAccessor(lambda model: model[2], None), reference=inner_desc)
 
         adapted_model = MAModelCheetahTemplateAdapter(model, desc)
         self.assertEqual(adapted_model['num_field'], "1")
