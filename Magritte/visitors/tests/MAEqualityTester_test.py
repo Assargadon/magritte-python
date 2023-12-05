@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest import TestCase
 
 from typing import List
@@ -133,7 +133,7 @@ class MAEqualityTester_Test(TestCase):
             )
         self.date_value = self.time_now
         self.date_value_equal = self.time_now
-        self.date_value_not_equal = datetime.now()
+        self.date_value_not_equal = self.time_now + timedelta(seconds=3600)
 
         # ==================== Scalar relation value testing. ====================
         self.scalar_rel_desc = MAToOneRelationDescription(
