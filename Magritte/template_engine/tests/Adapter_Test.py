@@ -12,6 +12,7 @@ from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 from Magritte.descriptions.MADateDescription_class import MADateDescription
+from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.template_engine.MAModelCheetahTemplateAdapter_class import MAModelCheetahTemplateAdapter
 from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
@@ -73,4 +74,30 @@ class MAAdapterTest(TestCase):
         adapted_model = MAModelCheetahTemplateAdapter(model, desc)
         print(f"standard: {adapted_model['standard']}, custom: {adapted_model['custom']}")
         
+        
+    def test_to_one_reference(self):
+
+        inner_inner_model = (3, "three")
+        inner_model = (2, "two", inner_inner_model)
+        model = (1, "one", inner_model)
+        
+        inner_inner_desc = MAContainer()
+        inner_inner_desc += MAIntDescription(name="num_field", accessor=MAPluggableAccessor(lambda model: model[0], None))
+        inner_inner_desc += MAStringDescription(name="str_field", accessor=MAPluggableAccessor(lambda model: model[1], None))
+
+        inner_desc = MAContainer()
+        inner_desc += MAIntDescription(name="num_field", accessor=MAPluggableAccessor(lambda model: model[0], None))
+        inner_desc += MAStringDescription(name="str_field", accessor=MAPluggableAccessor(lambda model: model[1], None))
+        inner_desc += MAToOneRelationDescription(name="obj_field", accessor=MAPluggableAccessor(lambda model: model[1], None), reference=inner_inner_desc)
+        
+        desc = MAContainer()
+        desc += MAIntDescription(name="num_field", accessor=MAPluggableAccessor(lambda model: model[0], None))
+        desc += MAStringDescription(name="str_field", accessor=MAPluggableAccessor(lambda model: model[1], None))
+        desc += MAToOneRelationDescription(name="obj_field", accessor=MAPluggableAccessor(lambda model: model[1], None), reference=inner_desc)
+
+        adapted_model = MAModelCheetahTemplateAdapter(model, desc)
+        self.assertEqual(adapted_model['num_field'], "1")
+        self.assertEqual(adapted_model['obj_field']['num_field'], "2")
+        self.assertEqual(adapted_model['obj_field']['obj_field']['num_field'], "3")
+        # print(f"root level: {adapted_model['num_field']}, 2nd level: {adapted_model['obj_field']['num_field']}, 3rd level: {adapted_model['obj_field']['obj_field']['num_field']}")
         
