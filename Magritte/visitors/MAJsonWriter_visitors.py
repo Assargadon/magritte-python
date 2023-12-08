@@ -9,9 +9,10 @@ from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
 from Magritte.visitors.MAVisitor_class import MAVisitor
+from visitors.MAElementTransformerVisitors import MAWriterVisitor
 
 
-class MAValueJsonWriter(MAVisitor):
+class MAValueJsonWriter(MAWriterVisitor):
     """Encodes the value described by the descriptions into JSON."""
 
     def __init__(self):
@@ -27,6 +28,9 @@ class MAValueJsonWriter(MAVisitor):
             raise
         else:
             return src
+
+    def write(self, model: Any, description: MADescription) -> Any:
+        return self.write_json(model, description)
 
     def write_json(self, model: Any, description: MADescription) -> Any:
         self._model = model
@@ -47,18 +51,6 @@ class MAValueJsonWriter(MAVisitor):
     def visitDateAndTimeDescription(self, description: MADescription):
         value = description.accessor.read(self._model)
         self._json = self._test_jsonable(value.isoformat() if value else None)
-
-    def visitReferenceDescription(self, description: MAReferenceDescription):
-        raise TypeError(
-            "MAValueJsonWriter cannot encode using reference description."
-            " Only scalar values are allowed. Use MAObjectJsonWriter instead."
-            )
-
-    def visitContainer(self, description: MAContainer):
-        raise TypeError(
-            "MAValueJsonWriter cannot encode using container description."
-            " Only scalar values are allowed. Use MAObjectJsonWriter instead."
-            )
 
 
 class MAObjectJsonWriter(MAVisitor):
