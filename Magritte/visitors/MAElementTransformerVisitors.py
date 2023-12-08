@@ -22,7 +22,7 @@ class MAElementTransformerVisitor(MAVisitor):
             )
 
 
-class MAWriterVisitor(MAElementTransformerVisitor):
+class MAElementWriterVisitor(MAElementTransformerVisitor):
     """Abstract class defining common interface for exporting/writing model
     to external value using MAElementDescription.
     """
@@ -32,7 +32,7 @@ class MAWriterVisitor(MAElementTransformerVisitor):
         raise NotImplementedError(f"{self.__class__.__name__}.write() not implemented.")
 
 
-class MAReaderVisitor(MAElementTransformerVisitor):
+class MAElementReaderVisitor(MAElementTransformerVisitor):
     """Abstract class defining common interface for importing/reading model
     from external value using MAElementDescription.
     """

@@ -9,10 +9,10 @@ from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
 from Magritte.visitors.MAVisitor_class import MAVisitor
-from visitors.MAElementTransformerVisitors import MAWriterVisitor
+from visitors.MAElementTransformerVisitors import MAElementWriterVisitor
 
 
-class MAValueJsonWriter(MAWriterVisitor):
+class MAValueJsonWriter(MAElementWriterVisitor):
     """Encodes the value described by the descriptions into JSON."""
 
     def __init__(self):
