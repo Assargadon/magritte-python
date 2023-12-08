@@ -13,6 +13,7 @@ from Magritte.descriptions.MADurationDescription_class import MADurationDescript
 from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MATimeDescription_class import MATimeDescription
+from visitors.MAElementTransformerVisitors import MAElementTransformerVisitor, MAElementWriterVisitor, MAElementReaderVisitor
 
 
 def parse_timedelta(duration_str: str) -> timedelta:
@@ -43,14 +44,9 @@ def is_bool_tuple(val: Union[bool, tuple], description: MADescription) -> bool:
     return type(val) in (description.defaultKind(), tuple)
 
 
-class MAStringVisitor(MAVisitor):
+class MAStringVisitor(MAElementTransformerVisitor):
     def __init__(self):
         self._model = None
-    
-    def visitContainer(self, description: MAContainer):
-        raise TypeError(
-            "MAStringSerializer cannot encode or decode using container values description."
-        )
 
     def visitDescription(self, description: MADescription):
         raise TypeError(
@@ -58,7 +54,7 @@ class MAStringVisitor(MAVisitor):
         )
 
 
-class MAStringWriterVisitor(MAStringVisitor):
+class MAStringWriterVisitor(MAStringVisitor, MAElementWriterVisitor):
     """Encodes the value described by the descriptions into string."""
     def __init__(self):
         self._str = None
@@ -92,14 +88,8 @@ class MAStringWriterVisitor(MAStringVisitor):
             raise TypeError(
                 "The boolean value cannot be serialized into a string")
 
-    
-    def visitReferenceDescription(self, description: MAReferenceDescription):
-        raise TypeError(
-            "MAStringWriterVisitor cannot encode using reference description."
-        )
 
-
-class MAStringReaderVisitor(MAStringVisitor):
+class MAStringReaderVisitor(MAStringVisitor, MAElementReaderVisitor):
     """Decodes the string into an appropriate value."""
     def __init__(self):
         self._val = None
@@ -152,8 +142,3 @@ class MAStringReaderVisitor(MAStringVisitor):
             raise TypeError(
                 "The string cannot be deserialized into a boolean value"
             )
-    
-    def visitReferenceDescription(self, description: MAReferenceDescription):
-        raise TypeError(
-            "MAStringReaderVisitor cannot encode using reference description."
-        )
