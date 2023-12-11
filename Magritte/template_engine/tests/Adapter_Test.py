@@ -44,9 +44,7 @@ class MAAdapterTest(TestCase):
         
         with self.assertRaises(Exception):
             adapted_model['nonexistent_field']
-            
-        print(f"From {adapted_model.model.__class__} => first: {adapted_model['first']}, second: {adapted_model['second']}, third: {adapted_model['third']}")
-        
+
     def test_adaptation_from_tuple(self):
         model = (1, "two", date(2023, 3, 3))
         
@@ -78,7 +76,6 @@ class MAAdapterTest(TestCase):
         desc += MADateDescription(name="custom", accessor=MAIdentityAccessor(), stringWriter=TestStringWriter_CustomDates())
 
         adapted_model = MAModelCheetahTemplateAdapter(model, desc)
-        print(f"standard: {adapted_model['standard']}, custom: {adapted_model['custom']}")
         
         self.assertEqual(str(adapted_model['iso']), "2023-06-13")
         self.assertEqual(str(adapted_model['custom']), "13.06.2023")
