@@ -38,6 +38,15 @@ class MAElementDescription(MADescription):
         except AttributeError:
             return self.defaultStringReader()
 
+    @stringReader.setter
+    def stringReader(self, anObject):
+        self._stringReader = anObject
+
+    @stringWriter.setter
+    def stringWriter(self, anObject):
+        self._stringWriter = anObject
+        
+
     @default.setter
     def default(self, anObject):
         self._default = anObject
