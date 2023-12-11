@@ -23,11 +23,17 @@ class TestObject:
         self.second = second
         self.third = third
 
-class TestStringWriter(MAStringWriterVisitor):
+class TestStringWriter_CustomDates(MAStringWriterVisitor):
                     
     def visitDateDescription(self, description: MADateDescription):
-        datetime_str = description.accessor.read(self._model)
-        self._val = datetime.strptime(datetime_str, '%d.%m.%Y').date()
+        datetime = description.accessor.read(self._model)
+        self._str = datetime.strftime('%d.%m.%Y')
+
+class TestStringWriter_IsoDates(MAStringWriterVisitor):
+                    
+    def visitDateDescription(self, description: MADateDescription):
+        datetime = description.accessor.read(self._model)
+        self._str = datetime.strftime('%Y-%m-%d')
 
 class MAAdapterTest(TestCase):
 
@@ -65,15 +71,17 @@ class MAAdapterTest(TestCase):
         self.check_adapted_model(adapted_model)
         
     def test_different_stringifications(self):
-        model = date(2023, 3, 3)
+        model = date(2023, 6, 13)
         
         desc = MAContainer()
-        desc += MADateDescription(name="standard", accessor=MAIdentityAccessor())
-        desc += MADateDescription(name="custom", accessor=MAIdentityAccessor(), stringWriter=TestStringWriter())
+        desc += MADateDescription(name="iso", accessor=MAIdentityAccessor(), stringWriter=TestStringWriter_IsoDates())
+        desc += MADateDescription(name="custom", accessor=MAIdentityAccessor(), stringWriter=TestStringWriter_CustomDates())
 
         adapted_model = MAModelCheetahTemplateAdapter(model, desc)
         print(f"standard: {adapted_model['standard']}, custom: {adapted_model['custom']}")
         
+        self.assertEqual(str(adapted_model['iso']), "2023-06-13")
+        self.assertEqual(str(adapted_model['custom']), "13.06.2023")
         
     def test_to_one_reference(self):
 
