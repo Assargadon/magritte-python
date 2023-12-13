@@ -7,6 +7,8 @@ from Magritte.visitors.MAValidatorVisitor_class import MAValidatorVisitor
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.errors.MARequiredError import MARequiredError
 from Magritte.MACondition import MACondition
+from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor, MAStringWriterVisitor
+
 
 class TestProperties_of_MADescription(TestCase):
 
@@ -32,6 +34,10 @@ class TestProperties_of_MADescription(TestCase):
             return MAAccessor()
         elif prop_type == type(MAValidatorVisitor):
             return MAValidatorVisitor
+        elif prop_type == MAStringReaderVisitor:
+            return MAStringReaderVisitor()
+        elif prop_type == MAStringWriterVisitor:
+            return MAStringWriterVisitor()
         elif prop_type == MADescription:
             return MADescription()
         elif prop_type == MAContainer:

@@ -1,5 +1,6 @@
 from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 from Magritte.descriptions.tests.MADescription_test import TestProperties_of_MADescription
+from Magritte.visitors.MAStringWriterReader_visitors import MAStringReaderVisitor, MAStringWriterVisitor
 
 
 class TestProperties_of_MAElementDescription(TestProperties_of_MADescription):
@@ -10,5 +11,7 @@ class TestProperties_of_MAElementDescription(TestProperties_of_MADescription):
     def _properties(self):
         return {
             *super()._properties(),
-            ('default', None)
+            ('default', None),
+            ('stringReader', MAStringReaderVisitor),
+            ('stringWriter', MAStringWriterVisitor),
         }
