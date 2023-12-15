@@ -15,7 +15,7 @@ from Magritte.descriptions.MADateDescription_class import MADateDescription
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.visitors.MAStringWriterReader_visitors import MAStringWriterVisitor
-from Magritte_Cheetah.MAModelCheetahTemplateAdapter_class import MAModelCheetahTemplateAdapter
+from Magritte_Cheetah.MAModelCheetahTemplateAdapter import MAModelCheetahTemplateAdapter
 
 class TestObject:
     def __init__(self, first, second, third):
