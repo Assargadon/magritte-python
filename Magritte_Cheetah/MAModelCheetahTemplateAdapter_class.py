@@ -1,6 +1,6 @@
 
-from visitors.MAVisitor_class import MAVisitor
-from MAModel_class import MAModel
+from Magritte.visitors.MAVisitor_class import MAVisitor
+from Magritte.MAModel_class import MAModel
 
 
 class MAModelCheetahTemplateAdapterVisitor2(MAVisitor):
