@@ -4,8 +4,6 @@ import Cheetah.Template
 # Do not forget add place with Magritte & Magritte_Cheetah to sys.path / PYTHONPATH
 # i.e. `export PYTHONPATH="path to folder with folder Magritte inside"`
 
-from Magritte.model_for_tests.Host import Host
-from Magritte.model_for_tests.Port import Port
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 
