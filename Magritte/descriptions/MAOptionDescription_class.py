@@ -113,7 +113,7 @@ class MAOptionDescription(MAReferenceDescription):
 
 
     def _validateOptionKind(self, model):
-        if model in self._options:
+        if model in self.options:
             return []
         if self.isExtensible():
             return self.reference.validate(model)
