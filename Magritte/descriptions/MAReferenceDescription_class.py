@@ -34,7 +34,7 @@ class MAReferenceDescription(MAElementDescription):
         self._reference = aDescription
 
     def defaultReferenceAcyclic(self):
-        return self.acyclicDescription
+        return self.reference.acyclicDescription
 
     @property
     def referenceAcyclic(self):
