@@ -2,6 +2,7 @@ from copy import copy
 from sys import intern
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.accessors.MANullAccessor_class import MANullAccessor
+from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.visitors.MAValidatorVisitor_class import MAValidatorVisitor
 
 from Magritte.errors.MAValidationError import MAValidationError
@@ -473,3 +474,52 @@ class MADescription(MAModel):
 
 
     # =========== /validation ===========
+
+
+    # =========== acyclic ===========
+
+    class _MAReferenceRemoverVisitor(MAVisitor):
+
+        class _MACheckHasReferenceVisitor(MAVisitor):
+            def __init__(self):
+                self.result = False
+
+            def visitReferenceDescription(self, anObject):
+                self.result = True
+
+        def __init__(self):
+            self.result = None
+
+        @classmethod
+        def hasReference(cls, aDescription):
+            checkHasReferenceVisitor = cls._MACheckHasReferenceVisitor()
+            aDescription.acceptMagritte(checkHasReferenceVisitor)
+            return checkHasReferenceVisitor.result
+
+        def visitContainer(self, anObject):
+            containerCopy = copy(anObject)
+            children = containerCopy.children
+            childrenFiltered = [aDescription for aDescription in children if not self.hasReference(aDescription)]
+            containerCopy.setChildren(childrenFiltered)
+            self.result = containerCopy
+
+        def visitDescription(self, anObject):
+            self.result = anObject
+
+    def defaultAcyclicDescription(self):
+        referenceRemoverVisitor = self.__class__._MAReferenceRemoverVisitor()
+        self.acceptMagritte(referenceRemoverVisitor)
+        return referenceRemoverVisitor.result
+
+    @property
+    def acyclicDescription(self):
+        try:
+            return self._acyclicDescription
+        except AttributeError:
+            return self.defaultAcyclicDescription()
+
+    @acyclicDescription.setter
+    def acyclicDescription(self, aDescription):
+        self._acyclicDescription = aDescription
+
+    # =========== /acyclic ===========
