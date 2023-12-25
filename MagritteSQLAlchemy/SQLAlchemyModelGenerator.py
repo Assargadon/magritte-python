@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column
-from sqlalchemy import Boolean, DateTime, Integer, String, ForeignKey, create_engine, ForeignKeyConstraint, Date
+from sqlalchemy import Boolean, Date, DateTime, Integer, Float, String, Time, ForeignKeyConstraint
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAElementDescription_class import MAElementDescription
@@ -20,8 +20,17 @@ class SqlAlchemyFieldExtractorFromMAElementVisitor(MAVisitor):
     def visitIntDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=Integer, element_description=element_description)
 
+    def visitFloatDescription(self, element_description: MAElementDescription):
+        return self.make_result(sql_type=Float, element_description=element_description)
+
     def visitStringDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=String, element_description=element_description)
+
+    def visitTimeDescription(self, element_description: MAElementDescription):
+        return self.make_result(sql_type=Time, element_description=element_description)
+
+    def visitElementDescription(self, element_description: MAElementDescription):
+        raise f"Cannot map type: '{element_description.kind}' to the Sql Alchemy: a certain type mapper is unimplemented"
 
     def make_result(self, sql_type, element_description: MAElementDescription):
         return dict(
