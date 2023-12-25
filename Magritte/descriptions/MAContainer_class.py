@@ -1,4 +1,6 @@
 from copy import copy
+from sys import intern
+
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
@@ -68,6 +70,20 @@ class MAContainer(MADescription):
 
     def extend(self, aCollection):
         self.children.extend(aCollection)
+
+    @property
+    def tableName(self):
+        try:
+            return self._filed_name
+        except AttributeError:
+            return self._name
+
+    @tableName.setter
+    def tableName(self, aSymbol):
+        if aSymbol is None:
+            self._filed_name = None
+        else:
+            self._filed_name = intern(aSymbol)
 
     @classmethod
     def withDescription(cls, aDescription):

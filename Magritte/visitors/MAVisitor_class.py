@@ -7,7 +7,7 @@ class MAVisitor:
     def visit(self, anObject):
         errors = []
         try:
-            anObject.acceptMagritte(self)
+            return anObject.acceptMagritte(self)
         except MAValidationError as err:
             errors.append(err)
         if errors:
@@ -68,7 +68,7 @@ class MAVisitor:
         self.visitMagnitudeDescription(anObject)
 
     def visitIntDescription(self, anObject):
-        self.visitNumberDescription(anObject)
+        return self.visitNumberDescription(anObject)
 
     def visitFloatDescription(self, anObject):
         self.visitNumberDescription(anObject)
@@ -95,7 +95,7 @@ class MAVisitor:
         self.visitOptionDescription(anObject)
 
     def visitStringDescription(self, anObject):
-        self.visitElementDescription(anObject)
+        return self.visitElementDescription(anObject)
 
     def visitSymbolDescription(self, anObject):
         self.visitStringDescription(anObject)

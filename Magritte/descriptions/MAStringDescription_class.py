@@ -15,4 +15,4 @@ class MAStringDescription(MAElementDescription):
 
 
     def acceptMagritte(self, aVisitor):
-        aVisitor.visitStringDescription(self)
+        return aVisitor.visitStringDescription(self)

@@ -1,3 +1,5 @@
+from sys import intern
+
 from Magritte.descriptions.MADescription_class import MADescription
 
 
@@ -53,6 +55,34 @@ class MAElementDescription(MADescription):
     @classmethod
     def defaultDefault(cls):
         return None
+
+    @property
+    def isPrimaryKey(self):
+        try:
+            return self._isPrimaryKey
+        except AttributeError:
+            return self.defaultIsPrimaryKey()
+
+    @isPrimaryKey.setter
+    def isPrimaryKey(self, aBool):
+        self._isPrimaryKey = aBool
+
+    @property
+    def fieldName(self):
+        try:
+            return self._filed_name
+        except AttributeError:
+            return self._name
+
+    @fieldName.setter
+    def fieldName(self, aSymbol):
+        if aSymbol is None:
+            self._filed_name = None
+        else:
+            self._filed_name = intern(aSymbol)
+
+    def defaultIsPrimaryKey(self):
+        return False
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitElementDescription(self)
