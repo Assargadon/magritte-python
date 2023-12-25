@@ -49,7 +49,6 @@ class DefaultBase(DeclarativeBase):
 
 class SQLAlchemyModelGenerator(MAVisitor):
     _base_class = None
-    _engine = None
     _field_extractor = None
     _model_desc = None
     _table_args = []
@@ -107,13 +106,3 @@ class SQLAlchemyModelGenerator(MAVisitor):
     def make_column_from_element(self, field_info):
         self.make_column(field_name=field_info['name'], sqlType=field_info['type']
                          , nullable=field_info['nullable'], primary_key=field_info['primary_key'])
-
-    def create_engine(self, conn_str):
-        if self._engine is None:
-            self._engine = create_engine(conn_str, echo=True)
-
-    def create_models(self):
-        self._base_class.metadata.create_all(self._engine)
-
-    def drop_models(self):
-        self._base_class.metadata.drop_all(self._engine)

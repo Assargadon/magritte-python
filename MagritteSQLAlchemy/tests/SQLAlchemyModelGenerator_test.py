@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from sqlalchemy import create_engine
+
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 from MagritteSQLAlchemy.SQLAlchemyModelGenerator import SQLAlchemyModelGenerator
 
@@ -8,6 +10,7 @@ conn_str = "postgresql://postgres:secret@magritte-python-postgres/sqlalchemy_tes
 
 
 class SQLAlchemyModelGeneratorTest(TestCase):
+    _engine = None
 
     def setUp(self):
         self.org_desc = TestModelDescriptor.description_for("Organization")
@@ -16,7 +19,7 @@ class SQLAlchemyModelGeneratorTest(TestCase):
         self.host_desc = TestModelDescriptor.description_for("Host")
         self.port_desc = TestModelDescriptor.description_for("Port")
         self.modelGen = SQLAlchemyModelGenerator()
-        self.modelGen.create_engine(conn_str)
+        self.create_engine(conn_str)
 
     def test_canCreateModels(self):
         try:
@@ -26,9 +29,19 @@ class SQLAlchemyModelGeneratorTest(TestCase):
             self.host_model = self.modelGen.generate_model(self.host_desc)
             self.port_model = self.modelGen.generate_model(self.port_desc)
 
-            self.modelGen.create_models()
+            self.create_models()
         except:
             self.fail("The exception was raised in the SQL Alchemy models create process")
 
     def tearDown(self):
-        self.modelGen.drop_models()
+        self.drop_models()
+
+    def create_engine(self, conn_str):
+        if self._engine is None:
+            self._engine = create_engine(conn_str, echo=True)
+
+    def create_models(self):
+        self.modelGen.base_class.metadata.create_all(self._engine)
+
+    def drop_models(self):
+        self.modelGen.base_class.metadata.drop_all(self._engine)
