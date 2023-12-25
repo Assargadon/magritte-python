@@ -21,8 +21,11 @@ class SqlAlchemyFieldExtractorFromMAElementVisitor(MAVisitor):
         return self.make_result(sql_type=String, element_description=element_description)
 
     def make_result(self, sql_type, element_description: MAElementDescription):
-        return dict(type=sql_type, name=element_description.fieldName, primary_key=element_description.isPrimaryKey
-                    , nullable=element_description.required )
+        return dict(
+            type=sql_type
+            , name=element_description.fieldName
+            , primary_key=element_description.isPrimaryKey
+            , nullable=element_description.required)
 
 
 class SqlAlchemyForeignVisitor(SqlAlchemyFieldExtractorFromMAElementVisitor):

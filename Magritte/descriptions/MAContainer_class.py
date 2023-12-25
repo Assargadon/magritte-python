@@ -80,6 +80,9 @@ class MAContainer(MADescription):
 
     @tableName.setter
     def tableName(self, aSymbol):
+        self.defaultTableName(aSymbol)
+
+    def defaultTableName(self, aSymbol):
         if aSymbol is None:
             self._filed_name = None
         else:

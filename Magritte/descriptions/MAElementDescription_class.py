@@ -67,6 +67,9 @@ class MAElementDescription(MADescription):
     def isPrimaryKey(self, aBool):
         self._isPrimaryKey = aBool
 
+    def defaultIsPrimaryKey(self):
+        return False
+
     @property
     def fieldName(self):
         try:
@@ -80,9 +83,6 @@ class MAElementDescription(MADescription):
             self._filed_name = None
         else:
             self._filed_name = intern(aSymbol)
-
-    def defaultIsPrimaryKey(self):
-        return False
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitElementDescription(self)
