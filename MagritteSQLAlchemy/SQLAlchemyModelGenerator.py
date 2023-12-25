@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column
-from sqlalchemy import Boolean, DateTime, Integer, String, ForeignKey, create_engine, ForeignKeyConstraint
+from sqlalchemy import Boolean, DateTime, Integer, String, ForeignKey, create_engine, ForeignKeyConstraint, Date
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAElementDescription_class import MAElementDescription
@@ -10,6 +10,9 @@ from Magritte.visitors.MAVisitor_class import MAVisitor
 class SqlAlchemyFieldExtractorFromMAElementVisitor(MAVisitor):
     def visitBooleanDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=Boolean, element_description=element_description)
+
+    def visitDateDescription(self, element_description: MAElementDescription):
+        return self.make_result(sql_type=Date, element_description=element_description)
 
     def visitDateAndTimeDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=DateTime, element_description=element_description)
@@ -40,14 +43,24 @@ class SqlAlchemyForeignVisitor(SqlAlchemyFieldExtractorFromMAElementVisitor):
                 return dict(type=field_info["type"], name=field_name)
 
 
-class DynamicBase(DeclarativeBase):
+class DefaultBase(DeclarativeBase):
     pass
 
 
-class SQLAlchemyModelGenerator(SqlAlchemyFieldExtractorFromMAElementVisitor):
-    _model_desc = None
+class SQLAlchemyModelGenerator(MAVisitor):
+    _base_class = None
     _engine = None
+    _field_extractor = None
+    _model_desc = None
     _table_args = []
+
+    def __init__(self, base_class=DefaultBase):
+        self._field_extractor = SqlAlchemyFieldExtractorFromMAElementVisitor()
+        self._base_class = base_class
+
+    @property
+    def base_class(self):
+        return self._base_class
 
     def generate_model(self, container: MAContainer):
         self._table_args = []
@@ -55,24 +68,15 @@ class SQLAlchemyModelGenerator(SqlAlchemyFieldExtractorFromMAElementVisitor):
         self.visitAll(container.children)
         if len(self._table_args) > 0:
             self._model_desc['__table_args__'] = tuple(self._table_args)
-        return type(container.name, (DynamicBase,), self._model_desc)
+        return type(container.name, (self._base_class,), self._model_desc)
 
-    def visitBooleanDescription(self, element_description: MAElementDescription):
-        self.make_column_from_element(super().visitBooleanDescription(element_description))
-
-    def visitDateAndTimeDescription(self, element_description: MAElementDescription):
-        self.make_column_from_element(super().visitDateAndTimeDescription(element_description))
-
-    def visitIntDescription(self, element_description: MAElementDescription):
-        self.make_column_from_element(super().visitIntDescription(element_description))
-
-    def visitStringDescription(self, element_description: MAElementDescription):
-        self.make_column_from_element(super().visitStringDescription(element_description))
+    def visitElementDescription(self, element_description: MAElementDescription):
+        self.make_column_from_element(self._field_extractor.visit(element_description))
 
     def visitToManyRelationDescription(self, element_description: MARelationDescription):
-        self._model_desc[element_description.fieldName] = relationship(element_description.reference.tableName
-                                                                       ,
-                                                                       back_populates=element_description.reference.name)
+        self._model_desc[element_description.fieldName] = relationship(
+            element_description.reference.tableName
+            , back_populates=element_description.reference.name)
 
     def visitToOneRelationDescription(self, element_description: MARelationDescription):
         foreign_visitor = SqlAlchemyForeignVisitor()
@@ -106,7 +110,7 @@ class SQLAlchemyModelGenerator(SqlAlchemyFieldExtractorFromMAElementVisitor):
             self._engine = create_engine(conn_str, echo=True)
 
     def create_models(self):
-        DynamicBase.metadata.create_all(self._engine)
+        self._base_class.metadata.create_all(self._engine)
 
     def drop_models(self):
-        DynamicBase.metadata.drop_all(self._engine)
+        self._base_class.metadata.drop_all(self._engine)

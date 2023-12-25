@@ -26,7 +26,7 @@ class MAVisitor:
         self.visitElementDescription(anObject)
 
     def visitBooleanDescription(self, anObject):
-        self.visitElementDescription(anObject)
+        return self.visitElementDescription(anObject)
 
     def visitClassDescription(self, anObject):
         self.visitElementDescription(anObject)
@@ -44,7 +44,7 @@ class MAVisitor:
         self.visitMagnitudeDescription(anObject)
 
     def visitDateDescription(self, anObject):
-        self.visitMagnitudeDescription(anObject)
+        return self.visitMagnitudeDescription(anObject)
 
     def visitDurationDescription(self, anObject):
         self.visitMagnitudeDescription(anObject)
@@ -56,7 +56,7 @@ class MAVisitor:
         self.visitElementDescription(anObject)
 
     def visitMagnitudeDescription(self, anObject):
-        self.visitElementDescription(anObject)
+        return self.visitElementDescription(anObject)
 
     def visitMemoDescription(self, anObject):
         self.visitStringDescription(anObject)

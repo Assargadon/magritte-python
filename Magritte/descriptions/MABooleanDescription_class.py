@@ -61,4 +61,4 @@ class MABooleanDescription(MAElementDescription):
 
 
     def acceptMagritte(self, aVisitor):
-        aVisitor.visitBooleanDescription(self)
+        return aVisitor.visitBooleanDescription(self)
