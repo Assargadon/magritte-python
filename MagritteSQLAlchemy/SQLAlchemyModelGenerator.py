@@ -62,13 +62,16 @@ class SQLAlchemyModelGenerator(MAVisitor):
     def base_class(self):
         return self._base_class
 
-    def generate_model(self, container: MAContainer):
+    def visitContainer(self, container: MAContainer):
         self._table_args = []
         self._model_desc = {'__tablename__': container.tableName}
         self.visitAll(container.children)
         if len(self._table_args) > 0:
             self._model_desc['__table_args__'] = tuple(self._table_args)
         return type(container.name, (self._base_class,), self._model_desc)
+
+    def generate_model(self, container: MAContainer):
+        self.visitContainer(container)
 
     def visitElementDescription(self, element_description: MAElementDescription):
         self.make_column_from_element(self._field_extractor.visit(element_description))
