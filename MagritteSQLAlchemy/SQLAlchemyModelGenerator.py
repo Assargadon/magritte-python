@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column
-from sqlalchemy import Boolean, Date, DateTime, Integer, Float, String, Time, ForeignKeyConstraint
+from sqlalchemy import Boolean, Date, DateTime, Integer, Interval, Float, String, Text, Time, ForeignKeyConstraint
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAElementDescription_class import MAElementDescription
@@ -17,11 +17,17 @@ class SqlAlchemyFieldExtractorFromMAElementVisitor(MAVisitor):
     def visitDateAndTimeDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=DateTime, element_description=element_description)
 
+    def visitDurationDescription(self, element_description: MAElementDescription):
+        return self.make_result(sql_type=Interval, element_description=element_description)
+
     def visitIntDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=Integer, element_description=element_description)
 
     def visitFloatDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=Float, element_description=element_description)
+
+    def visitMemoDescription(self, element_description: MAElementDescription):
+        return self.make_result(sql_type=Text, element_description=element_description)
 
     def visitStringDescription(self, element_description: MAElementDescription):
         return self.make_result(sql_type=String, element_description=element_description)
@@ -62,8 +68,8 @@ class SQLAlchemyModelGenerator(MAVisitor):
     _model_desc = None
     _table_args = []
 
-    def __init__(self, base_class=DefaultBase):
-        self._field_extractor = SqlAlchemyFieldExtractorFromMAElementVisitor()
+    def __init__(self, base_class=DefaultBase, field_extractor=SqlAlchemyFieldExtractorFromMAElementVisitor()):
+        self._field_extractor = field_extractor
         self._base_class = base_class
 
     @property
