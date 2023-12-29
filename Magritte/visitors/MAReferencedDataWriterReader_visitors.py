@@ -33,10 +33,24 @@ class MAReferencedDataUntangler(MAVisitor):
         self._contexts_by_value_index = {}
         self._createEmptyContext()
 
-    def result(self):
-        values = self._values_by_value_index
-        tree = self._contexts[0]
-        return { 'values': values, 'tree': tree }
+    def _dbg_print(self):
+        printed_contexts = set()
+        def printContext(sPrefix: str, aContext: MAReferencedDataUntangler._Context):
+            context_index = aContext.context_index
+            printed_contexts.add(context_index)
+            print(f'{sPrefix}Context {context_index}, {aContext.description.name}, referenced {aContext._dbg_ref_count} time(s):')
+            subPrefix = f'{sPrefix}  '
+            if aContext.value_index is None:
+                for subcontext in aContext.subcontexts:
+                    subcontext_index = subcontext.context_index
+                    if subcontext_index in printed_contexts:
+                        print(f'{subPrefix}Context {subcontext_index}, {subcontext.description.name} // already printed')
+                    else:
+                        printContext(subPrefix, subcontext)
+            else:
+                print(f'{subPrefix} Value {aContext.value_index}, {self._values[aContext.value_index]}')
+
+        printContext('', self._contexts[0])
 
     def _createEmptyContext(self):
         context_index = len(self._contexts)
@@ -155,5 +169,9 @@ if __name__ == "__main__":
     hostDescriptor = TestModelDescriptor.description_for("Host")
     testVisitor = MAReferencedDataUntangler()
     testVisitor.processModel(host, hostDescriptor)
-    print(testVisitor.result())
+    testVisitor._dbg_print()
 
+    port = host.ports[0]
+    portDescriptor = TestModelDescriptor.description_for("Port")
+    testVisitor.processModel(port, portDescriptor)
+    testVisitor._dbg_print()
