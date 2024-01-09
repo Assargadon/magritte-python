@@ -5,6 +5,7 @@ from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.MAModel_class import MAModel
+from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonWriter
 
 
 class MAReferencedDataUntangler(MAVisitor):
@@ -48,7 +49,7 @@ class MAReferencedDataUntangler(MAVisitor):
                     else:
                         printContext(subPrefix, subcontext)
             else:
-                print(f'{subPrefix} Value {aContext.value_index}, {self._values[aContext.value_index]}')
+                print(f'{subPrefix}Value {aContext.value_index}, {self._values[aContext.value_index]}')
 
         printContext('', self._contexts[0])
 
@@ -94,6 +95,7 @@ class MAReferencedDataUntangler(MAVisitor):
         (value_index, was_added,) = self._addValueWithCheck(aModel)
         self._contexts_by_value_index[value_index] = self._context
         self._walkFromCurrent()
+        return self._contexts
 
     def _walkFromCurrent(self):
         model = self._context.model
@@ -159,6 +161,50 @@ class MAReferencedDataUntangler(MAVisitor):
             context.subcontexts.append(subcontext)
 
 
+class MAReferencedDataJsonWriter:
+
+    class _ElementDescriptionEncoder(MAVisitor):
+        def __init__(self, aModel):
+            self.model = aModel
+            self.isElementDescription = False
+            self.jsonValue = None
+
+        def visitElementDescription(self, aDescription):
+            self.isElementDescription = True
+            jsonWriter = MAValueJsonWriter()
+            self.result = jsonWriter.write_json(self.model, aDescription)
+
+    def _walkFromCurrent(self, contexts, context):
+        if context.context_index in contexts:
+            return
+        result = { 'name': context.description.name }
+        contexts[context.context_index] = result
+
+        if context.value_index is None:
+            subcontext_indices = []
+            for subcontext in context.subcontexts:
+                subcontext_indices.append(subcontext.context_index)
+                self._walkFromCurrent(contexts, subcontext)
+            result['subcontext_indices'] = subcontext_indices
+        else:
+            jsonElementDescriptionEncoder = self.__class__._ElementDescriptionEncoder(context.model)
+            context.description.acceptMagritte(jsonElementDescriptionEncoder)
+            result['value'] = jsonElementDescriptionEncoder.result if jsonElementDescriptionEncoder.isElementDescription else None
+            #result['value_index'] = context.value_index
+            #if jsonElementDescriptionEncoder.isElementDescription:
+            #    values[context.value_index] = jsonElementDescriptionEncoder.result
+
+    def write_json(self, model, description):
+        dataUntangler = MAReferencedDataUntangler()
+        contexts = dataUntangler.processModel(model, description)
+        result = { 'contexts': {}, 'root_context_index': None }
+        if len(contexts) > 0:
+            result['root_context_index'] = 0
+            self._walkFromCurrent(result['contexts'], contexts[0])
+
+        print(result)
+
+
 if __name__ == "__main__":
 
     from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
@@ -175,3 +221,6 @@ if __name__ == "__main__":
     portDescriptor = TestModelDescriptor.description_for("Port")
     testVisitor.processModel(port, portDescriptor)
     testVisitor._dbg_print()
+
+    jsonWriter = MAReferencedDataJsonWriter()
+    jsonWriter.write_json(host, hostDescriptor)
