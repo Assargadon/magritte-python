@@ -16,28 +16,27 @@ class MADescriptorWalker:
             context_index: int = None
             source: Any = None
             description: MADescription = None
-            value_index: int = None
+            #value_index: int = None
             subcontexts: list = None
             _dbg_ref_count: int = 1
-            _dbg_value: None
+            #_dbg_value: None
 
         def __init__(self):
-            self._doReadElementValues = None
+            self._contexts = None
             self._values = None
             self._values_by_value_index = None
             self._value_indices_by_identifier = None
-            self._contexts = None
+            self._value_indices_by_context_index = None
             self._contexts_by_value_index = None
             self._clear()
 
         def _clear(self):
-            self._doReadElementValues = False
+            self._contexts = []
             self._values = []
             self._values_by_value_index = {}
             self._value_indices_by_identifier = {}
-            self._contexts = []
+            self._value_indices_by_context_index = {}
             self._contexts_by_value_index = {}
-            self._createEmptyContext()
 
         def _dbg_print(self):
             printed_contexts = set()
@@ -46,15 +45,15 @@ class MADescriptorWalker:
                 printed_contexts.add(context_index)
                 print(f'{sPrefix}Context {context_index}, {aContext.description.name}, referenced {aContext._dbg_ref_count} time(s):')
                 subPrefix = f'{sPrefix}  '
-                if aContext.value_index is None:
+                if aContext.subcontexts is None:
+                    print(f'{subPrefix}Value of {aContext.description.name}, {self._values[self._value_indices_by_context_index[aContext.context_index]]}')
+                else:
                     for subcontext in aContext.subcontexts:
                         subcontext_index = subcontext.context_index
                         if subcontext_index in printed_contexts:
                             print(f'{subPrefix}Context {subcontext_index}, {subcontext.description.name} // already printed')
                         else:
                             printContext(subPrefix, subcontext)
-                else:
-                    print(f'{subPrefix}Value {aContext.value_index}, {self._values[aContext.value_index]}')
 
             printContext('', self._contexts[0])
 
@@ -94,13 +93,7 @@ class MADescriptorWalker:
             description.acceptMagritte(self)
 
         def visitElementDescription(self, description: MADescription):
-            if self._doReadElementValues:
-                context = self._context
-                model = context.source
-                value = MAModel.readUsingWrapper(model, description)
-                value_index = self._addValue(value)
-                context.value_index = value_index
-                context._dbg_value = value
+            self.processElementDescription()
 
         def visitContainer(self, description: MAContainer):
             context = self._context
@@ -146,18 +139,42 @@ class MADescriptorWalker:
                     subcontext._dbg_ref_count += 1
                 context.subcontexts.append(subcontext)
 
-        def processModel(self, aModel: Any, aDescription: MADescription, doReadElementValues):
+        def processElementDescription(self):
+            pass
+
+        def walkDescription(self, aSource: Any, aDescription: MADescription):
             self._clear()
-            self._doReadElementValues = doReadElementValues
-            self._context.source = aModel
+            self._createEmptyContext()
+            self._context.source = aSource
             self._context.description = aDescription
-            (value_index, was_added,) = self._addValueWithCheck(aModel)
+            (value_index, was_added,) = self._addValueWithCheck(aSource)
             self._contexts_by_value_index[value_index] = self._context
             self._walkFromCurrent()
             return self._contexts
 
+    class _ModelDumpWalkerVisitor(_WalkerVisitor):
+        def __init__(self):
+            super().__init__()
+            self._doReadElementValues = None
+
+        def processElementDescription(self):
+            super().processElementDescription()
+            if self._doReadElementValues:
+                context = self._context
+                model = context.source
+                value = MAModel.readUsingWrapper(model, context.description)
+                value_index = self._addValue(value)
+                self._value_indices_by_context_index[context.context_index] = value_index
+                #context.value_index = value_index
+                #context._dbg_value = value
+
+        def processModel(self, aModel: Any, aDescription: MADescription, doReadElementValues: bool):
+            self._doReadElementValues = doReadElementValues
+            return super().walkDescription(aModel, aDescription)
+
+
     def processModel(self, aModel: Any, aDescription: MADescription, doReadElementValues=False):
-        walker = self.__class__._WalkerVisitor()
+        walker = self.__class__._ModelDumpWalkerVisitor()
         return walker.processModel(aModel, aDescription, doReadElementValues)
 
 
