@@ -201,8 +201,19 @@ class MAReferencedDataJsonWriter:
         if len(contexts) > 0:
             result['root_context_index'] = 0
             self._walkFromCurrent(result['contexts'], contexts[0])
+        return result
 
-        print(result)
+
+class MAReferencedDataJsonReader:
+
+    @classmethod
+    def default_dto_factory(cls, description):
+        c = description.kind
+        return c()
+
+    def read_json(self, json, description, dto_factory=default_dto_factory):
+        pass
+
 
 
 if __name__ == "__main__":
@@ -223,4 +234,9 @@ if __name__ == "__main__":
     testVisitor._dbg_print()
 
     jsonWriter = MAReferencedDataJsonWriter()
-    jsonWriter.write_json(host, hostDescriptor)
+    jsonWriter.write_json(host, hostDescriptor)    j = jsonWriter.write_json(host, hostDescriptor)
+    print(j)
+
+    jsonReader = MAReferencedDataJsonReader()
+    dto = jsonReader.read_json(j, hostDescriptor)
+    print(dto)
