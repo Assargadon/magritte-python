@@ -180,10 +180,44 @@ class MADescriptorWalker:
             self._doReadElementValues = doReadElementValues
             return super().walkDescription(aModel, aDescription)
 
+    class _InstaniateModelWalkerVisitor(_WalkerVisitor):
+        def __init__(self):
+            super().__init__()
+            self._contexts_dump = None
+            self._dtos_by_context_index = None
+            self._dto_factory = None
+
+        def _clear(self):
+            super()._clear()
+            self._dtos_by_context_index = {}
+
+        def processElementDescriptionContext(self, context):
+            return super().processElementDescriptionContext(context) # todo
+
+        def processToOneRelationContext(self, context, description):
+            return super().processToOneRelationContext(context, description)  # todo
+
+        def processToManyRelationContext(self, context, description):
+            return super().processToManyRelationContext(context, description)  # todo
+
+        def instaniateModel(self, contexts_dump, description, dto_factory):
+            self._contexts_dump = contexts_dump
+            self._dto_factory = dto_factory
+            rootContext_dump = contexts_dump[0]
+            self.walkDescription(rootContext_dump, description)
+            if 0 in self._dtos_by_context_index:
+                return self._dtos_by_context_index[0]
+            else:
+                return None
+
 
     def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues=False):
         walker = self.__class__._DumpModelWalkerVisitor()
         return walker.processModel(aModel, aDescription, doReadElementValues)
+
+    def instaniateModel(self, contexts, description, dto_factory):
+        walker = self.__class__._InstaniateModelWalkerVisitor()
+        return walker.instaniateModel(contexts, description, dto_factory)
 
 
 class MAReferencedDataJsonWriter:
@@ -237,8 +271,10 @@ class MAReferencedDataJsonReader:
         return c()
 
     def read_json(self, json, description, dto_factory=default_dto_factory):
-        pass
-
+        descriptorWalker = MADescriptorWalker()
+        contexts = json['contexts']
+        model = descriptorWalker.instaniateModel(contexts, description, dto_factory)
+        return model
 
 
 if __name__ == "__main__":
