@@ -5,13 +5,9 @@ from Magritte.model_for_tests.Port import Port
 
 class Host(MAModel):
 
-    def __init__(self, IP, ports):
-        assert IP is not None, "IP cannot be None"
-        assert ports is not None and isinstance(ports, list) and all(isinstance(port, Port) for port in ports), \
-            "ports must be a list of Port instances"
-        
-        self._ip = IP
-        self._ports = ports
+    def __init__(self):
+        self._ip = None
+        self._ports = []
 
     @staticmethod
     def generate_ip():
@@ -26,8 +22,9 @@ class Host(MAModel):
     @classmethod
     def random_host(cls, num_ports=12):
         ip = cls.generate_ip()
-        new_host = cls(ip, [])
+        new_host = cls()
         ports = [Port.randomPortForHost(new_host) for _ in range(num_ports)]
+        new_host._ip = ip
         new_host._ports = ports
         return new_host
 

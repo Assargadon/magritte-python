@@ -16,13 +16,10 @@ class Port(MAModel):
                    993, # IMAPS
                    995] # POP3S
 
-    def __init__(self, host, numofport=None):
+    def __init__(self):
         from Magritte.model_for_tests.Host import Host
-        assert isinstance(host, Host), "Expected host to be an instance of Host"
-        assert numofport is not None, "numofport cannot be None"
-        
-        self._host = host
-        self._numofport = numofport
+        self._host = None
+        self._numofport = None
 
     @staticmethod
     def generate_numofport():
@@ -30,7 +27,10 @@ class Port(MAModel):
 
     @classmethod
     def randomPortForHost(cls, host):
-        return cls(host, cls.generate_numofport())
+        new_port = cls()
+        new_port._host = host
+        new_port._numofport = cls.generate_numofport()
+        return new_port
 
     @property
     def host(self):
