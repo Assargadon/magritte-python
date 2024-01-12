@@ -14,29 +14,27 @@ class MADescriptorWalker:
 
         class _Context:
             context_index: int = None
-            source: Any = None
+            source: Any = None                          # Arbitrary object reference related to the context. Used to get targets from somewhere to break cyclic references and extract subsources for subcontexts.
             description: MADescription = None
-            #value_index: int = None
             subcontexts: list = None
             _dbg_ref_count: int = 1
-            #_dbg_value: None
 
         def __init__(self):
             self._contexts = None
             self._contexts_by_source_id = None
-            self._values = None
-            self._values_by_value_index = None
-            self._value_indices_by_identifier = None
-            self._value_indices_by_context_index = None
+            self._sources = None
+            self._sources_by_source_index = None
+            self._source_indices_by_identifier = None
+            self._source_indices_by_context_index = None
             self._clear()
 
         def _clear(self):
             self._contexts = []
             self._contexts_by_source_id = {}
-            self._values = []
-            self._values_by_value_index = {}
-            self._value_indices_by_identifier = {}
-            self._value_indices_by_context_index = {}
+            self._sources = []
+            self._sources_by_source_index = {}
+            self._source_indices_by_identifier = {}
+            self._source_indices_by_context_index = {}
 
         def _createEmptyContext(self):
             context_index = len(self._contexts)
@@ -45,39 +43,36 @@ class MADescriptorWalker:
             self._context.context_index = context_index
             return self._context
 
-        def _addValue(self, aValue):
-            value_index = len(self._values)
-            self._values.append(aValue)
-            self._values_by_value_index[value_index] = aValue
-            return value_index
+        def _addSource(self, source):
+            source_index = len(self._sources)
+            self._sources.append(source)
+            self._sources_by_source_index[source_index] = source
+            return source_index
 
-        def _addValueWithCheck(self, aValue):
-            identifier = id(aValue)
-            if identifier in self._value_indices_by_identifier:
+        def _addSourceWithCheck(self, source):
+            identifier = id(source)
+            if identifier in self._source_indices_by_identifier:
                 was_added = False
-                value_index = self._value_indices_by_identifier[identifier]
+                source_index = self._source_indices_by_identifier[identifier]
             else:
                 was_added = True
-                value_index = len(self._values)
-                self._values.append(aValue)
-                self._value_indices_by_identifier[identifier] = value_index
-                self._values_by_value_index[value_index] = aValue
-            return (value_index, was_added,)
+                source_index = len(self._sources)
+                self._sources.append(source)
+                self._source_indices_by_identifier[identifier] = source_index
+                self._sources_by_source_index[source_index] = source
+            return (source_index, was_added,)
 
         def _walkFromCurrent(self):
             description = self._context.description
-            model = self._context.source
-            if model == description.undefinedValue:
-                return
             if not description.visible:
                 return
             description.acceptMagritte(self)
 
         def visitElementDescription(self, description: MADescription):
             context = self._context
-            value = self.processElementDescriptionContext(context)
-            value_index = self._addValue(value)
-            self._value_indices_by_context_index[context.context_index] = value_index
+            source = self.processElementDescriptionContext(context)
+            source_index = self._addSource(source)
+            self._source_indices_by_context_index[context.context_index] = source_index
 
         def visitContainer(self, description: MAContainer):
             context = self._context
@@ -91,39 +86,35 @@ class MADescriptorWalker:
 
         def visitToOneRelationDescription(self, description: MAReferenceDescription):
             context = self._context
-            value, subsource = self.processToOneRelationContext(context, description)
-            (value_index, was_added,) = self._addValueWithCheck(value)
+            subsource = self.processToOneRelationContext(context, description)
+            (subsource_index, was_added,) = self._addSourceWithCheck(subsource)
             if was_added:
                 subcontext = self._createEmptyContext()
                 subcontext.source = subsource
                 subcontext.description = description.reference
-                self._contexts_by_source_id[value_index] = subcontext
+                self._contexts_by_source_id[subsource_index] = subcontext
                 self._walkFromCurrent()
             else:
-                subcontext = self._contexts_by_source_id[value_index]
+                subcontext = self._contexts_by_source_id[subsource_index]
                 subcontext._dbg_ref_count += 1
             context.subcontexts = [subcontext]
 
         def visitToManyRelationDescription(self, description):
             context = self._context
-            manyRelations = self.processToManyRelationContext(context, description)
+            subsources = self.processToManyRelationContext(context, description)
             context.subcontexts = []
-            for relation in manyRelations:
-                (value, subsource,) = relation
-                (value_index, was_added,) = self._addValueWithCheck(value)
+            for subsource in subsources:
+                (subsource_index, was_added,) = self._addSourceWithCheck(subsource)
                 if was_added:
                     subcontext = self._createEmptyContext()
                     subcontext.source = subsource
                     subcontext.description = description.reference
-                    self._contexts_by_source_id[value_index] = subcontext
+                    self._contexts_by_source_id[subsource_index] = subcontext
                     self._walkFromCurrent()
                 else:
-                    subcontext = self._contexts_by_source_id[value_index]
+                    subcontext = self._contexts_by_source_id[subsource_index]
                     subcontext._dbg_ref_count += 1
                 context.subcontexts.append(subcontext)
-
-        def processRootContext(self, context):
-            return None
 
         def processElementDescriptionContext(self, context):
             return None
@@ -139,14 +130,13 @@ class MADescriptorWalker:
             self._createEmptyContext()
             self._context.source = aSource
             self._context.description = aDescription
-            value = self.processRootContext(self._context)
-            (value_index, was_added,) = self._addValueWithCheck(value)
-            self._contexts_by_source_id[value_index] = self._context
+            (source_index, was_added,) = self._addSourceWithCheck(aSource)
+            self._contexts_by_source_id[source_index] = self._context
             self._walkFromCurrent()
             return self._contexts
 
 
-    class _ModelDumpWalkerVisitor(_WalkerVisitor):
+    class _DumpModelWalkerVisitor(_WalkerVisitor):
         def __init__(self):
             super().__init__()
             self._doReadElementValues = None
@@ -159,7 +149,7 @@ class MADescriptorWalker:
                 print(f'{sPrefix}Context {context_index}, {aContext.description.name}, referenced {aContext._dbg_ref_count} time(s):')
                 subPrefix = f'{sPrefix}  '
                 if aContext.subcontexts is None:
-                    print(f'{subPrefix}Value of {aContext.description.name}, {self._values[self._value_indices_by_context_index[aContext.context_index]]}')
+                    print(f'{subPrefix}Value of {aContext.description.name}, {self._sources[self._source_indices_by_context_index[aContext.context_index]]}')
                 else:
                     for subcontext in aContext.subcontexts:
                         subcontext_index = subcontext.context_index
@@ -169,10 +159,6 @@ class MADescriptorWalker:
                             printContext(subPrefix, subcontext)
 
             printContext('', self._contexts[0])
-
-        def processRootContext(self, context):
-            value = context.source
-            return value
 
         def processElementDescriptionContext(self, context):
             if self._doReadElementValues:
@@ -184,21 +170,20 @@ class MADescriptorWalker:
         def processToOneRelationContext(self, context, description):
             model = context.source
             value = MAModel.readUsingWrapper(model, description)
-            return (value, value,)
+            return value
 
         def processToManyRelationContext(self, context, description):
             values = MAModel.readUsingWrapper(context.source, description)
-            manyRelations = [(value, value,) for value in values]
-            return manyRelations
+            return values
 
-        def processModel(self, aModel: Any, aDescription: MADescription, doReadElementValues=False):
+        def processModel(self, aModel: Any, aDescription: MADescription, doReadElementValues):
             self._doReadElementValues = doReadElementValues
             return super().walkDescription(aModel, aDescription)
 
 
-    def processModel(self, aModel: Any, aDescription: MADescription):
-        walker = self.__class__._ModelDumpWalkerVisitor()
-        return walker.processModel(aModel, aDescription)
+    def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues=False):
+        walker = self.__class__._DumpModelWalkerVisitor()
+        return walker.processModel(aModel, aDescription, doReadElementValues)
 
 
 class MAReferencedDataJsonWriter:
@@ -236,7 +221,7 @@ class MAReferencedDataJsonWriter:
 
     def write_json(self, model, description):
         descriptorWalker = MADescriptorWalker()
-        contexts = descriptorWalker.processModel(model, description)
+        contexts = descriptorWalker.dumpModel(model, description)
         result = { 'contexts': {}, 'root_context_index': None }
         if len(contexts) > 0:
             result['root_context_index'] = 0
@@ -264,13 +249,13 @@ if __name__ == "__main__":
     provider = TestEnvironmentProvider()
     host = provider.hosts[0]
     hostDescriptor = TestModelDescriptor.description_for("Host")
-    testVisitor = MADescriptorWalker()
-    testVisitor.processModel(host, hostDescriptor)
+    descriptorWalker = MADescriptorWalker()
+    descriptorWalker.dumpModel(host, hostDescriptor)
     #testVisitor._walker._dbg_print()
 
     port = host.ports[0]
     portDescriptor = TestModelDescriptor.description_for("Port")
-    testVisitor.processModel(port, portDescriptor)
+    descriptorWalker.dumpModel(port, portDescriptor)
     #testVisitor._walker._dbg_print()
 
     jsonWriter = MAReferencedDataJsonWriter()
