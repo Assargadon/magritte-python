@@ -70,12 +70,13 @@ class MADescriptorWalker:
 
         def visitElementDescription(self, description: MADescription):
             context = self._context
-            source = self.processElementDescriptionContext(context)
+            source = self.processElementDescriptionContext(context, description)
             source_index = self._addSource(source)
             self._source_indices_by_context_index[context.context_index] = source_index
 
         def visitContainer(self, description: MAContainer):
             context = self._context
+            self.processContainerContext(context, description)
             context.subcontexts = []
             for subdescription in description:
                 subcontext = self._createEmptyContext()
@@ -116,7 +117,10 @@ class MADescriptorWalker:
                     subcontext._dbg_ref_count += 1
                 context.subcontexts.append(subcontext)
 
-        def processElementDescriptionContext(self, context):
+        def processContainerContext(self, context, description):
+            pass
+
+        def processElementDescriptionContext(self, context, description):
             return None
 
         def processToOneRelationContext(self, context, description):
@@ -160,7 +164,7 @@ class MADescriptorWalker:
 
             printContext('', self._contexts[0])
 
-        def processElementDescriptionContext(self, context):
+        def processElementDescriptionContext(self, context, description):
             if self._doReadElementValues:
                 value = MAModel.readUsingWrapper(context.source, context.description)
                 return value
@@ -191,8 +195,13 @@ class MADescriptorWalker:
             super()._clear()
             self._dtos_by_context_index = {}
 
-        def processElementDescriptionContext(self, context):
-            return super().processElementDescriptionContext(context) # todo
+        def processContainerContext(self, context, description):
+            if context.context_index in self._dtos_by_context_index: return
+            dto = self._dto_factory(description)
+            self._dtos_by_context_index[context.context_index] = dto
+
+        def processElementDescriptionContext(self, context, description):
+            return super().processElementDescriptionContext(context, description) # todo
 
         def processToOneRelationContext(self, context, description):
             return super().processToOneRelationContext(context, description)  # todo
@@ -265,8 +274,8 @@ class MAReferencedDataJsonWriter:
 
 class MAReferencedDataJsonReader:
 
-    @classmethod
-    def default_dto_factory(cls, description):
+    @staticmethod
+    def default_dto_factory(description):
         c = description.kind
         return c()
 
@@ -280,7 +289,7 @@ class MAReferencedDataJsonReader:
 if __name__ == "__main__":
 
     from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
+    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, Port
 
     provider = TestEnvironmentProvider()
     host = provider.hosts[0]
@@ -298,6 +307,11 @@ if __name__ == "__main__":
     j = jsonWriter.write_json(host, hostDescriptor)
     print(j)
 
+
+    def custom_dto_factory(description):
+        if description.name == 'Host': return Host()
+        if description.name == 'Port': return Port()
+        return None
     jsonReader = MAReferencedDataJsonReader()
-    dto = jsonReader.read_json(j, hostDescriptor)
+    dto = jsonReader.read_json(j, hostDescriptor, dto_factory=custom_dto_factory)
     print(dto)
