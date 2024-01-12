@@ -13,6 +13,7 @@ class MADescriptorWalker:
     class _WalkerVisitor(MAVisitor):
 
         class _Context:
+            parent_context = None
             context_index: int = None
             source: Any = None                          # Arbitrary object reference related to the context. Used to get targets from somewhere to break cyclic references and extract subsources for subcontexts.
             description: MADescription = None
@@ -80,6 +81,7 @@ class MADescriptorWalker:
             context.subcontexts = []
             for subdescription in description:
                 subcontext = self._createEmptyContext()
+                subcontext.parent_context = context
                 context.subcontexts.append(subcontext)
                 subcontext.source = context.source
                 subcontext.description = subdescription
@@ -91,6 +93,7 @@ class MADescriptorWalker:
             (subsource_index, was_added,) = self._addSourceWithCheck(subsource)
             if was_added:
                 subcontext = self._createEmptyContext()
+                subcontext.parent_context = context
                 subcontext.source = subsource
                 subcontext.description = description.reference
                 self._contexts_by_source_id[subsource_index] = subcontext
@@ -108,6 +111,7 @@ class MADescriptorWalker:
                 (subsource_index, was_added,) = self._addSourceWithCheck(subsource)
                 if was_added:
                     subcontext = self._createEmptyContext()
+                    subcontext.parent_context = context
                     subcontext.source = subsource
                     subcontext.description = description.reference
                     self._contexts_by_source_id[subsource_index] = subcontext
@@ -188,34 +192,77 @@ class MADescriptorWalker:
         def __init__(self):
             super().__init__()
             self._contexts_dump = None
-            self._dtos_by_context_index = None
+            self._dtos_by_source_id = None
             self._dto_factory = None
 
         def _clear(self):
             super()._clear()
-            self._dtos_by_context_index = {}
+            self._dtos_by_source_id = {}
 
-        def processContainerContext(self, context, description):
-            if context.context_index in self._dtos_by_context_index: return
-            dto = self._dto_factory(description)
-            self._dtos_by_context_index[context.context_index] = dto
+        #def processContainerContext(self, context, description):
+        #    if context.context_index in self._dtos_by_context_index: return
+
+        def _getOrCreateDTO(self, source, dto_description):
+            source_id = id(source)
+            if source_id not in self._dtos_by_source_id:
+                dto = self._dto_factory(dto_description)
+                self._dtos_by_source_id[source_id] = dto
+            return self._dtos_by_source_id[source_id]
+
+        def _findMatchingSubcontextDump(self, context, description):
+            name = description.name
+            source = context.source
+            subcontext_dump_matching_name = None
+            for subcontext_dump_index in source['subcontext_indices']:
+                subcontext_dump = self._contexts_dump[subcontext_dump_index]
+                if subcontext_dump['name'] == name:
+                    subcontext_dump_matching_name = subcontext_dump
+                    break
+            return subcontext_dump_matching_name
 
         def processElementDescriptionContext(self, context, description):
-            return super().processElementDescriptionContext(context, description) # todo
+            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            subcontext_dump_matching_name = self._findMatchingSubcontextDump(context, description)
+            if subcontext_dump_matching_name is None:
+                value = description.undefinedValue
+            else:
+                value = subcontext_dump_matching_name['value']
+            MAModel.writeUsingWrapper(model, description, value)  # TODO! Use MAValueJsonWriter instead!
+            return subcontext_dump_matching_name
 
         def processToOneRelationContext(self, context, description):
-            return super().processToOneRelationContext(context, description)  # todo
+            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            subcontext_dump_matching_name = self._findMatchingSubcontextDump(context, description)
+            subcontext_dump_reference_index = subcontext_dump_matching_name['subcontext_indices'][0]
+            subcontext_dump_reference = self._contexts_dump[subcontext_dump_reference_index]
+            subcontext_dump_reference_id = id(subcontext_dump_reference)
+            if subcontext_dump_reference_id in self._dtos_by_source_id:
+                value = self._dtos_by_source_id[subcontext_dump_reference_id]
+            else:
+                value = None
+            MAModel.writeUsingWrapper(model, description, value)
+            return subcontext_dump_reference
 
         def processToManyRelationContext(self, context, description):
-            return super().processToManyRelationContext(context, description)  # todo
+            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            relations_list = MAModel.readUsingWrapper(model, description)
+            subcontext_dump_matching_name = self._findMatchingSubcontextDump(context, description)
+            subcontext_dumps = []
+            for subcontext_dump_index in subcontext_dump_matching_name['subcontext_indices']:
+                subcontext_dump = self._contexts_dump[subcontext_dump_index]
+                submodel = self._getOrCreateDTO(subcontext_dump, description.reference)
+                subcontext_dumps.append(subcontext_dump)
+                relations_list.append(submodel)
+            return subcontext_dumps
 
         def instaniateModel(self, contexts_dump, description, dto_factory):
             self._contexts_dump = contexts_dump
             self._dto_factory = dto_factory
             rootContext_dump = contexts_dump[0]
+            rootContext_dump_id = id(rootContext_dump)
             self.walkDescription(rootContext_dump, description)
-            if 0 in self._dtos_by_context_index:
-                return self._dtos_by_context_index[0]
+            if rootContext_dump_id in self._dtos_by_source_id:
+                return self._dtos_by_source_id[rootContext_dump_id]
             else:
                 return None
 
