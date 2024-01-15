@@ -1,5 +1,6 @@
 
 from typing import Any, Union
+import json
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
@@ -261,7 +262,7 @@ class MADescriptorWalker:
                 subcontext_dump_matching_name = self._contexts_dump[subcontext_dump_index_matching_name]
                 subcontext_dump_indices = []
                 for subcontext_dump_index in subcontext_dump_matching_name['subcontext_indices']:
-                    subcontext_dump = self._contexts_dump[subcontext_dump_index]
+                    #subcontext_dump = self._contexts_dump[subcontext_dump_index]
                     submodel = self._getOrCreateDTO(subcontext_dump_index, description.reference)
                     subcontext_dump_indices.append(subcontext_dump_index)
                     relations_list.append(submodel)
@@ -270,9 +271,10 @@ class MADescriptorWalker:
         def instaniateModel(self, contexts_dump, description, dto_factory):
             self._contexts_dump = contexts_dump
             self._dto_factory = dto_factory
-            self.walkDescription(0, description)
-            if 0 in self._dtos_by_dump_index:
-                return self._dtos_by_dump_index[0]
+            root_dump_index = '0'
+            self.walkDescription(root_dump_index, description)
+            if root_dump_index in self._dtos_by_dump_index:
+                return self._dtos_by_dump_index[root_dump_index]
             else:
                 return None
 
@@ -300,10 +302,11 @@ class MAReferencedDataJsonWriter:
             self.result = jsonWriter.write_json(self.model, aDescription)
 
     def _walkFromCurrent(self, contexts, context):
-        if context.context_index in contexts:
+        context_index_str = str(context.context_index)
+        if context_index_str in contexts:
             return
         result = { 'name': context.description.name }
-        contexts[context.context_index] = result
+        contexts[context_index_str] = result
 
         if context.subcontexts is None:
             jsonWriterVisitor = self.__class__._ElementDescriptionJsonWriterVisitor(context.source)
@@ -315,11 +318,11 @@ class MAReferencedDataJsonWriter:
         else:
             subcontext_indices = []
             for subcontext in context.subcontexts:
-                subcontext_indices.append(subcontext.context_index)
+                subcontext_indices.append(str(subcontext.context_index))
                 self._walkFromCurrent(contexts, subcontext)
             result['subcontext_indices'] = subcontext_indices
 
-    def write_json(self, model, description):
+    def write_json(self, model: Any, description: MADescription) -> dict:
         descriptorWalker = MADescriptorWalker()
         contexts = descriptorWalker.dumpModel(model, description)
         result = { 'contexts': {}, 'root_context_index': None }
@@ -327,6 +330,9 @@ class MAReferencedDataJsonWriter:
             result['root_context_index'] = 0
             self._walkFromCurrent(result['contexts'], contexts[0])
         return result
+
+    def write_json_string(self, model: Any, description: MADescription) -> str:
+        return json.dumps(self.write_json(model, description))
 
 
 class MAReferencedDataJsonReader:
@@ -336,11 +342,15 @@ class MAReferencedDataJsonReader:
         c = description.kind
         return c()
 
-    def read_json(self, json, description, dto_factory=default_dto_factory):
+    def read_json(self, json_dict: dict, description: MADescription, dto_factory=default_dto_factory):
         descriptorWalker = MADescriptorWalker()
-        contexts = json['contexts']
+        contexts = json_dict['contexts']
         model = descriptorWalker.instaniateModel(contexts, description, dto_factory)
         return model
+
+    def read_json_string(self, json_str: str, description: MADescription, dto_factory=default_dto_factory) -> str:
+        json_dict = json.loads(json_str)
+        return self.read_json(json_dict, description, dto_factory)
 
 
 if __name__ == "__main__":
@@ -361,8 +371,8 @@ if __name__ == "__main__":
     #testVisitor._walker._dbg_print()
 
     jsonWriter = MAReferencedDataJsonWriter()
-    j = jsonWriter.write_json(host, hostDescriptor)
-    print(j)
+    jstr = jsonWriter.write_json_string(host, hostDescriptor)
+    print(jstr)
 
 
     def custom_dto_factory(description):
@@ -370,5 +380,5 @@ if __name__ == "__main__":
         if description.name == 'Port': return Port()
         return None
     jsonReader = MAReferencedDataJsonReader()
-    dto = jsonReader.read_json(j, hostDescriptor, dto_factory=custom_dto_factory)
+    dto = jsonReader.read_json_string(jstr, hostDescriptor, dto_factory=custom_dto_factory)
     print(dto)
