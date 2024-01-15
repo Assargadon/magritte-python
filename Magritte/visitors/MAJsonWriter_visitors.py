@@ -70,7 +70,7 @@ class MAValueJsonReader(MAVisitor):
 
     def read_json(self, model: Any, json_value: Any, description: MADescription) -> Any:
         self._model = model
-        self._json_value = json.loads(json_value) if isinstance(json_value, str) else json_value
+        self._json_value = json_value
         self.visit(description)
         return self._model
 
@@ -79,24 +79,23 @@ class MAValueJsonReader(MAVisitor):
             super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
-        value = self._convert_to_type(self._json_value, description.expected_type)
-        description.accessor.write(self._model, value)
+        description.accessor.write(self._model, self._json_value)
 
     def visitDateAndTimeDescription(self, description: MADescription):
         from datetime import datetime
         if self._json_value is not None:
             value = datetime.fromisoformat(self._json_value)
         else:
-            value = None
+            value = description.undefinedValue
         description.accessor.write(self._model, value)
 
-    def _convert_to_type(self, value: Any, expected_type: type) -> Any:
-        if value is None:
-            return None
-        try:
-            return expected_type(value)
-        except (ValueError, TypeError):
-            raise ValueError(f"Cannot convert {value} to {expected_type}")
+    def visitDateDescription(self, description: MADescription):
+        from datetime import date
+        if self._json_value is not None:
+            value = date.fromisoformat(self._json_value)
+        else:
+            value = description.undefinedValue
+        description.accessor.write(self._model, value)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
