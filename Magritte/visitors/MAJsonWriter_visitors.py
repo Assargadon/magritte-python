@@ -61,6 +61,55 @@ class MAValueJsonWriter(MAVisitor):
             )
 
 
+class MAValueJsonReader(MAVisitor):
+    """Decodes a JSON value into the true value described by the MADescription."""
+
+    def __init__(self):
+        self._model = None
+        self._json_value = None
+
+    def read_json(self, model: Any, json_value: Any, description: MADescription) -> Any:
+        self._model = model
+        self._json_value = json_value
+        self.visit(description)
+        return self._model
+
+    def visit(self, description: MADescription):
+        if self._json_value != description.undefinedValue:
+            super().visit(description)
+
+    def visitElementDescription(self, description: MADescription):
+        description.accessor.write(self._model, self._json_value)
+
+    def visitDateAndTimeDescription(self, description: MADescription):
+        from datetime import datetime
+        if self._json_value is not None:
+            value = datetime.fromisoformat(self._json_value)
+        else:
+            value = description.undefinedValue
+        description.accessor.write(self._model, value)
+
+    def visitDateDescription(self, description: MADescription):
+        from datetime import date
+        if self._json_value is not None:
+            value = date.fromisoformat(self._json_value)
+        else:
+            value = description.undefinedValue
+        description.accessor.write(self._model, value)
+
+    def visitReferenceDescription(self, description: MAReferenceDescription):
+        raise TypeError(
+            "MAValueJsonReader cannot encode using reference description."
+            "Only scalar values are allowed."
+            )
+
+    def visitContainer(self, description: MAContainer):
+        raise TypeError(
+            "MAValueJsonReader cannot encode using container description."
+            "Only scalar values are allowed."
+            )
+
+
 class MAObjectJsonWriter(MAVisitor):
     """Encodes the object described by the descriptions into JSON."""
 
