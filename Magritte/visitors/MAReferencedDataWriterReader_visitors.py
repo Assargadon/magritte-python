@@ -6,6 +6,7 @@ from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.MAModel_class import MAModel
+from Magritte.visitors.MAJsonReader_visitors import MAValueJsonReader
 from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonWriter
 
 
@@ -229,7 +230,9 @@ class MADescriptorWalker:
             else:
                 subcontext_dump_matching_name = self._contexts_dump[subcontext_dump_index_matching_name]
                 value = subcontext_dump_matching_name['value']
-            MAModel.writeUsingWrapper(model, description, value)  # TODO! Use MAValueJsonWriter instead!
+            #MAModel.writeUsingWrapper(model, description, value)
+            jsonReader = MAValueJsonReader()
+            jsonReader.read_json(model, description, value)
             return subcontext_dump_index_matching_name
 
         def processToOneRelationContext(self, context, description):
