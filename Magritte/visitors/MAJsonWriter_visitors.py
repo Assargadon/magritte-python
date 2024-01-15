@@ -61,6 +61,56 @@ class MAValueJsonWriter(MAVisitor):
             )
 
 
+class MAValueJsonReader(MAVisitor):
+    """Decodes a JSON value into the true value described by the MADescription."""
+
+    def __init__(self):
+        self._model = None
+        self._json_value = None
+
+    def read_json(self, model: Any, json_value: Any, description: MADescription) -> Any:
+        self._model = model
+        self._json_value = json.loads(json_value) if isinstance(json_value, str) else json_value
+        self.visit(description)
+        return self._model
+
+    def visit(self, description: MADescription):
+        if self._json_value != description.undefinedValue:
+            super().visit(description)
+
+    def visitElementDescription(self, description: MADescription):
+        value = self._convert_to_type(self._json_value, description.expected_type)
+        description.accessor.write(self._model, value)
+
+    def visitDateAndTimeDescription(self, description: MADescription):
+        from datetime import datetime
+        if self._json_value is not None:
+            value = datetime.fromisoformat(self._json_value)
+        else:
+            value = None
+        description.accessor.write(self._model, value)
+
+    def _convert_to_type(self, value: Any, expected_type: type) -> Any:
+        if value is None:
+            return None
+        try:
+            return expected_type(value)
+        except (ValueError, TypeError):
+            raise ValueError(f"Cannot convert {value} to {expected_type}")
+
+    def visitReferenceDescription(self, description: MAReferenceDescription):
+        raise TypeError(
+            "MAValueJsonReader cannot encode using reference description."
+            "Only scalar values are allowed."
+            )
+
+    def visitContainer(self, description: MAContainer):
+        raise TypeError(
+            "MAValueJsonReader cannot encode using container description."
+            "Only scalar values are allowed."
+            )
+
+
 class MAObjectJsonWriter(MAVisitor):
     """Encodes the object described by the descriptions into JSON."""
 
