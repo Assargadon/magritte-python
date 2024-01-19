@@ -270,10 +270,9 @@ class MADescriptorWalker:
                     relations_list.append(submodel)
             return subcontext_dump_indices
 
-        def instaniateModel(self, contexts_dump, description, dto_factory):
+        def instaniateModel(self, contexts_dump, root_dump_index, description, dto_factory):
             self._contexts_dump = contexts_dump
             self._dto_factory = dto_factory
-            root_dump_index = '0'
             self.walkDescription(root_dump_index, description)
             if root_dump_index in self._dtos_by_dump_index:
                 return self._dtos_by_dump_index[root_dump_index]
@@ -285,12 +284,12 @@ class MADescriptorWalker:
         walker = self.__class__._DumpModelWalkerVisitor()
         return walker.processModel(aModel, aDescription, doReadElementValues)
 
-    def instaniateModel(self, contexts, description, dto_factory):
+    def instaniateModel(self, contexts_dump, root_dump_index, description, dto_factory):
         walker = self.__class__._InstaniateModelWalkerVisitor()
-        return walker.instaniateModel(contexts, description, dto_factory)
+        return walker.instaniateModel(contexts_dump, root_dump_index, description, dto_factory)
 
 
-class MAReferencedDataJsonWriter:
+class MAReferencedDataSerializer:
 
     class _ElementDescriptionJsonWriterVisitor(MAVisitor):
         def __init__(self, aModel):
@@ -324,35 +323,41 @@ class MAReferencedDataJsonWriter:
                 self._walkFromCurrent(contexts, subcontext)
             result['subcontext_indices'] = subcontext_indices
 
-    def write_json(self, model: Any, description: MADescription) -> dict:
+    def dump(self, model: Any, description: MADescription) -> dict:
         descriptorWalker = MADescriptorWalker()
         contexts = descriptorWalker.dumpModel(model, description)
         result = { 'contexts': {}, 'root_context_index': None }
         if len(contexts) > 0:
-            result['root_context_index'] = 0
+            result['root_context_index'] = '0'
             self._walkFromCurrent(result['contexts'], contexts[0])
         return result
 
-    def write_json_string(self, model: Any, description: MADescription) -> str:
-        return json.dumps(self.write_json(model, description))
+    def serialize(self, model: Any, description: MADescription) -> str:
+        dump_dict = self.dump(model, description)
+        serialized_str = json.dumps(dump_dict)
+        return serialized_str
 
 
-class MAReferencedDataJsonReader:
+class MAReferencedDataDeserializer:
 
     @staticmethod
     def default_dto_factory(description):
         c = description.kind
         return c()
 
-    def read_json(self, json_dict: dict, description: MADescription, dto_factory=default_dto_factory):
+    def instaniate(self, dump_dict: dict, description: MADescription, dto_factory=default_dto_factory):
         descriptorWalker = MADescriptorWalker()
-        contexts = json_dict['contexts']
-        model = descriptorWalker.instaniateModel(contexts, description, dto_factory)
+        contexts = dump_dict['contexts']
+        root_dump_index = dump_dict['root_context_index']
+        if root_dump_index is None:
+            model = None
+        else:
+            model = descriptorWalker.instaniateModel(contexts, root_dump_index, description, dto_factory)
         return model
 
-    def read_json_string(self, json_str: str, description: MADescription, dto_factory=default_dto_factory) -> str:
-        json_dict = json.loads(json_str)
-        return self.read_json(json_dict, description, dto_factory)
+    def deserialize(self, serialized_str: str, description: MADescription, dto_factory=default_dto_factory) -> str:
+        dump_dict = json.loads(serialized_str)
+        return self.instaniate(dump_dict, description, dto_factory)
 
 
 if __name__ == "__main__":
@@ -372,15 +377,15 @@ if __name__ == "__main__":
     descriptorWalker.dumpModel(port, portDescriptor)
     #testVisitor._walker._dbg_print()
 
-    jsonWriter = MAReferencedDataJsonWriter()
-    jstr = jsonWriter.write_json_string(host, hostDescriptor)
-    print(jstr)
+    serializer = MAReferencedDataSerializer()
+    serialized_str = serializer.serialize(host, hostDescriptor)
+    print(serialized_str)
 
 
     def custom_dto_factory(description):
         if description.name == 'Host': return Host()
         if description.name == 'Port': return Port()
         return None
-    jsonReader = MAReferencedDataJsonReader()
-    dto = jsonReader.read_json_string(jstr, hostDescriptor, dto_factory=custom_dto_factory)
+    deserializer = MAReferencedDataDeserializer()
+    dto = deserializer.deserialize(serialized_str, hostDescriptor, dto_factory=custom_dto_factory)
     print(dto)
