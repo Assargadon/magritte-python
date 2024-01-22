@@ -381,6 +381,9 @@ if __name__ == "__main__":
     serialized_str = serializer.serialize(host, hostDescriptor)
     print(serialized_str)
 
+    serialized_str = serializer.serialize(host, hostDescriptor.children[0])
+    print(serialized_str)
+
 
     def custom_dto_factory(description):
         if description.name == 'Host': return Host()
