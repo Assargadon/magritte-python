@@ -338,6 +338,91 @@ class MAReferencedDataSerializer:
         return serialized_str
 
 
+
+class MAReferencedDataHumanReadableSerializer:
+
+    class _HumanReadableJsonWriterVisitor(MAVisitor):
+
+        def __init__(self):
+            super().__init__()
+            self._jsonWriter = MAValueJsonWriter()
+            self._clear()
+
+        def _clear(self):
+            self._contexts = None
+            self._processedContexts = None
+            self._context = None
+            self._visitResultsStack = None
+            self._visitResult = None
+
+        def _pushVisitResult(self):
+            self._visitResultsStack.append(self._visitResult)
+            self._visitResult = None
+
+        def _popVisitResult(self):
+            self._visitResult = self._visitResultsStack.pop()
+
+        def _walk(self, context):
+            context_index = context.context_index
+            reference_count = self._processedContexts[context_index] if context_index in self._processedContexts else 0
+            self._processedContexts[context_index] = reference_count + 1
+            if reference_count > 0:
+                return context_index
+            self._context = context
+            self._pushVisitResult()
+            context.description.acceptMagritte(self)
+            result = self._visitResult
+            self._popVisitResult()
+            return result
+
+        def visitElementDescription(self, aDescription):
+            self._visitResult = self._jsonWriter.write_json(self._context.source, aDescription)
+
+        def visitContainer(self, aDescription):
+            result = { '_key': self._context.context_index }
+            for subcontext in self._context.subcontexts:
+                #subsource = subcontext.source
+                subresult = self._walk(subcontext)
+                result[subcontext.description.name] = subresult
+            self._visitResult = result
+
+        def visitToOneRelationDescription(self, aDescription):
+            subcontext = self._context.subcontexts[0]
+            self._visitResult = self._walk(subcontext)
+
+        def visitToManyRelationDescription(self, aDescription):
+            result = []
+            for subcontext in self._context.subcontexts:
+                #subsource = subcontext.source
+                subresult = self._walk(subcontext)
+                result.append(subresult)
+            self._visitResult = result
+
+        def process(self, contexts):
+            self._processedContexts = {}
+            self._visitResultsStack = []
+            self._contexts = contexts
+            result = self._walk(contexts[0]) if len(contexts) > 0 else None
+            self._clear()
+            return result
+
+    def __init__(self):
+        self.writerVisitor = self.__class__._HumanReadableJsonWriterVisitor()
+        super().__init__()
+
+    def dump(self, model: Any, description: MADescription) -> Any:
+        descriptorWalker = MADescriptorWalker()
+        contexts = descriptorWalker.dumpModel(model, description)
+        result = self.writerVisitor.process(contexts)
+        return result
+
+    def serialize(self, model: Any, description: MADescription) -> str:
+        dump = self.dump(model, description)
+        serialized_str = json.dumps(dump)
+        return serialized_str
+
+
+
 class MAReferencedDataDeserializer:
 
     @staticmethod
@@ -381,8 +466,8 @@ if __name__ == "__main__":
     serialized_str = serializer.serialize(host, hostDescriptor)
     print(serialized_str)
 
-    serialized_str = serializer.serialize(host, hostDescriptor.children[0])
-    print(serialized_str)
+    #serialized_str = serializer.serialize(host, hostDescriptor.children[0])
+    #print(serialized_str)
 
 
     def custom_dto_factory(description):
@@ -392,3 +477,10 @@ if __name__ == "__main__":
     deserializer = MAReferencedDataDeserializer()
     dto = deserializer.deserialize(serialized_str, hostDescriptor, dto_factory=custom_dto_factory)
     print(dto)
+
+    serializer2 = MAReferencedDataHumanReadableSerializer()
+    serialized_str2 = serializer2.serialize(host, hostDescriptor)
+    print(serialized_str2)
+
+    serialized_str2 = serializer2.serialize(port, portDescriptor)
+    print(serialized_str2)
