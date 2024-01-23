@@ -288,56 +288,6 @@ class MADescriptorWalker:
         walker = self.__class__._InstaniateModelWalkerVisitor()
         return walker.instaniateModel(contexts_dump, root_dump_index, description, dto_factory)
 """
-"""
-class MAReferencedDataSerializer:
-
-    class _ElementDescriptionJsonWriterVisitor(MAVisitor):
-        def __init__(self, aModel):
-            self.model = aModel
-            self.isElementDescription = False
-            self.jsonValue = None
-
-        def visitElementDescription(self, aDescription):
-            self.isElementDescription = True
-            jsonWriter = MAValueJsonWriter()
-            self.result = jsonWriter.write_json(self.model, aDescription)
-
-    def _walkFromCurrent(self, contexts, context):
-        context_index_str = str(context.context_index)
-        if context_index_str in contexts:
-            return
-        result = { 'name': context.description.name }
-        contexts[context_index_str] = result
-
-        if context.subcontexts is None:
-            jsonWriterVisitor = self.__class__._ElementDescriptionJsonWriterVisitor(context.source)
-            context.description.acceptMagritte(jsonWriterVisitor)
-            result['value'] = jsonWriterVisitor.result if jsonWriterVisitor.isElementDescription else None
-            # result['value_index'] = context.value_index
-            # if jsonElementDescriptionEncoder.isElementDescription:
-            #    values[context.value_index] = jsonElementDescriptionEncoder.result
-        else:
-            subcontext_indices = []
-            for subcontext in context.subcontexts:
-                subcontext_indices.append(str(subcontext.context_index))
-                self._walkFromCurrent(contexts, subcontext)
-            result['subcontext_indices'] = subcontext_indices
-
-    def dump(self, model: Any, description: MADescription) -> dict:
-        descriptorWalker = MADescriptorWalker()
-        contexts = descriptorWalker.dumpModel(model, description)
-        result = { 'contexts': {}, 'root_context_index': None }
-        if len(contexts) > 0:
-            result['root_context_index'] = '0'
-            self._walkFromCurrent(result['contexts'], contexts[0])
-        return result
-
-    def serialize(self, model: Any, description: MADescription) -> str:
-        dump_dict = self.dump(model, description)
-        serialized_str = json.dumps(dump_dict)
-        return serialized_str
-
-"""
 
 class MAReferencedDataHumanReadableSerializer:
 
@@ -400,70 +350,6 @@ class MAReferencedDataHumanReadableSerializer:
             self.dumpModel(aModel, aDescription, doReadElementValues=False)
             return self._dumpResultPerContextIndex[0] if 0 in self._dumpResultPerContextIndex else None
 
-
-    class _HumanReadableJsonWriterVisitor(MAVisitor):
-
-        def __init__(self):
-            super().__init__()
-            self._jsonWriter = MAValueJsonWriter()
-            self._clear()
-
-        def _clear(self):
-            self._contexts = None
-            self._processedContexts = None
-            self._context = None
-            self._visitResult = None
-
-        def _walk(self, context):
-            context_index = context.context_index
-            reference_count = self._processedContexts[context_index] if context_index in self._processedContexts else 0
-            self._processedContexts[context_index] = reference_count + 1
-            if reference_count > 0:
-                return context_index
-            self._context = context
-            context.description.acceptMagritte(self)
-            result = self._visitResult
-            return result
-
-        def visitElementDescription(self, aDescription):
-            self._visitResult = self._jsonWriter.write_json(self._context.source, aDescription)
-
-        def visitContainer(self, aDescription):
-            result = { '_key': self._context.context_index }
-            for subcontext in self._context.subcontexts:
-                subresult = self._walk(subcontext)
-                result[subcontext.description.name] = subresult
-            self._visitResult = result
-
-        def visitToOneRelationDescription(self, aDescription):
-            subcontext = self._context.subcontexts[0]
-            self._visitResult = self._walk(subcontext)
-
-        def visitToManyRelationDescription(self, aDescription):
-            result = []
-            for subcontext in self._context.subcontexts:
-                subresult = self._walk(subcontext)
-                result.append(subresult)
-            self._visitResult = result
-
-        def process(self, contexts):
-            self._processedContexts = {}
-            self._visitResultsStack = []
-            self._contexts = contexts
-            result = self._walk(contexts[0]) if len(contexts) > 0 else None
-            self._clear()
-            return result
-
-    def __init__(self):
-        self.writerVisitor = self.__class__._HumanReadableJsonWriterVisitor()
-        super().__init__()
-    """
-    def dump(self, model: Any, description: MADescription) -> Any:
-        descriptorWalker = MADescriptorWalker()
-        contexts = descriptorWalker.dumpModel(model, description)
-        result = self.writerVisitor.process(contexts)
-        return result
-    """
     def dumpHumanReadable(self, model: Any, description: MADescription) -> Any:
         descriptorWalker = self.__class__._HumanReadableDumpModelWalkerVisitor()
         return descriptorWalker.dumpModelHumanReadable(model, description)
@@ -554,13 +440,3 @@ if __name__ == "__main__":
     dto = deserializer.deserializeHumanReadable(serialized_str, hostDescriptor, dto_factory=custom_dto_factory)
     print(dto)
 
-"""
-    serializer2 = MAReferencedDataHumanReadableSerializer()
-    serialized_str2 = serializer2.serialize(host, hostDescriptor)
-    print(serialized_str2)
-
-    serialized_str2 = serializer2.serialize(port, portDescriptor)
-    print(serialized_str2)
-
-    print(serializer2.dumpHumanReadable(host, hostDescriptor))
-"""
