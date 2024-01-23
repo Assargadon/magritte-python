@@ -279,7 +279,7 @@ class MADescriptorWalker:
             else:
                 return None
 
-
+"""
     def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues=False):
         walker = self.__class__._DumpModelWalkerVisitor()
         return walker.dumpModel(aModel, aDescription, doReadElementValues)
@@ -287,8 +287,8 @@ class MADescriptorWalker:
     def instaniateModel(self, contexts_dump, root_dump_index, description, dto_factory):
         walker = self.__class__._InstaniateModelWalkerVisitor()
         return walker.instaniateModel(contexts_dump, root_dump_index, description, dto_factory)
-
-
+"""
+"""
 class MAReferencedDataSerializer:
 
     class _ElementDescriptionJsonWriterVisitor(MAVisitor):
@@ -337,9 +337,69 @@ class MAReferencedDataSerializer:
         serialized_str = json.dumps(dump_dict)
         return serialized_str
 
-
+"""
 
 class MAReferencedDataHumanReadableSerializer:
+
+    class _HumanReadableDumpModelWalkerVisitor(MADescriptorWalker._DumpModelWalkerVisitor):
+        def __init__(self):
+            super().__init__()
+            self._jsonWriter = MAValueJsonWriter()
+
+        def _clear(self):
+            super()._clear()
+            self._dumpResultPerContextIndex = {}
+            self._dumpEmittedPerContentIndex = {}
+
+        def _emitDumpOnce(self, context):
+            context_index = context.context_index
+            ref_count = self._dumpEmittedPerContentIndex[context_index] if context_index in self._dumpEmittedPerContentIndex else 0
+            ref_count += 1
+            self._dumpEmittedPerContentIndex[context_index] = ref_count
+            if ref_count == context.ref_count:
+                return self._dumpResultPerContextIndex[context.context_index]
+            else:
+                return context.context_index
+
+        def visitElementDescription(self, aDescription):
+            context = self._context
+            dumpResult = self._jsonWriter.write_json(context.source, aDescription)
+            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            super().visitElementDescription(aDescription)
+            #print(f'processElementDescriptionContext {aDescription.name} {dumpResult}')
+
+        def visitContainer(self, aDescription):
+            context = self._context
+            dumpResult = {'_key': context.context_index}
+            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            super().visitContainer(aDescription)
+            for subcontext in context.subcontexts:
+                dumpResult[subcontext.description.name] = self._dumpResultPerContextIndex[subcontext.context_index]
+            #print(f'processContainerContext {aDescription.name} {dumpResult}')
+
+        def visitToOneRelationDescription(self, aDescription):
+            context = self._context
+            super().visitToOneRelationDescription(aDescription)
+            subcontext = context.subcontexts[0]
+            dumpResult = self._emitDumpOnce(subcontext)
+            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            #print(f'processToOneRelationContext {aDescription.name} {dumpResult}')
+
+        def visitToManyRelationDescription(self, aDescription):
+            context = self._context
+            dumpResult = []
+            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            super().visitToManyRelationDescription(aDescription)
+            for subcontext in context.subcontexts:
+                subResult = self._emitDumpOnce(subcontext)
+                dumpResult.append(subResult)
+            #print(f'processToManyRelationContext {aDescription.name} {dumpResult}')
+
+        def dumpModelHumanReadable(self, aModel: Any, aDescription: MADescription):
+            self._dumpResultPerContextIndex = {}
+            self.dumpModel(aModel, aDescription, doReadElementValues=False)
+            return self._dumpResultPerContextIndex[0] if 0 in self._dumpResultPerContextIndex else None
+
 
     class _HumanReadableJsonWriterVisitor(MAVisitor):
 
@@ -352,15 +412,7 @@ class MAReferencedDataHumanReadableSerializer:
             self._contexts = None
             self._processedContexts = None
             self._context = None
-            #self._visitResultsStack = None
             self._visitResult = None
-
-        #def _pushVisitResult(self):
-        #    self._visitResultsStack.append(self._visitResult)
-        #    self._visitResult = None
-
-        #def _popVisitResult(self):
-        #    self._visitResult = self._visitResultsStack.pop()
 
         def _walk(self, context):
             context_index = context.context_index
@@ -369,10 +421,8 @@ class MAReferencedDataHumanReadableSerializer:
             if reference_count > 0:
                 return context_index
             self._context = context
-            #self._pushVisitResult()
             context.description.acceptMagritte(self)
             result = self._visitResult
-            #self._popVisitResult()
             return result
 
         def visitElementDescription(self, aDescription):
@@ -381,7 +431,6 @@ class MAReferencedDataHumanReadableSerializer:
         def visitContainer(self, aDescription):
             result = { '_key': self._context.context_index }
             for subcontext in self._context.subcontexts:
-                #subsource = subcontext.source
                 subresult = self._walk(subcontext)
                 result[subcontext.description.name] = subresult
             self._visitResult = result
@@ -393,7 +442,6 @@ class MAReferencedDataHumanReadableSerializer:
         def visitToManyRelationDescription(self, aDescription):
             result = []
             for subcontext in self._context.subcontexts:
-                #subsource = subcontext.source
                 subresult = self._walk(subcontext)
                 result.append(subresult)
             self._visitResult = result
@@ -409,15 +457,19 @@ class MAReferencedDataHumanReadableSerializer:
     def __init__(self):
         self.writerVisitor = self.__class__._HumanReadableJsonWriterVisitor()
         super().__init__()
-
+    """
     def dump(self, model: Any, description: MADescription) -> Any:
         descriptorWalker = MADescriptorWalker()
         contexts = descriptorWalker.dumpModel(model, description)
         result = self.writerVisitor.process(contexts)
         return result
+    """
+    def dumpHumanReadable(self, model: Any, description: MADescription) -> Any:
+        descriptorWalker = self.__class__._HumanReadableDumpModelWalkerVisitor()
+        return descriptorWalker.dumpModelHumanReadable(model, description)
 
-    def serialize(self, model: Any, description: MADescription) -> str:
-        dump = self.dump(model, description)
+    def serializeHumanReadable(self, model: Any, description: MADescription) -> str:
+        dump = self.dumpHumanReadable(model, description)
         serialized_str = json.dumps(dump)
         return serialized_str
 
@@ -454,21 +506,25 @@ if __name__ == "__main__":
     host = provider.hosts[0]
     hostDescriptor = TestModelDescriptor.description_for("Host")
     descriptorWalker = MADescriptorWalker()
-    descriptorWalker.dumpModel(host, hostDescriptor)
+    #descriptorWalker.dumpModel(host, hostDescriptor)
     #testVisitor._walker._dbg_print()
 
     port = host.ports[0]
     portDescriptor = TestModelDescriptor.description_for("Port")
-    descriptorWalker.dumpModel(port, portDescriptor)
+    #descriptorWalker.dumpModel(port, portDescriptor)
     #testVisitor._walker._dbg_print()
 
-    serializer = MAReferencedDataSerializer()
-    serialized_str = serializer.serialize(host, hostDescriptor)
+    serializer = MAReferencedDataHumanReadableSerializer()
+    serialized_str = serializer.serializeHumanReadable(host, hostDescriptor)
     print(serialized_str)
 
-    #serialized_str = serializer.serialize(host, hostDescriptor.children[0])
-    #print(serialized_str)
+    serialized_str = serializer.serializeHumanReadable(port, portDescriptor)
+    print(serialized_str)
 
+    serialized_str = serializer.serializeHumanReadable(host, hostDescriptor.children[0])
+    print(serialized_str)
+
+    exit(0)
 
     def custom_dto_factory(description):
         if description.name == 'Host': return Host()
@@ -478,9 +534,13 @@ if __name__ == "__main__":
     dto = deserializer.deserialize(serialized_str, hostDescriptor, dto_factory=custom_dto_factory)
     print(dto)
 
+"""
     serializer2 = MAReferencedDataHumanReadableSerializer()
     serialized_str2 = serializer2.serialize(host, hostDescriptor)
     print(serialized_str2)
 
     serialized_str2 = serializer2.serialize(port, portDescriptor)
     print(serialized_str2)
+
+    print(serializer2.dumpHumanReadable(host, hostDescriptor))
+"""
