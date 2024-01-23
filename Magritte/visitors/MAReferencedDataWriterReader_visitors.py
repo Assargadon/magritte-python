@@ -19,7 +19,7 @@ class MADescriptorWalker:
             source: Any = None                          # Arbitrary object reference related to the context. Used to get targets from somewhere to break cyclic references and extract subsources for subcontexts.
             description: MADescription = None
             subcontexts: list = None
-            _dbg_ref_count: int = 1
+            ref_count: int = 1
 
         def __init__(self):
             self._contexts = None
@@ -51,7 +51,7 @@ class MADescriptorWalker:
             self._sources_by_source_index[source_index] = source
             return source_index
 
-        def _addSourceWithCheck(self, source):
+        def _addSourceOnce(self, source):
             identifier = id(source)
             if identifier in self._source_indices_by_identifier:
                 was_added = False
@@ -91,7 +91,7 @@ class MADescriptorWalker:
         def visitToOneRelationDescription(self, description: MAReferenceDescription):
             context = self._context
             subsource = self.processToOneRelationContext(context, description)
-            (subsource_index, was_added,) = self._addSourceWithCheck(subsource)
+            (subsource_index, was_added,) = self._addSourceOnce(subsource)
             if was_added:
                 subcontext = self._createEmptyContext()
                 subcontext.parent_context = context
@@ -101,7 +101,7 @@ class MADescriptorWalker:
                 self._walkFromCurrent()
             else:
                 subcontext = self._contexts_by_source_id[subsource_index]
-                subcontext._dbg_ref_count += 1
+                subcontext.ref_count += 1
             context.subcontexts = [subcontext]
 
         def visitToManyRelationDescription(self, description):
@@ -109,7 +109,7 @@ class MADescriptorWalker:
             subsources = self.processToManyRelationContext(context, description)
             context.subcontexts = []
             for subsource in subsources:
-                (subsource_index, was_added,) = self._addSourceWithCheck(subsource)
+                (subsource_index, was_added,) = self._addSourceOnce(subsource)
                 if was_added:
                     subcontext = self._createEmptyContext()
                     subcontext.parent_context = context
@@ -119,7 +119,7 @@ class MADescriptorWalker:
                     self._walkFromCurrent()
                 else:
                     subcontext = self._contexts_by_source_id[subsource_index]
-                    subcontext._dbg_ref_count += 1
+                    subcontext.ref_count += 1
                 context.subcontexts.append(subcontext)
 
         def processContainerContext(self, context, description):
@@ -129,7 +129,7 @@ class MADescriptorWalker:
             return None
 
         def processToOneRelationContext(self, context, description):
-            return (None, None,)
+            return None
 
         def processToManyRelationContext(self, context, description):
             return []
@@ -139,7 +139,7 @@ class MADescriptorWalker:
             self._createEmptyContext()
             self._context.source = aSource
             self._context.description = aDescription
-            (source_index, was_added,) = self._addSourceWithCheck(aSource)
+            (source_index, was_added,) = self._addSourceOnce(aSource)
             self._contexts_by_source_id[source_index] = self._context
             self._walkFromCurrent()
             return self._contexts
@@ -155,7 +155,7 @@ class MADescriptorWalker:
             def printContext(sPrefix: str, aContext):
                 context_index = aContext.context_index
                 printed_contexts.add(context_index)
-                print(f'{sPrefix}Context {context_index}, {aContext.description.name}, referenced {aContext._dbg_ref_count} time(s):')
+                print(f'{sPrefix}Context {context_index}, {aContext.description.name}, referenced {aContext.ref_count} time(s):')
                 subPrefix = f'{sPrefix}  '
                 if aContext.subcontexts is None:
                     print(f'{subPrefix}Value of {aContext.description.name}, {self._sources[self._source_indices_by_context_index[aContext.context_index]]}')
@@ -185,7 +185,7 @@ class MADescriptorWalker:
             values = MAModel.readUsingWrapper(context.source, description)
             return values
 
-        def processModel(self, aModel: Any, aDescription: MADescription, doReadElementValues):
+        def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues):
             self._doReadElementValues = doReadElementValues
             return super().walkDescription(aModel, aDescription)
 
@@ -282,7 +282,7 @@ class MADescriptorWalker:
 
     def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues=False):
         walker = self.__class__._DumpModelWalkerVisitor()
-        return walker.processModel(aModel, aDescription, doReadElementValues)
+        return walker.dumpModel(aModel, aDescription, doReadElementValues)
 
     def instaniateModel(self, contexts_dump, root_dump_index, description, dto_factory):
         walker = self.__class__._InstaniateModelWalkerVisitor()
@@ -352,15 +352,15 @@ class MAReferencedDataHumanReadableSerializer:
             self._contexts = None
             self._processedContexts = None
             self._context = None
-            self._visitResultsStack = None
+            #self._visitResultsStack = None
             self._visitResult = None
 
-        def _pushVisitResult(self):
-            self._visitResultsStack.append(self._visitResult)
-            self._visitResult = None
+        #def _pushVisitResult(self):
+        #    self._visitResultsStack.append(self._visitResult)
+        #    self._visitResult = None
 
-        def _popVisitResult(self):
-            self._visitResult = self._visitResultsStack.pop()
+        #def _popVisitResult(self):
+        #    self._visitResult = self._visitResultsStack.pop()
 
         def _walk(self, context):
             context_index = context.context_index
@@ -369,10 +369,10 @@ class MAReferencedDataHumanReadableSerializer:
             if reference_count > 0:
                 return context_index
             self._context = context
-            self._pushVisitResult()
+            #self._pushVisitResult()
             context.description.acceptMagritte(self)
             result = self._visitResult
-            self._popVisitResult()
+            #self._popVisitResult()
             return result
 
         def visitElementDescription(self, aDescription):
