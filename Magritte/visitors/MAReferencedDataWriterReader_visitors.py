@@ -299,17 +299,21 @@ class MAReferencedDataHumanReadableSerializer:
         def _clear(self):
             super()._clear()
             self._dumpResultPerContextIndex = {}
-            self._dumpEmittedPerContentIndex = {}
+            #self._dumpEmittedPerContentIndex = {}
 
         def _emitDumpOnce(self, context):
             context_index = context.context_index
-            ref_count = self._dumpEmittedPerContentIndex[context_index] if context_index in self._dumpEmittedPerContentIndex else 0
-            ref_count += 1
-            self._dumpEmittedPerContentIndex[context_index] = ref_count
-            if ref_count == context.ref_count:
-                return self._dumpResultPerContextIndex[context.context_index]
+            if context_index in self._dumpResultPerContextIndex:
+                return self._dumpResultPerContextIndex[context_index]
             else:
-                return context.context_index
+                return context_index
+            #ref_count = self._dumpEmittedPerContentIndex[context_index] if context_index in self._dumpEmittedPerContentIndex else 0
+            #ref_count += 1
+            #self._dumpEmittedPerContentIndex[context_index] = ref_count
+            #if ref_count == context.ref_count:
+            #    return self._dumpResultPerContextIndex[context.context_index]
+            #else:
+            #    return context.context_index
 
         def visitElementDescription(self, aDescription):
             context = self._context
