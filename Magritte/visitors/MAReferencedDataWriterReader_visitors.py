@@ -474,7 +474,7 @@ class MAReferencedDataHumanReadableSerializer:
         return serialized_str
 
 
-
+"""
 class MAReferencedDataDeserializer:
 
     @staticmethod
@@ -495,6 +495,28 @@ class MAReferencedDataDeserializer:
     def deserialize(self, serialized_str: str, description: MADescription, dto_factory=default_dto_factory) -> str:
         dump_dict = json.loads(serialized_str)
         return self.instaniate(dump_dict, description, dto_factory)
+"""
+
+class MAReferencedDataHumanReadableDeserializer:
+    class _HumanReadableInstaniateModelWalkerVisitor(MADescriptorWalker._InstaniateModelWalkerVisitor):
+        def instaniateModelHumanReadable(self, dump, description, dto_factory):
+            if dump is None:
+                return None
+            return None
+
+    @staticmethod
+    def default_dto_factory(description):
+        c = description.kind
+        return c()
+
+    def instaniateHumanReadable(self, dump: Any, description: MADescription, dto_factory=default_dto_factory) -> Any:
+        descriptorWalker = self.__class__._HumanReadableInstaniateModelWalkerVisitor()
+        model = descriptorWalker.instaniateModelHumanReadable(dump, description, dto_factory)
+        return model
+
+    def deserializeHumanReadable(self, serialized_str: str, description: MADescription, dto_factory=default_dto_factory) -> Any:
+        dump = json.loads(serialized_str)
+        return self.instaniateHumanReadable(dump, description, dto_factory)
 
 
 if __name__ == "__main__":
@@ -524,14 +546,12 @@ if __name__ == "__main__":
     serialized_str = serializer.serializeHumanReadable(host, hostDescriptor.children[0])
     print(serialized_str)
 
-    exit(0)
-
     def custom_dto_factory(description):
         if description.name == 'Host': return Host()
         if description.name == 'Port': return Port()
         return None
-    deserializer = MAReferencedDataDeserializer()
-    dto = deserializer.deserialize(serialized_str, hostDescriptor, dto_factory=custom_dto_factory)
+    deserializer = MAReferencedDataHumanReadableDeserializer()
+    dto = deserializer.deserializeHumanReadable(serialized_str, hostDescriptor, dto_factory=custom_dto_factory)
     print(dto)
 
 """
