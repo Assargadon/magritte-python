@@ -187,7 +187,7 @@ class MADescriptorWalker:
 
         def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues):
             self._doReadElementValues = doReadElementValues
-            return super().walkDescription(aModel, aDescription)
+            return self.walkDescription(aModel, aDescription)
 
     class _InstaniateModelWalkerVisitor(_WalkerVisitor):
         def __init__(self):
@@ -313,16 +313,16 @@ class MAReferencedDataHumanReadableSerializer:
 
         def visitElementDescription(self, aDescription):
             context = self._context
+            super().visitElementDescription(aDescription)
             dumpResult = self._jsonWriter.write_json(context.source, aDescription)
             self._dumpResultPerContextIndex[context.context_index] = dumpResult
-            super().visitElementDescription(aDescription)
             #print(f'processElementDescriptionContext {aDescription.name} {dumpResult}')
 
         def visitContainer(self, aDescription):
             context = self._context
+            super().visitContainer(aDescription)
             dumpResult = {'_key': context.context_index}
             self._dumpResultPerContextIndex[context.context_index] = dumpResult
-            super().visitContainer(aDescription)
             for subcontext in context.subcontexts:
                 dumpResult[subcontext.description.name] = self._dumpResultPerContextIndex[subcontext.context_index]
             #print(f'processContainerContext {aDescription.name} {dumpResult}')
@@ -337,16 +337,15 @@ class MAReferencedDataHumanReadableSerializer:
 
         def visitToManyRelationDescription(self, aDescription):
             context = self._context
+            super().visitToManyRelationDescription(aDescription)
             dumpResult = []
             self._dumpResultPerContextIndex[context.context_index] = dumpResult
-            super().visitToManyRelationDescription(aDescription)
             for subcontext in context.subcontexts:
                 subResult = self._emitDumpOnce(subcontext)
                 dumpResult.append(subResult)
             #print(f'processToManyRelationContext {aDescription.name} {dumpResult}')
 
         def dumpModelHumanReadable(self, aModel: Any, aDescription: MADescription):
-            self._dumpResultPerContextIndex = {}
             self.dumpModel(aModel, aDescription, doReadElementValues=False)
             return self._dumpResultPerContextIndex[0] if 0 in self._dumpResultPerContextIndex else None
 
