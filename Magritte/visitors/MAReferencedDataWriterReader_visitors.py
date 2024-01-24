@@ -279,15 +279,6 @@ class MADescriptorWalker:
             else:
                 return None
 
-"""
-    def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues=False):
-        walker = self.__class__._DumpModelWalkerVisitor()
-        return walker.dumpModel(aModel, aDescription, doReadElementValues)
-
-    def instaniateModel(self, contexts_dump, root_dump_index, description, dto_factory):
-        walker = self.__class__._InstaniateModelWalkerVisitor()
-        return walker.instaniateModel(contexts_dump, root_dump_index, description, dto_factory)
-"""
 
 class MAReferencedDataHumanReadableSerializer:
 
@@ -387,11 +378,96 @@ class MAReferencedDataDeserializer:
 """
 
 class MAReferencedDataHumanReadableDeserializer:
-    class _HumanReadableInstaniateModelWalkerVisitor(MADescriptorWalker._InstaniateModelWalkerVisitor):
+
+    class _HumanReadableInstaniateModelWalkerVisitor(MADescriptorWalker._WalkerVisitor):
+
+        def __init__(self):
+            super().__init__()
+            self._dto_factory = None
+
+        def _clear(self):
+            super()._clear()
+            self._dtos_by_key = {}
+            self._values_by_dump_id = {}
+            self._dumps_by_key = {}
+
+        def _getOrCreateDTO(self, dump, dto_description):
+            key = dump['_key']
+            if key not in self._dtos_by_key:
+                dto = self._dto_factory(dto_description)
+                self._dtos_by_key[key] = dto
+                self._dumps_by_key[key] = dump
+            return self._dtos_by_key[key]
+
+        def _getDTOdumpByKey(self, dump):
+            if isinstance(dump, int):
+                return self._dumps_by_key[dump]
+            return dump
+
+        def _addValueForDump(self, dump, value):
+            self._values_by_dump_id[id(dump)] = value
+
+        def _findMatchingSubcontextDump(self, context, description):
+            name = description.name
+            dump = context.source
+            if name in dump:
+                return (True, dump[name],)
+            return (False, None,)
+
+        def processElementDescriptionContext(self, context, description):
+            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
+            if found:
+                jsonReader = MAValueJsonReader()
+                jsonReader.read_json(model, subcontext_dump, description)
+            else:
+                value = description.undefinedValue
+                MAModel.writeUsingWrapper(model, description, value)
+            #self._addValueForDump(subcontext_dump, value)
+            return None
+
+        def processToOneRelationContext(self, context, description):
+            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            found, subcontext_dump_or_key = self._findMatchingSubcontextDump(context, description)
+            if found:
+                subcontext_dump = self._getDTOdumpByKey(subcontext_dump_or_key)
+                submodel = self._getOrCreateDTO(subcontext_dump, description.reference)
+            else:
+                subcontext_dump = None
+                submodel = description.undefinedValue
+            self._addValueForDump(subcontext_dump, submodel)
+            MAModel.writeUsingWrapper(model, description, submodel)
+            return subcontext_dump
+
+        def processToManyRelationContext(self, context, description):
+            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            relations_list = MAModel.readUsingWrapper(model, description)
+            found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
+            if found:
+                subcontext_dumps = []
+                for relation_dump_or_key in subcontext_dump:
+                    relation_dump = self._getDTOdumpByKey(relation_dump_or_key)
+                    submodel = self._getOrCreateDTO(relation_dump, description.reference)
+                    subcontext_dumps.append(relation_dump)
+                    self._addValueForDump(relation_dump, submodel)
+                    relations_list.append(submodel)
+            else:
+                subcontext_dumps = []
+                relations_list.clear()
+                if description.undefinedValue is not None:
+                    relations_list.extend(description.undefinedValue)
+            return subcontext_dumps
+
         def instaniateModelHumanReadable(self, dump, description, dto_factory):
             if dump is None:
                 return None
+            self._dto_factory = dto_factory
+            self.walkDescription(dump, description)
+            root_dump_id = id(dump)
+            if root_dump_id in self._values_by_dump_id:
+                return self._values_by_dump_id[root_dump_id]
             return None
+
 
     @staticmethod
     def default_dto_factory(description):
@@ -416,30 +492,39 @@ if __name__ == "__main__":
     provider = TestEnvironmentProvider()
     host = provider.hosts[0]
     hostDescriptor = TestModelDescriptor.description_for("Host")
-    descriptorWalker = MADescriptorWalker()
+    #descriptorWalker = MADescriptorWalker()
     #descriptorWalker.dumpModel(host, hostDescriptor)
     #testVisitor._walker._dbg_print()
 
-    port = host.ports[0]
+    port = host.ports[5]
     portDescriptor = TestModelDescriptor.description_for("Port")
     #descriptorWalker.dumpModel(port, portDescriptor)
     #testVisitor._walker._dbg_print()
 
+    ipDescriptor = hostDescriptor.children[0]
+
+    #host.ports = [host.ports[0]]
+
     serializer = MAReferencedDataHumanReadableSerializer()
-    serialized_str = serializer.serializeHumanReadable(host, hostDescriptor)
-    print(serialized_str)
+    serialized_str_h = serializer.serializeHumanReadable(host, hostDescriptor)
+    print(serialized_str_h)
 
-    serialized_str = serializer.serializeHumanReadable(port, portDescriptor)
-    print(serialized_str)
+    serialized_str_p = serializer.serializeHumanReadable(port, portDescriptor)
+    print(serialized_str_p)
 
-    serialized_str = serializer.serializeHumanReadable(host, hostDescriptor.children[0])
-    print(serialized_str)
+    serialized_str_ip = serializer.serializeHumanReadable(host, ipDescriptor)
+    print(serialized_str_ip)
 
     def custom_dto_factory(description):
         if description.name == 'Host': return Host()
         if description.name == 'Port': return Port()
         return None
+
     deserializer = MAReferencedDataHumanReadableDeserializer()
-    dto = deserializer.deserializeHumanReadable(serialized_str, hostDescriptor, dto_factory=custom_dto_factory)
-    print(dto)
+
+    dto_h = deserializer.deserializeHumanReadable(serialized_str_h, hostDescriptor, dto_factory=custom_dto_factory)
+    print(dto_h)
+
+    dto_p = deserializer.deserializeHumanReadable(serialized_str_p, portDescriptor, dto_factory=custom_dto_factory)
+    print(dto_p)
 
