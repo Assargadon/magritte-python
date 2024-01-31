@@ -63,14 +63,8 @@ if __name__ == "__main__":
     port = host.ports[5]
     portDescriptor = TestModelDescriptor.description_for("Port")
 
-    def custom_dto_factory(description):
-        if description.name == 'Host': return Host()
-        if description.name == 'Port': return Port()
-        return None
-
 
     app = FastAPI()
-
 
 
     @app.get("/")
