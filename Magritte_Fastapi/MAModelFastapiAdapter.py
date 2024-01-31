@@ -3,6 +3,7 @@ from typing import ClassVar
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import \
     MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 from fastapi import FastAPI
+from pydantic import JsonValue
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
@@ -18,7 +19,7 @@ class MAModelFastapiAdapter:
 
         def describe_decorator(callback):
 
-            async def wrapper_decorator_without_argument() -> dict:
+            async def wrapper_decorator_without_argument() -> JsonValue:
                 response = await callback()
                 response_dump = MAModelFastapiAdapter.serializer.dumpHumanReadable(
                     response,
@@ -26,7 +27,7 @@ class MAModelFastapiAdapter:
                 )
                 return response_dump
 
-            async def wrapper_decorator_with_argument(request_dump: dict) -> dict:
+            async def wrapper_decorator_with_argument(request_dump: dict) -> JsonValue:
                 request = MAModelFastapiAdapter.deserializer.instaniateHumanReadable(
                     request_dump,
                     request_descriptor,
@@ -79,20 +80,20 @@ if __name__ == "__main__":
         return response
 
     @app.post("/test")
-    @MAModelFastapiAdapter.describe(request_descriptor=hostDescriptor, response_descriptor=portDescriptor, dto_factory=custom_dto_factory)
+    @MAModelFastapiAdapter.describe(request_descriptor=hostDescriptor, response_descriptor=portDescriptor)
     async def test(request: Host) -> Port:
         return request.ports[2]
 
 # ============= EXAMPLE ====================
     @app.get("/hosts")
-    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=MAToManyRelationDescription(reference=hostDescriptor, accessor = MAIdentityAccessor()))
+    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=MAToManyRelationDescription(reference=hostDescriptor, accessor=MAIdentityAccessor()))
     async def get_hosts():
         return provider.hosts
 
-    @app.post("/hosts")
-    @MAModelFastapiAdapter.describe(request_descriptor=hostDescriptor, response_descriptor=MAStringDescription(accessor = MAIdentityAccessor()))
+    @app.post("/add_host")
+    @MAModelFastapiAdapter.describe(request_descriptor=hostDescriptor, response_descriptor=MAStringDescription(accessor=MAIdentityAccessor()))
     async def add_host(host):
-        provider.hosts += host
+        provider.hosts.append(host)
         return "OK"
 
     @app.get("/desc/host")
