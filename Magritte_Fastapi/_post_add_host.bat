@@ -1,8 +1,8 @@
 #!/bin/sh
 
-body_json="index.json"
+body_json="host.json"
 if [ ! -f "$body_json" ]; then
-  echo Error: $body_json not found, run _get_index.bat first!
+  echo Error: $body_json not found, run _get_host.bat first!
   exit 1
 fi
 

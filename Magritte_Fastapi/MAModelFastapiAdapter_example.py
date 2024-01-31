@@ -21,6 +21,13 @@ if __name__ == "__main__":
 
 
 # ============= EXAMPLE ====================
+
+    @app.get("/host/{host_index}")
+    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=hostDescriptor)
+    async def get_host(host_index):
+        host_id_int = int(host_index)
+        return provider.hosts[host_id_int]
+
     @app.get("/hosts")
     @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=MAToManyRelationDescription(reference=hostDescriptor, accessor=MAIdentityAccessor()))
     async def get_hosts():

@@ -1,8 +1,10 @@
 
 from typing import ClassVar
+from inspect import signature
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import \
     MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 from pydantic import JsonValue
+from fastapi import Request
 
 
 class MAModelFastapiAdapter:
@@ -16,28 +18,52 @@ class MAModelFastapiAdapter:
 
         def describe_decorator(callback):
 
+            def send_response(response):
+                if response_descriptor is None:
+                    return response
+                else:
+                    response_dump = MAModelFastapiAdapter.serializer.dumpHumanReadable(
+                        response,
+                        response_descriptor
+                    )
+                    return response_dump
+
+            sig = signature(callback)
+            callback_parameters = sig.parameters
+            callback_has_parameters = len(callback_parameters) > 0
+
             async def wrapper_decorator_without_argument() -> JsonValue:
                 response = await callback()
-                response_dump = MAModelFastapiAdapter.serializer.dumpHumanReadable(
-                    response,
-                    response_descriptor
-                )
-                return response_dump
+                return send_response(response)
 
-            async def wrapper_decorator_with_argument(request_dump: dict) -> JsonValue:
+            async def wrapper_decorator_with_path_argument(request_body: Request) -> JsonValue:
+                args = []
+                path_params = request_body.path_params
+                for param_name in callback_parameters:
+                    if param_name in path_params:
+                        args.append(path_params[param_name])
+                    else:
+                        args.append(None)
+                response = await callback(*args)
+                return send_response(response)
+
+            async def wrapper_decorator_with_request_argument(request_body: Request) -> JsonValue:
+                request_dump = await request_body.json()
                 request = MAModelFastapiAdapter.deserializer.instaniateHumanReadable(
                     request_dump,
                     request_descriptor,
                     dto_factory=dto_factory
                 )
                 response = await callback(request)
-                response_dump = MAModelFastapiAdapter.serializer.dumpHumanReadable(
-                    response,
-                    response_descriptor
-                )
-                return response_dump
+                return send_response(response)
 
-            return wrapper_decorator_without_argument if request_descriptor is None else wrapper_decorator_with_argument
+            if callback_has_parameters:
+                if request_descriptor is None:
+                    return wrapper_decorator_with_path_argument
+                else:
+                    return wrapper_decorator_with_request_argument
+            else:
+                return wrapper_decorator_without_argument
 
         return describe_decorator
 
