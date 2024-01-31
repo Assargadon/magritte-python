@@ -12,7 +12,7 @@ class MAModelFastapiAdapter:
     deserializer: ClassVar = MAReferencedDataHumanReadableDeserializer()
 
     @staticmethod
-    def describe(request_descriptor, response_descriptor, dto_factory=None):
+    def describe(request_descriptor=None, response_descriptor=None, dto_factory=None):
         if dto_factory is None:
             dto_factory = MAReferencedDataHumanReadableDeserializer.default_dto_factory
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
 
     @app.get("/")
-    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=hostDescriptor)
+    @MAModelFastapiAdapter.describe(response_descriptor=hostDescriptor)
     async def index():
         response = host
         return response

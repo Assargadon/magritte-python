@@ -23,15 +23,21 @@ if __name__ == "__main__":
 # ============= EXAMPLE ====================
 
     @app.get("/host/{host_index}")
-    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=hostDescriptor)
+    @MAModelFastapiAdapter.describe(response_descriptor=hostDescriptor)
     async def get_host(host_index):
         host_id_int = int(host_index)
         return provider.hosts[host_id_int]
 
     @app.get("/hosts")
-    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=MAToManyRelationDescription(reference=hostDescriptor, accessor=MAIdentityAccessor()))
+    @MAModelFastapiAdapter.describe(response_descriptor=MAToManyRelationDescription(reference=hostDescriptor, accessor=MAIdentityAccessor()))
     async def get_hosts():
         return provider.hosts
+
+    @app.post("/hosts_list")
+    @MAModelFastapiAdapter.describe(request_descriptor=MAToManyRelationDescription(reference=hostDescriptor)) # not working (todo if needed)
+    async def post_hosts(hosts):
+        print(hosts)
+        return "OK"
 
     @app.post("/add_host")
     @MAModelFastapiAdapter.describe(request_descriptor=hostDescriptor, response_descriptor=MAStringDescription(accessor=MAIdentityAccessor()))
@@ -40,7 +46,7 @@ if __name__ == "__main__":
         return "OK"
 
     @app.get("/desc/host")
-    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=hostDescriptor.magritteDescription())
+    @MAModelFastapiAdapter.describe(response_descriptor=hostDescriptor.magritteDescription())
     async def host_desc():
         return hostDescriptor
 
