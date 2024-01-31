@@ -400,6 +400,13 @@ class MAReferencedDataHumanReadableDeserializer:
                 self._dumps_by_key[key] = dump
             return self._dtos_by_key[key]
 
+        def _getParentModel(self, context):
+            if context.parent_context is None:
+                # todo: conception of virtual root model?
+                return None
+            else:
+                return self._getOrCreateDTO(context.source, context.parent_context.description)
+
         def _getDTOdumpByKey(self, dump):
             if isinstance(dump, int):
                 return self._dumps_by_key[dump]
@@ -416,7 +423,7 @@ class MAReferencedDataHumanReadableDeserializer:
             return (False, None,)
 
         def processElementDescriptionContext(self, context, description):
-            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            model = self._getParentModel(context)
             found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
             if found:
                 jsonReader = MAValueJsonReader()
@@ -428,7 +435,7 @@ class MAReferencedDataHumanReadableDeserializer:
             return None
 
         def processToOneRelationContext(self, context, description):
-            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            model = self._getParentModel(context)
             found, subcontext_dump_or_key = self._findMatchingSubcontextDump(context, description)
             if found:
                 subcontext_dump = self._getDTOdumpByKey(subcontext_dump_or_key)
@@ -441,7 +448,7 @@ class MAReferencedDataHumanReadableDeserializer:
             return subcontext_dump
 
         def processToManyRelationContext(self, context, description):
-            model = self._getOrCreateDTO(context.source, context.parent_context.description)
+            model = self._getParentModel(context)
             relations_list = MAModel.readUsingWrapper(model, description)
             found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
             if found:
