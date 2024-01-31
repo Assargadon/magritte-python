@@ -7,6 +7,7 @@ from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescri
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.MAModel_class import MAModel
 from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonReader, MAValueJsonWriter
+from Magritte.errors.MAKindError import MAKindError
 
 
 class MADescriptorWalker:
@@ -480,6 +481,8 @@ class MAReferencedDataHumanReadableDeserializer:
     @staticmethod
     def default_dto_factory(description):
         c = description.kind
+        if c is None:
+            raise MAKindError(description, 'Kind is not defined to make an instance of the described entity')
         return c()
 
     def instaniateHumanReadable(self, dump: Any, description: MADescription, dto_factory=default_dto_factory) -> Any:
