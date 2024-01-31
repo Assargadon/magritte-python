@@ -319,7 +319,8 @@ class MAReferencedDataHumanReadableSerializer:
             dumpResult = {'_key': context.context_index}
             self._dumpResultPerContextIndex[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
-                dumpResult[subcontext.description.name] = self._dumpResultPerContextIndex[subcontext.context_index]
+                if subcontext.description.visible:
+                    dumpResult[subcontext.description.name] = self._dumpResultPerContextIndex[subcontext.context_index]
             #print(f'processContainerContext {aDescription.name} {dumpResult}')
 
         def visitToOneRelationDescription(self, aDescription):
