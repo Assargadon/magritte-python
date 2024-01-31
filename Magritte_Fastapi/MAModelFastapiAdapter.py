@@ -3,7 +3,9 @@ from typing import ClassVar
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import \
     MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 from fastapi import FastAPI
-
+from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 class MAModelFastapiAdapter:
     serializer: ClassVar = MAReferencedDataHumanReadableSerializer()
@@ -69,22 +71,36 @@ if __name__ == "__main__":
     app = FastAPI()
 
 
+
     @app.get("/")
     @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=hostDescriptor)
     async def index():
         response = host
         return response
 
-
-    @app.get("/1")
-    async def i1() -> dict:
-        return {'aaa': 'bbb'}
-
-
     @app.post("/test")
     @MAModelFastapiAdapter.describe(request_descriptor=hostDescriptor, response_descriptor=portDescriptor, dto_factory=custom_dto_factory)
     async def test(request: Host) -> Port:
         return request.ports[2]
+
+# ============= EXAMPLE ====================
+    @app.get("/hosts")
+    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=MAToManyRelationDescription(reference=hostDescriptor, accessor = MAIdentityAccessor()))
+    async def get_hosts():
+        return provider.hosts
+
+    @app.post("/hosts")
+    @MAModelFastapiAdapter.describe(request_descriptor=hostDescriptor, response_descriptor=MAStringDescription(accessor = MAIdentityAccessor()))
+    async def add_host(host):
+        provider.hosts += host
+        return "OK"
+
+    @app.get("/desc/host")
+    @MAModelFastapiAdapter.describe(request_descriptor=None, response_descriptor=hostDescriptor.magritteDescription())
+    async def host_desc():
+        return hostDescriptor
+
+# ============= /EXAMPLE ====================
 
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
