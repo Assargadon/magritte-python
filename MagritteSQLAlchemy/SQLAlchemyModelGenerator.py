@@ -1,10 +1,14 @@
 from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column
-from sqlalchemy import Boolean, Date, DateTime, Integer, Interval, Float, String, Text, Time, ForeignKeyConstraint
+from sqlalchemy import Boolean, Date, DateTime, Integer, Interval, Float, String, Text, Time, ForeignKeyConstraint, \
+    Identity
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 from Magritte.descriptions.MARelationDescription_class import MARelationDescription
+from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
+from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
+from MagritteSQLAlchemy.MAContainerCopier import MAContainerDbCopier
 
 
 class SqlAlchemyFieldExtractorFromMAElementVisitor(MAVisitor):
@@ -60,6 +64,20 @@ class SqlAlchemyForeignVisitor(SqlAlchemyFieldExtractorFromMAElementVisitor):
 
 class DefaultBase(DeclarativeBase):
     pass
+    _ma_descriptor = None
+
+    @property
+    def ma_descriptor(self):
+        return self._ma_descriptor
+
+    @ma_descriptor.setter
+    def ma_descriptor(self, aDesc):
+        self._ma_descriptor = aDesc
+
+    def copy_from(self, aObj):
+        copier = MAContainerDbCopier()
+        copier.copy(aObj, self.ma_descriptor, self, self.ma_descriptor)
+        return self
 
 
 class SQLAlchemyModelGenerator(MAVisitor):
@@ -67,10 +85,12 @@ class SQLAlchemyModelGenerator(MAVisitor):
     _field_extractor = None
     _model_desc = None
     _table_args = []
+    _surrogate_primary_key = False
 
     def __init__(self, base_class=DefaultBase, field_extractor=SqlAlchemyFieldExtractorFromMAElementVisitor()):
         self._field_extractor = field_extractor
         self._base_class = base_class
+        # todo: check the base class is derived from default_base
 
     @property
     def base_class(self):
@@ -82,24 +102,28 @@ class SQLAlchemyModelGenerator(MAVisitor):
         self.visitAll(container.children)
         if len(self._table_args) > 0:
             self._model_desc['__table_args__'] = tuple(self._table_args)
-        return type(container.name, (self._base_class,), self._model_desc)
+        model = type(container.name, (self._base_class,), self._model_desc)
+        model.ma_descriptor = container
+        return model
 
     def generate_model(self, container: MAContainer):
         return self.visitContainer(container)
 
     def visitElementDescription(self, element_description: MAElementDescription):
+        if element_description.isPrimaryKey == True and element_description.type == 'MAIntDescription':
+            self._surrogate_primary_key = True
         self.make_column_from_element(self._field_extractor.visit(element_description))
 
     def visitToManyRelationDescription(self, element_description: MARelationDescription):
-        self._model_desc[element_description.fieldName] = relationship(
-            element_description.reference.tableName
-            , back_populates=element_description.reference.name)
+        reference = element_description.reference
+        for relation_field in reference.children:
+            if type(relation_field) is MAToOneRelationDescription:
+                self._model_desc[element_description.fieldName] = relationship(reference.tableName,
+                                                                               back_populates=relation_field.fieldName)
 
     def visitToOneRelationDescription(self, element_description: MARelationDescription):
         foreign_visitor = SqlAlchemyForeignVisitor()
         reference = element_description.reference
-        self._model_desc[element_description.fieldName] = relationship(reference.tableName,
-                                                                       back_populates=reference.name)
 
         foreign_keys = []
         foreign_fields_name = []
@@ -108,11 +132,16 @@ class SQLAlchemyModelGenerator(MAVisitor):
                 field_info = foreign_visitor.visit(relation_field)
                 foreign_field_name = reference.tableName + '_' + field_info["name"]
                 foreign_key = reference.tableName + '.' + field_info["name"]
-                is_primary_key = relation_field.isPrimaryKey
+                is_primary_key = False if self._surrogate_primary_key is True else relation_field.isPrimaryKey
                 self.make_column(field_name=foreign_field_name, sqlType=field_info["type"],
                                  primary_key=is_primary_key)
                 foreign_keys.append(foreign_key)
                 foreign_fields_name.append(foreign_field_name)
+
+            if type(relation_field) is MAToManyRelationDescription:
+                self._model_desc[element_description.fieldName] = relationship(reference.tableName,
+                                                                               back_populates=relation_field.fieldName)
+
         self._table_args.append(ForeignKeyConstraint(foreign_fields_name, foreign_keys))
 
     def make_column(self, field_name: str, sqlType, nullable=False, primary_key=False):
@@ -121,3 +150,7 @@ class SQLAlchemyModelGenerator(MAVisitor):
     def make_column_from_element(self, field_info):
         self.make_column(field_name=field_info['name'], sqlType=field_info['type']
                          , nullable=field_info['nullable'], primary_key=field_info['primary_key'])
+
+    def make_identity_column(self, field_name: str, start=0, cycle=False):
+        self._model_desc[field_name] = mapped_column(Integer, nullable=False, primary_key=True,
+                                                     identity=Identity(start=start, cycle=cycle))

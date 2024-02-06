@@ -74,7 +74,7 @@ class MAContainer(MADescription):
     @property
     def tableName(self):
         try:
-            return self._filed_name
+            return self._table_name
         except AttributeError:
             return self._name
 
@@ -84,9 +84,9 @@ class MAContainer(MADescription):
 
     def defaultTableName(self, aSymbol):
         if aSymbol is None:
-            self._filed_name = None
+            self._table_name = None
         else:
-            self._filed_name = intern(aSymbol)
+            self._table_name = intern(aSymbol)
 
     @classmethod
     def withDescription(cls, aDescription):

@@ -73,16 +73,16 @@ class MAElementDescription(MADescription):
     @property
     def fieldName(self):
         try:
-            return self._filed_name
+            return self._field_name
         except AttributeError:
             return self._name
 
     @fieldName.setter
     def fieldName(self, aSymbol):
         if aSymbol is None:
-            self._filed_name = None
+            self._field_name = None
         else:
-            self._filed_name = intern(aSymbol)
+            self._field_name = intern(aSymbol)
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitElementDescription(self)
