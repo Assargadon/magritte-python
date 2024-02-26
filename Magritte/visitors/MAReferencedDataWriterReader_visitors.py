@@ -124,7 +124,8 @@ class MADescriptorWalker:
                 context.subcontexts.append(subcontext)
 
         def processContainerContext(self, context, description):
-            pass
+            (source_index, was_added,) = self._addSourceOnce(self._context.source)
+            self._contexts_by_source_id[source_index] = self._context
 
         def processElementDescriptionContext(self, context, description):
             return None
@@ -140,8 +141,6 @@ class MADescriptorWalker:
             self._createEmptyContext()
             self._context.source = aSource
             self._context.description = aDescription
-            (source_index, was_added,) = self._addSourceOnce(aSource)
-            self._contexts_by_source_id[source_index] = self._context
             self._walkFromCurrent()
             return self._contexts
 
@@ -299,13 +298,6 @@ class MAReferencedDataHumanReadableSerializer:
                 return self._dumpResultPerContextIndex[context_index]
             else:
                 return context_index
-            #ref_count = self._dumpEmittedPerContentIndex[context_index] if context_index in self._dumpEmittedPerContentIndex else 0
-            #ref_count += 1
-            #self._dumpEmittedPerContentIndex[context_index] = ref_count
-            #if ref_count == context.ref_count:
-            #    return self._dumpResultPerContextIndex[context.context_index]
-            #else:
-            #    return context.context_index
 
         def visitElementDescription(self, aDescription):
             context = self._context
@@ -385,6 +377,7 @@ class MAReferencedDataHumanReadableDeserializer:
 
         def __init__(self):
             super().__init__()
+            self._jsonReader = MAValueJsonReader()
             self._dto_factory = None
 
         def _clear(self):
@@ -425,14 +418,18 @@ class MAReferencedDataHumanReadableDeserializer:
 
         def processElementDescriptionContext(self, context, description):
             model = self._getParentModel(context)
-            found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
-            if found:
-                jsonReader = MAValueJsonReader()
-                value = jsonReader.read_json(None, subcontext_dump, description)
+            if model is None:  # The ElementDescription serialized data is the root model without enclosing DTO - special handling
+                dump = context.source
+                value = self._jsonReader.read_json(None, dump, description)
+                self._addValueForDump(dump, value)
             else:
-                value = description.undefinedValue
-            MAModel.writeUsingWrapper(model, description, value)
-            #self._addValueForDump(subcontext_dump, value)
+                found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
+                if found:
+                    value = self._jsonReader.read_json(None, subcontext_dump, description)
+                else:
+                    value = description.undefinedValue
+                MAModel.writeUsingWrapper(model, description, value)
+                #self._addValueForDump(subcontext_dump, value)
             return None
 
         def processToOneRelationContext(self, context, description):
@@ -513,6 +510,7 @@ if __name__ == "__main__":
     #testVisitor._walker._dbg_print()
 
     ipDescriptor = hostDescriptor.children[0]
+    portsDescriptor = hostDescriptor.children[1]
 
     #host.ports = [host.ports[0]]
 
@@ -525,6 +523,9 @@ if __name__ == "__main__":
 
     serialized_str_ip = serializer.serializeHumanReadable(host, ipDescriptor)
     print(serialized_str_ip)
+
+    serialized_str_ports = serializer.serializeHumanReadable(host, portsDescriptor)
+    print(serialized_str_ports)
 
     def custom_dto_factory(description):
         if description.name == 'Host': return Host()
