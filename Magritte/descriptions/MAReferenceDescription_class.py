@@ -28,11 +28,25 @@ class MAReferenceDescription(MAElementDescription):
             self._reference = self.defaultReference()
  
         return self._reference
-        
 
     @reference.setter
     def reference(self, aDescription):
         self._reference = aDescription
+
+    def defaultReferenceAcyclic(self):
+        return self.reference.acyclicDescription
+
+    @property
+    def referenceAcyclic(self):
+        try:
+            return self._referenceAcyclic
+        except AttributeError:
+            return self.defaultReferenceAcyclic()
+
+    @referenceAcyclic.setter
+    def referenceAcyclic(self, aDescription):
+        self._referenceAcyclic = aDescription
+
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitReferenceDescription(self)

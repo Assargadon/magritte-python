@@ -27,6 +27,7 @@ class TestModelDescriptor:
         host_desc_container = MAContainer()
         port_desc_container = MAContainer()
 
+        user_desc_container.kind = User
         user_desc_container.name = 'User'
         user_desc_container.label = 'User model'
         user_desc_container.setChildren(
@@ -65,6 +66,7 @@ class TestModelDescriptor:
                 ]
             )
 
+        org_desc_container.kind = Organization
         org_desc_container.name = 'Organization'
         org_desc_container.label = 'Organization model'
         org_desc_container.setChildren(
@@ -91,6 +93,7 @@ class TestModelDescriptor:
                 ]
             )
 
+        acc_desc_container.kind = Account
         acc_desc_container.name = 'Account'
         acc_desc_container.label = 'Account model'
         acc_desc_container.setChildren(
@@ -121,6 +124,7 @@ class TestModelDescriptor:
                 ]
             )
 
+        host_desc_container.kind = Host
         host_desc_container.name = 'Host'
         host_desc_container.label = 'Host model'
         host_desc_container.setChildren(
@@ -136,6 +140,7 @@ class TestModelDescriptor:
                 ]
             )
 
+        port_desc_container.kind = Port
         port_desc_container.name = 'Port'
         port_desc_container.label = 'Port model'
         port_desc_container.setChildren(
