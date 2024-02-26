@@ -12,4 +12,4 @@ class MAIntDescription(MANumberDescription):
         return int
 
     def acceptMagritte(self, aVisitor):
-        aVisitor.visitIntDescription(self)
+        return aVisitor.visitIntDescription(self)

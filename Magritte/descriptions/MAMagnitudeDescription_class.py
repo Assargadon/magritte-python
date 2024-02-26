@@ -90,4 +90,4 @@ class MAMagnitudeDescription(MAElementDescription):
     # =========== /validation ===========
 
     def acceptMagritte(self, aVisitor):
-        aVisitor.visitMagnitudeDescription(self)
+        return aVisitor.visitMagnitudeDescription(self)

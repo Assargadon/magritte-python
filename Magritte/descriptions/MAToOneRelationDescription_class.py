@@ -9,7 +9,7 @@ class MAToOneRelationDescription(MARelationDescription):
         return False
 
     def acceptMagritte(self, aVisitor):
-        aVisitor.visitToOneRelationDescription(self)
+        return aVisitor.visitToOneRelationDescription(self)
 
     # =========== validation ===========
 
