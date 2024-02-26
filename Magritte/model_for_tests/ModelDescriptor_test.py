@@ -33,7 +33,7 @@ class TestModelDescriptor:
         user_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='regnum', label='RegNum', required=True, accessor=MAAttrAccessor('regnum')
+                    name='regnum', label='RegNum', required=True, accessor=MAAttrAccessor('regnum'), isPrimaryKey=True
                     ),
                 MAStringDescription(
                     name='fio', label='FIO', required=True, accessor=MAAttrAccessor('fio')
@@ -72,7 +72,7 @@ class TestModelDescriptor:
         org_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name')
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), isPrimaryKey=True
                     ),
                 MAStringDescription(
                     name='address', label='Address', required=True, accessor=MAAttrAccessor('address')
@@ -99,7 +99,7 @@ class TestModelDescriptor:
         acc_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='login', label='Login', required=True, accessor=MAAttrAccessor('login')
+                    name='login', label='Login', required=True, accessor=MAAttrAccessor('login'), isPrimaryKey=True
                     ),
                 #!TODO Change to MAPasswordDescription when it is implemented
                 MAStringDescription(
@@ -130,7 +130,7 @@ class TestModelDescriptor:
         host_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip')
+                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'), isPrimaryKey=True
                     ),
                 MAToManyRelationDescription(
                     name='ports', label='Ports', required=True,
@@ -147,11 +147,12 @@ class TestModelDescriptor:
             [
                 MAIntDescription(
                     name='numofport', label='Number of Port', required=True, accessor=MAAttrAccessor('numofport')
+                    , isPrimaryKey=True
                     ),
                 MAToOneRelationDescription(
                     name='host', label='Host', required=True,
                     accessor=MAAttrAccessor('host'), classes=[Host],
-                    reference=host_desc_container,
+                    reference=host_desc_container, isPrimaryKey=True
                     ),
                 ]
             )

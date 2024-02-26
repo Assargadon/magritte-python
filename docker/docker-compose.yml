@@ -1,0 +1,33 @@
+version: '3.8'
+
+networks:
+  network:
+    name: ${COMPOSE_PROJECT_NAME}-docker
+
+services:
+  phyton:
+    build:
+      dockerfile: ./images/python/Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+        APP_CODE_PATH_CONTAINER: ${APP_CODE_PATH_CONTAINER}
+    container_name: ${COMPOSE_PROJECT_NAME?}-phyton
+    volumes:
+      - ${APP_CODE_PATH_HOST?}:${APP_CODE_PATH_CONTAINER?}
+    restart: ${RESTART:-no}
+
+  postgres:
+    image: postgres
+    container_name: ${COMPOSE_PROJECT_NAME?}-postgres
+    restart: ${RESTART:-no}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?}
+
+  adminer:
+    image: adminer
+    container_name: ${COMPOSE_PROJECT_NAME?}-postgres-admin
+    restart: ${RESTART:-no}
+    ports:
+      - "${ADMINER_HOST_PORT:-8080}:8080"

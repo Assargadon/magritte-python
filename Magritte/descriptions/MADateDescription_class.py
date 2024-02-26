@@ -14,4 +14,4 @@ class MADateDescription(MAMagnitudeDescription):
         return date
 
     def acceptMagritte(self, aVisitor):
-        aVisitor.visitDateDescription(self)
+        return aVisitor.visitDateDescription(self)
