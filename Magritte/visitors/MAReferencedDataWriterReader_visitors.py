@@ -12,7 +12,7 @@ from Magritte.errors.MAKindError import MAKindError
 
 class MADescriptorWalker:
 
-    class _WalkerVisitor(MAVisitor):
+    class WalkerVisitor(MAVisitor):
 
         class _Context:
             parent_context = None
@@ -146,7 +146,7 @@ class MADescriptorWalker:
             return self._contexts
 
 
-    class _DumpModelWalkerVisitor(_WalkerVisitor):
+    class DumpModelWalkerVisitor(WalkerVisitor):
         def __init__(self):
             super().__init__()
             self._doReadElementValues = None
@@ -190,7 +190,7 @@ class MADescriptorWalker:
             self._doReadElementValues = doReadElementValues
             return self.walkDescription(aModel, aDescription)
 
-    class _InstaniateModelWalkerVisitor(_WalkerVisitor):
+    class InstaniateModelWalkerVisitor(WalkerVisitor):  # Not used for now
         def __init__(self):
             super().__init__()
             self._contexts_dump = None
@@ -229,10 +229,10 @@ class MADescriptorWalker:
                 value = description.undefinedValue
             else:
                 subcontext_dump_matching_name = self._contexts_dump[subcontext_dump_index_matching_name]
-                value = subcontext_dump_matching_name['value']
-            #MAModel.writeUsingWrapper(model, description, value)
-            jsonReader = MAValueJsonReader()
-            jsonReader.read_json(model, value, description)
+                subcontext_dump = subcontext_dump_matching_name['value']
+                jsonReader = MAValueJsonReader()
+                value = jsonReader.read_json(None, subcontext_dump, description)
+            MAModel.writeUsingWrapper(model, description, value)
             return subcontext_dump_index_matching_name
 
         def processToOneRelationContext(self, context, description):
@@ -283,7 +283,7 @@ class MADescriptorWalker:
 
 class MAReferencedDataHumanReadableSerializer:
 
-    class _HumanReadableDumpModelWalkerVisitor(MADescriptorWalker._DumpModelWalkerVisitor):
+    class _HumanReadableDumpModelWalkerVisitor(MADescriptorWalker.DumpModelWalkerVisitor):
         def __init__(self):
             super().__init__()
             self._jsonWriter = MAValueJsonWriter()
@@ -381,7 +381,7 @@ class MAReferencedDataDeserializer:
 
 class MAReferencedDataHumanReadableDeserializer:
 
-    class _HumanReadableInstaniateModelWalkerVisitor(MADescriptorWalker._WalkerVisitor):
+    class _HumanReadableInstaniateModelWalkerVisitor(MADescriptorWalker.WalkerVisitor):
 
         def __init__(self):
             super().__init__()
@@ -428,10 +428,10 @@ class MAReferencedDataHumanReadableDeserializer:
             found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
             if found:
                 jsonReader = MAValueJsonReader()
-                jsonReader.read_json(model, subcontext_dump, description)
+                value = jsonReader.read_json(None, subcontext_dump, description)
             else:
                 value = description.undefinedValue
-                MAModel.writeUsingWrapper(model, description, value)
+            MAModel.writeUsingWrapper(model, description, value)
             #self._addValueForDump(subcontext_dump, value)
             return None
 

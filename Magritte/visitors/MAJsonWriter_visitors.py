@@ -67,35 +67,42 @@ class MAValueJsonReader(MAVisitor):
     def __init__(self):
         self._model = None
         self._json_value = None
+        self._decoded_value = None
 
     def read_json(self, model: Any, json_value: Any, description: MADescription) -> Any:
         self._model = model
         self._json_value = json_value
+        self._decoded_value = None
         self.visit(description)
-        return self._model
+        return self._decoded_value
+
+    def _write_to_model(self, description: MADescription):
+        if self._model is not None:
+            description.accessor.write(self._model, self._decoded_value)
 
     def visit(self, description: MADescription):
         if self._json_value != description.undefinedValue:
             super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
-        description.accessor.write(self._model, self._json_value)
+        self._decoded_value = self._json_value
+        self._write_to_model(description)
 
     def visitDateAndTimeDescription(self, description: MADescription):
         from datetime import datetime
         if self._json_value is not None:
-            value = datetime.fromisoformat(self._json_value)
+            self._decoded_value = datetime.fromisoformat(self._json_value)
         else:
-            value = description.undefinedValue
-        description.accessor.write(self._model, value)
+            self._decoded_value = description.undefinedValue
+        self._write_to_model(description)
 
     def visitDateDescription(self, description: MADescription):
         from datetime import date
         if self._json_value is not None:
-            value = date.fromisoformat(self._json_value)
+            self._decoded_value = date.fromisoformat(self._json_value)
         else:
-            value = description.undefinedValue
-        description.accessor.write(self._model, value)
+            self._decoded_value = description.undefinedValue
+        self._write_to_model(description)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
