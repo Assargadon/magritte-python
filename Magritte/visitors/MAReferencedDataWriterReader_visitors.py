@@ -540,3 +540,6 @@ if __name__ == "__main__":
     dto_p = deserializer.deserializeHumanReadable(serialized_str_p, portDescriptor, dto_factory=custom_dto_factory)
     print(dto_p)
 
+    dto_ip = deserializer.deserializeHumanReadable(serialized_str_ip, ipDescriptor, dto_factory=custom_dto_factory)
+    print(dto_ip)
+
