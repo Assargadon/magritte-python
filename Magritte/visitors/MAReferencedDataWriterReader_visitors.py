@@ -552,3 +552,4 @@ if __name__ == "__main__":
 
     dto_ports = deserializer.deserializeHumanReadable(serialized_str_ports, portsDescriptor, dto_factory=custom_dto_factory)
     print(dto_ports)
+    print(len(host.ports), len(dto_ports))
