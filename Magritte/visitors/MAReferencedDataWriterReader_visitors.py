@@ -418,7 +418,7 @@ class MAReferencedDataHumanReadableDeserializer:
 
         def processElementDescriptionContext(self, context, description):
             model = self._getParentModel(context)
-            if model is None:  # The ElementDescription serialized data is the root model without enclosing DTO - special handling
+            if model is None:  # The MAElementDescription serialized data is the root model without enclosing DTO - special handling
                 dump = context.source
                 value = self._jsonReader.read_json(None, dump, description)
                 self._addValueForDump(dump, value)
@@ -447,8 +447,15 @@ class MAReferencedDataHumanReadableDeserializer:
 
         def processToManyRelationContext(self, context, description):
             model = self._getParentModel(context)
-            relations_list = MAModel.readUsingWrapper(model, description)
-            found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
+            if model is None:  # The MAToManyRelationDescription serialized data is the root model without enclosing DTO - special handling
+                dump = context.source
+                relations_list = []
+                self._addValueForDump(dump, relations_list)
+                found = True
+                subcontext_dump = dump
+            else:
+                relations_list = MAModel.readUsingWrapper(model, description)
+                found, subcontext_dump = self._findMatchingSubcontextDump(context, description)
             if found:
                 subcontext_dumps = []
                 for relation_dump_or_key in subcontext_dump:
@@ -543,3 +550,5 @@ if __name__ == "__main__":
     dto_ip = deserializer.deserializeHumanReadable(serialized_str_ip, ipDescriptor, dto_factory=custom_dto_factory)
     print(dto_ip)
 
+    dto_ports = deserializer.deserializeHumanReadable(serialized_str_ports, portsDescriptor, dto_factory=custom_dto_factory)
+    print(dto_ports)
