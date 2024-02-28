@@ -506,15 +506,10 @@ if __name__ == "__main__":
 
     provider = TestEnvironmentProvider()
     host = provider.hosts[0]
-    hostDescriptor = TestModelDescriptor.description_for("Host")
-    #descriptorWalker = MADescriptorWalker()
-    #descriptorWalker.dumpModel(host, hostDescriptor)
-    #testVisitor._walker._dbg_print()
+    hostDescriptor = TestModelDescriptor.description_for(Host.__name__)
 
     port = host.ports[5]
-    portDescriptor = TestModelDescriptor.description_for("Port")
-    #descriptorWalker.dumpModel(port, portDescriptor)
-    #testVisitor._walker._dbg_print()
+    portDescriptor = TestModelDescriptor.description_for(Port.__name__)
 
     ipDescriptor = hostDescriptor.children[0]
     portsDescriptor = hostDescriptor.children[1]
