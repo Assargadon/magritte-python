@@ -534,22 +534,17 @@ if __name__ == "__main__":
     serialized_str_ports = serializer.serializeHumanReadable(host, portsDescriptor)
     print(serialized_str_ports)
 
-    def custom_dto_factory(description):
-        if description.name == 'Host': return Host()
-        if description.name == 'Port': return Port()
-        return None
-
     deserializer = MAReferencedDataHumanReadableDeserializer()
 
-    dto_h = deserializer.deserializeHumanReadable(serialized_str_h, hostDescriptor, dto_factory=custom_dto_factory)
+    dto_h = deserializer.deserializeHumanReadable(serialized_str_h, hostDescriptor)
     print(dto_h)
 
-    dto_p = deserializer.deserializeHumanReadable(serialized_str_p, portDescriptor, dto_factory=custom_dto_factory)
+    dto_p = deserializer.deserializeHumanReadable(serialized_str_p, portDescriptor)
     print(dto_p)
 
-    dto_ip = deserializer.deserializeHumanReadable(serialized_str_ip, ipDescriptor, dto_factory=custom_dto_factory)
+    dto_ip = deserializer.deserializeHumanReadable(serialized_str_ip, ipDescriptor)
     print(dto_ip)
 
-    dto_ports = deserializer.deserializeHumanReadable(serialized_str_ports, portsDescriptor, dto_factory=custom_dto_factory)
+    dto_ports = deserializer.deserializeHumanReadable(serialized_str_ports, portsDescriptor)
     print(dto_ports)
     print(len(host.ports), len(dto_ports))
