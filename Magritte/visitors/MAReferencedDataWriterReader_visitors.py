@@ -290,11 +290,12 @@ class MAReferencedDataHumanReadableSerializer:
         def _clear(self):
             super()._clear()
             self._dumpResultPerContextIndex = {}
-            #self._dumpEmittedPerContentIndex = {}
+            self._dumpEmittedPerContextIndex = set()
 
         def _emitDumpOnce(self, context):
             context_index = context.context_index
-            if context_index in self._dumpResultPerContextIndex:
+            if context_index in self._dumpResultPerContextIndex and context_index not in self._dumpEmittedPerContextIndex:
+                self._dumpEmittedPerContextIndex.add(context_index)
                 return self._dumpResultPerContextIndex[context_index]
             else:
                 return context_index
