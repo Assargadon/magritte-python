@@ -23,15 +23,16 @@ class MADescriptorWalker:
             ref_count: int = 1
 
         def __init__(self):
-            self._contexts = None
-            self._contexts_by_source_id = None
-            self._sources = None
-            self._sources_by_source_index = None
-            self._source_indices_by_identifier = None
-            self._source_indices_by_context_index = None
+            #self._contexts = None
+            #self._contexts_by_source_id = None
+            #self._sources = None
+            #self._sources_by_source_index = None
+            #self._source_indices_by_identifier = None
+            #self._source_indices_by_context_index = None
             self._clear()
 
         def _clear(self):
+            self._context = None
             self._contexts = []
             self._contexts_by_source_id = {}
             self._sources = []
@@ -144,6 +145,13 @@ class MADescriptorWalker:
             self._walkFromCurrent()
             return self._contexts
 
+        def rewalkDescription(self):
+            if len(self._contexts) > 0:
+                self._context = self._contexts[0]
+            else:
+                self._context = None
+            self._walkFromCurrent()
+            return self._contexts
 
     class DumpModelWalkerVisitor(WalkerVisitor):
         def __init__(self):
@@ -380,12 +388,14 @@ class MAReferencedDataHumanReadableDeserializer:
             super().__init__()
             self._jsonReader = MAValueJsonReader()
             self._dto_factory = None
+            self._fulfilledAllReferences = False
 
         def _clear(self):
             super()._clear()
             self._dtos_by_key = {}
             self._values_by_dump_id = {}
             self._dumps_by_key = {}
+            self._fulfilledAllReferences = True
 
         def _getOrCreateDTO(self, dump, dto_description):
             key = dump['_key']
@@ -404,8 +414,11 @@ class MAReferencedDataHumanReadableDeserializer:
 
         def _getDTOdumpByKey(self, dump):
             if isinstance(dump, int):
-                return self._dumps_by_key[dump]
-            return dump
+                if dump in self._dumps_by_key:
+                    return True, self._dumps_by_key[dump]
+                else:
+                    return False, None
+            return True, dump
 
         def _addValueForDump(self, dump, value):
             self._values_by_dump_id[id(dump)] = value
@@ -437,7 +450,10 @@ class MAReferencedDataHumanReadableDeserializer:
             model = self._getParentModel(context)
             found, subcontext_dump_or_key = self._findMatchingSubcontextDump(context, description)
             if found:
-                subcontext_dump = self._getDTOdumpByKey(subcontext_dump_or_key)
+                found, subcontext_dump = self._getDTOdumpByKey(subcontext_dump_or_key)
+                if not found:
+                    self._fulfilledAllReferences = False
+                    return None
                 submodel = self._getOrCreateDTO(subcontext_dump, description.reference)
             else:
                 subcontext_dump = None
@@ -460,7 +476,10 @@ class MAReferencedDataHumanReadableDeserializer:
             if found:
                 subcontext_dumps = []
                 for relation_dump_or_key in subcontext_dump:
-                    relation_dump = self._getDTOdumpByKey(relation_dump_or_key)
+                    found, relation_dump = self._getDTOdumpByKey(relation_dump_or_key)
+                    if not found:
+                        self._fulfilledAllReferences = False
+                        continue
                     submodel = self._getOrCreateDTO(relation_dump, description.reference)
                     subcontext_dumps.append(relation_dump)
                     self._addValueForDump(relation_dump, submodel)
@@ -476,7 +495,11 @@ class MAReferencedDataHumanReadableDeserializer:
             if dump is None:
                 return None
             self._dto_factory = dto_factory
+
             self.walkDescription(dump, description)
+            if not self._fulfilledAllReferences:
+                self.rewalkDescription()
+
             root_dump_id = id(dump)
             if root_dump_id in self._values_by_dump_id:
                 return self._values_by_dump_id[root_dump_id]
