@@ -15,6 +15,7 @@ from Magritte.model_for_tests.Account import Account
 from Magritte.model_for_tests.Host import Host
 from Magritte.model_for_tests.Port import Port
 from Magritte.model_for_tests.User import User
+from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
 
 
 class TestModelDescriptor:
@@ -22,11 +23,29 @@ class TestModelDescriptor:
     def description_for(cls, model_type: str) -> MAContainer:
         """Returns a fact description for the given fact type."""
 
+        subscription_plan_desc_container = MAContainer()
         user_desc_container = MAContainer()
         org_desc_container = MAContainer()
         acc_desc_container = MAContainer()
         host_desc_container = MAContainer()
         port_desc_container = MAContainer()
+
+        subscription_plan_desc_container.kind = SubscriptionPlan
+        subscription_plan_desc_container.name = 'SubscriptionPlan'
+        subscription_plan_desc_container.label = 'Subscription Plan model'
+        subscription_plan_desc_container.setChildren(
+            [
+                MAStringDescription(
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), isPrimaryKey=True
+                ),
+                MAIntDescription(
+                    name='price', label='Price (per month)', required=True, accessor=MAAttrAccessor('price')
+                ),
+                MAStringDescription(
+                    name='description', label='Description of the plan features', required=False, accessor=MAAttrAccessor('description')
+                ),
+            ]
+        )
 
         user_desc_container.kind = User
         user_desc_container.name = 'User'
@@ -64,6 +83,11 @@ class TestModelDescriptor:
                     accessor=MAAttrAccessor('setofaccounts'), classes=[Account],
                     reference=acc_desc_container,
                     ),
+                MASingleOptionDescription(
+                    name='plan', label='Subscription Plan', required=False, accessor=MAAttrAccessor('plan'),
+                    options=SubscriptionPlan.entries,
+                    reference=subscription_plan_desc_container
+                )
                 ]
             )
 

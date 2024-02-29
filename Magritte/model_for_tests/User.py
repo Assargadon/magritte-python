@@ -27,6 +27,7 @@ class User(MAModel):
         self._dateofadmission = DateOfAdmission
         self._dateofdeparture = DateOfDeparture
         self._setofaccounts = SetOfAccounts
+        self.plan = None
 
     @staticmethod
     def generate_regnum():
@@ -66,6 +67,14 @@ class User(MAModel):
         from Magritte.model_for_tests.Host import Host
         return [Account.random_account(Port.randomPortForHost(Host.random_host())) for _ in range(5)]
 
+    @staticmethod
+    def generate_subscription_plan():
+        from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
+        if random.random() < 0.5:
+            return SubscriptionPlan.entries[0]
+        else: #select a random non-free plan
+            return random.choice(SubscriptionPlan.entries[1:])
+
     @classmethod
     def random_user(cls, organization):
         regnum = cls.generate_regnum()
@@ -77,6 +86,7 @@ class User(MAModel):
         dateofdeparture = cls.generate_dateofdeparture()
         setofacc = cls.generate_setofaccounts()
         new_user = cls(regnum, fio, dateofbirth, gender, org,  dateofadmission, dateofdeparture, setofacc)
+        new_user.plan = cls.generate_subscription_plan()
         return new_user
 
     def work(self):
