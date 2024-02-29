@@ -45,7 +45,7 @@ def main():
 
     print("\nPorts:")
     for port in provider.ports:
-        print(f"Host IP: {port.host.ip}, Port Number: {port.numofport}")
+        print(f"Host IP: {port.host.ip}, Port Number: {port.numofport}, Status: {port.status}")
 
     print("\nAccounts:")
     for account in provider.accounts:

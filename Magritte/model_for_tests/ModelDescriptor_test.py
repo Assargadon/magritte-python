@@ -8,6 +8,7 @@ from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
+from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.model_for_tests.Organization import Organization
 from Magritte.model_for_tests.Account import Account
@@ -154,6 +155,11 @@ class TestModelDescriptor:
                     accessor=MAAttrAccessor('host'), classes=[Host],
                     reference=host_desc_container, isPrimaryKey=True
                     ),
+                MASingleOptionDescription(
+                    name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),
+                    options=Port.STATUSES,
+                    reference=MAStringDescription()
+                    )
                 ]
             )
 
