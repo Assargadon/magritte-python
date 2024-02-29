@@ -1,17 +1,6 @@
 from unittest import TestCase
 from json import dumps, loads
-from datetime import datetime, timedelta, date, time
 
-from Magritte.descriptions.MAStringDescription_class import MAStringDescription
-from Magritte.descriptions.MAElementDescription_class import MAElementDescription
-from Magritte.descriptions.MADateDescription_class import MADateDescription
-from Magritte.descriptions.MATimeDescription_class import MATimeDescription
-from Magritte.descriptions.MAIntDescription_class import MAIntDescription
-from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
-from Magritte.descriptions.MAFloatDescription_class import MAFloatDescription
-from Magritte.descriptions.MADurationDescription_class import MADurationDescription
-from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
-from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
@@ -123,9 +112,32 @@ class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
         self.assertIsInstance(portsDeserialized, list, f"MAToManyRelationDescription in a deserialized form should result in a list, got {portsDeserialized}")
 
 
-class MAReferencedDataWriterReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
+class MAReferencedDataWriterReaderVisitorPassthroughTest(MAReferencedDataWriterVisitorTestBase):
 
     def setUp(self):
         super().setUp()
         self.serializer = MAReferencedDataHumanReadableSerializer()
         self.deserializer = MAReferencedDataHumanReadableDeserializer()
+
+    def test_passthroughWithPort(self):
+        serialized_str_port = self.serializer.serializeHumanReadable(self.port, self.portDescription)
+        dto_port = self.deserializer.deserializeHumanReadable(serialized_str_port, self.portDescription)
+        self.assertIsInstance(dto_port, Port, f"Passed through port should result in Port instance, got {dto_port}")
+        self.assertEqual(self.port.numofport, dto_port.numofport, f"Passed through port should have the same numofport {self.port.numofport}, got {dto_port.numofport}")
+        self.assertEqual(self.port.host.ip, dto_port.host.ip, f"Passed through port should have the same ip of the host {self.port.host.ip}, got {dto_port.host.ip}")
+        self.assertEqual(len(self.port.host.ports), len(dto_port.host.ports), f"Passed through port should have the same number of ports of the host {len(self.port.host.ports)}, got {len(dto_port.host.ports)}")
+
+    def test_passthroughWithHost(self):
+        serialized_str_host = self.serializer.serializeHumanReadable(self.host, self.hostDescription)
+        dto_host = self.deserializer.deserializeHumanReadable(serialized_str_host, self.hostDescription)
+        self.assertIsInstance(dto_host, Host, f"Passed through host should result in Host instance, got {dto_host}")
+        self.assertEqual(self.host.ip, dto_host.ip, f"Passed through host should have the same ip of the host {self.host.ip}, got {dto_host.ip}")
+        self.assertEqual(len(self.host.ports), len(dto_host.ports), f"Passed through host should have the same number of ports of the host {len(self.host.ports)}, got {len(dto_host.ports)}")
+
+    def test_passthroughWithPorts(self):
+        portsDescription = self.findDescriptionByProperty(Host.ports)
+        serialized_str_ports = self.serializer.serializeHumanReadable(self.host, portsDescription)
+        dto_ports = self.deserializer.deserializeHumanReadable(serialized_str_ports, portsDescription)
+        self.assertIsInstance(dto_ports, list, f"Passed through ports should result in list instance, got {dto_ports}")
+        self.assertEqual(len(self.host.ports), len(dto_ports), f"Passed through ports list should have the same length as for host {len(self.host.ports)}, got {len(dto_ports)}")
+
