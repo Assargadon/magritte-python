@@ -18,20 +18,8 @@ from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentPro
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, Port, Account
 
 
-def findDescriptionByProperty(testcase, prop):
-    getter = prop.fget
-    name = getter.__name__
-    class_name = getter.__qualname__.split(".")[0]
-    container = TestModelDescriptor.description_for(class_name)
-    testcase.assertIsNotNone(container)
-    descriptor = next(filter(lambda description: description.name == name, container.children), None)
-    testcase.assertIsNotNone(descriptor)
-    return descriptor
-
-
-class MAReferencedDataWriterVisitorTest(TestCase):
+class MAReferencedDataWriterVisitorTestBase(TestCase):
     def setUp(self):
-        self.serializer = MAReferencedDataHumanReadableSerializer()
         provider = TestEnvironmentProvider()
         self.host = provider.hosts[0]
         self.hostDescription = TestModelDescriptor.description_for(Host.__name__)
@@ -40,8 +28,25 @@ class MAReferencedDataWriterVisitorTest(TestCase):
         self.account = provider.accounts[1]
         self.accountDescription = TestModelDescriptor.description_for(Account.__name__)
 
+    def findDescriptionByProperty(self, prop):
+        getter = prop.fget
+        name = getter.__name__
+        class_name = getter.__qualname__.split(".")[0]
+        container = TestModelDescriptor.description_for(class_name)
+        self.assertIsNotNone(container)
+        descriptor = next(filter(lambda description: description.name == name, container.children), None)
+        self.assertIsNotNone(descriptor)
+        return descriptor
+
+
+class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
+
+    def setUp(self):
+        super().setUp()
+        self.serializer = MAReferencedDataHumanReadableSerializer()
+
     def testStringDescription(self):
-        hostIpDescription = findDescriptionByProperty(self, Host.ip)
+        hostIpDescription = self.findDescriptionByProperty(Host.ip)
         hostIpDumped = self.serializer.dumpHumanReadable(self.host, hostIpDescription)
         self.assertEqual(hostIpDumped, self.host.ip, f"MAStringDescription in a dumped form should result in the same string {self.host.ip}, got {hostIpDumped}")
         hostIpSerialized = self.serializer.serializeHumanReadable(self.host, hostIpDescription)
@@ -49,15 +54,15 @@ class MAReferencedDataWriterVisitorTest(TestCase):
         self.assertEqual(hostIpSerialized, hostIpJson, f"MAStringDescription in a serialized form should result in a json encoded string {hostIpJson}, got {hostIpSerialized}")
 
     def testIntDescription(self):
-        numofportDescription = findDescriptionByProperty(self, Port.numofport)
+        numofportDescription = self.findDescriptionByProperty(Port.numofport)
         numofportDumped = self.serializer.dumpHumanReadable(self.port, numofportDescription)
-        self.assertEqual(numofportDumped, self.port.numofport, f"MAIntDescription in a dumped form should result in the same number, got {numofportDumped}")
+        self.assertEqual(numofportDumped, self.port.numofport, f"MAIntDescription in a dumped form should result in the same number {self.port.numofport}, got {numofportDumped}")
         numofportSerialized = self.serializer.serializeHumanReadable(self.port, numofportDescription)
         numofportJson = dumps(self.port.numofport)
         self.assertEqual(numofportSerialized, numofportJson, f"MAIntDescription in a serialized form should result in a json encoded number {numofportJson}, got {numofportSerialized}")
 
-    def testNone(self):
-        ntlmDescription = findDescriptionByProperty(self, Account.ntlm)
+    def testElementDescriptionWithNone(self):
+        ntlmDescription = self.findDescriptionByProperty(Account.ntlm)
         account = Account.random_account(self.port)
         account.ntlm = None
         ntlmDumped = self.serializer.dumpHumanReadable(account, ntlmDescription)
@@ -67,7 +72,7 @@ class MAReferencedDataWriterVisitorTest(TestCase):
         self.assertEqual(ntlmSerialized,  noneJson, f"MAElementDescription of None in a serialized form should result in json null, got {ntlmSerialized}")
 
     def testToManyRelationDescription(self):
-        portsDescription = findDescriptionByProperty(self, Host.ports)
+        portsDescription = self.findDescriptionByProperty(Host.ports)
         portsDumped = self.serializer.dumpHumanReadable(self.host, portsDescription)
         self.assertIsInstance(portsDumped, list, f"MAToManyRelationDescription in a dumped form should result in a list, got {portsDumped}")
         portsSerialized = self.serializer.serializeHumanReadable(self.host, portsDescription)
@@ -87,7 +92,40 @@ class MAReferencedDataWriterVisitorTest(TestCase):
         self.assertIsInstance(hostFromJson, dict, "MAContainerDescription in a serialized form should result in a json object")
 
 
-class MAReferencedDataReaderVisitorTest(TestCase):
+class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
 
     def setUp(self):
-        pass
+        super().setUp()
+        self.deserializer = MAReferencedDataHumanReadableDeserializer()
+
+    def testStringDescription(self):
+        hostIpDescription = self.findDescriptionByProperty(Host.ip)
+        hostIpJson = dumps(self.host.ip)
+        hostIpDeserialized = self.deserializer.deserializeHumanReadable(hostIpJson, hostIpDescription)
+        self.assertEqual(hostIpDeserialized, self.host.ip, f"MAStringDescription in a deserialized form should result in the same string {self.host.ip}, got {hostIpDeserialized}")
+
+    def testIntDescription(self):
+        numofportDescription = self.findDescriptionByProperty(Port.numofport)
+        numofportJson = dumps(self.port.numofport)
+        numofportDeserialized = self.deserializer.deserializeHumanReadable(numofportJson, numofportDescription)
+        self.assertEqual(numofportDeserialized, self.port.numofport, f"MAIntDescription in a deserialized form should result in the same number {self.port.numofport}, got {numofportDeserialized}")
+
+    def testElementDescriptionWithNone(self):
+        ntlmDescription = self.findDescriptionByProperty(Account.ntlm)
+        noneJson = dumps(None)
+        ntlmDeserialized = self.deserializer.deserializeHumanReadable(noneJson, ntlmDescription)
+        self.assertIsNone(ntlmDeserialized, f"MAElementDescription of None in a deserialized form should result in None, got {ntlmDeserialized}")
+
+    def testToManyRelationDescription(self):
+        portsDescription = self.findDescriptionByProperty(Host.ports)
+        portsJson = dumps([])
+        portsDeserialized = self.deserializer.deserializeHumanReadable(portsJson, portsDescription)
+        self.assertIsInstance(portsDeserialized, list, f"MAToManyRelationDescription in a deserialized form should result in a list, got {portsDeserialized}")
+
+
+class MAReferencedDataWriterReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
+
+    def setUp(self):
+        super().setUp()
+        self.serializer = MAReferencedDataHumanReadableSerializer()
+        self.deserializer = MAReferencedDataHumanReadableDeserializer()
