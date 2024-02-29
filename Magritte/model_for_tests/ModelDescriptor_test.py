@@ -197,6 +197,8 @@ class TestModelDescriptor:
             return host_desc_container
         elif  model_type == 'Port':
             return port_desc_container
+        elif model_type == 'SubscriptionPlan':
+            return subscription_plan_desc_container
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 
