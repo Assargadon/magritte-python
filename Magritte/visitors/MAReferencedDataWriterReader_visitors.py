@@ -23,12 +23,6 @@ class MADescriptorWalker:
             ref_count: int = 1
 
         def __init__(self):
-            #self._contexts = None
-            #self._contexts_by_source_id = None
-            #self._sources = None
-            #self._sources_by_source_index = None
-            #self._source_indices_by_identifier = None
-            #self._source_indices_by_context_index = None
             self._clear()
 
         def _clear(self):
@@ -156,7 +150,6 @@ class MADescriptorWalker:
     class DumpModelWalkerVisitor(WalkerVisitor):
         def __init__(self):
             super().__init__()
-            self._doReadElementValues = None
 
         def _dbg_print(self):
             printed_contexts = set()
@@ -178,11 +171,7 @@ class MADescriptorWalker:
             printContext('', self._contexts[0])
 
         def processElementDescriptionContext(self, context, description):
-            if self._doReadElementValues:
-                value = MAModel.readUsingWrapper(context.source, context.description)
-                return value
-            else:
-                return None
+            return None
 
         def processToOneRelationContext(self, context, description):
             model = context.source
@@ -193,8 +182,7 @@ class MADescriptorWalker:
             values = MAModel.readUsingWrapper(context.source, description)
             return values
 
-        def dumpModel(self, aModel: Any, aDescription: MADescription, doReadElementValues):
-            self._doReadElementValues = doReadElementValues
+        def dumpModel(self, aModel: Any, aDescription: MADescription):
             return self.walkDescription(aModel, aDescription)
 
     class InstaniateModelWalkerVisitor(WalkerVisitor):  # Not used for now
@@ -344,7 +332,7 @@ class MAReferencedDataHumanReadableSerializer:
             #print(f'processToManyRelationContext {aDescription.name} {dumpResult}')
 
         def dumpModelHumanReadable(self, aModel: Any, aDescription: MADescription):
-            self.dumpModel(aModel, aDescription, doReadElementValues=False)
+            self.dumpModel(aModel, aDescription)
             return self._dumpResultPerContextIndex[0] if 0 in self._dumpResultPerContextIndex else None
 
     def dumpHumanReadable(self, model: Any, description: MADescription) -> Any:
@@ -407,7 +395,6 @@ class MAReferencedDataHumanReadableDeserializer:
 
         def _getParentModel(self, context):
             if context.parent_context is None:
-                # todo: conception of virtual root model?
                 return None
             else:
                 return self._getOrCreateDTO(context.source, context.parent_context.description)

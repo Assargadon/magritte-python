@@ -16,6 +16,7 @@ class MAValueJsonWriter(MAVisitor):
 
     def __init__(self):
         self._model = None
+        self._accessor = None
         self._json = None
 
     @staticmethod
@@ -28,8 +29,9 @@ class MAValueJsonWriter(MAVisitor):
         else:
             return src
 
-    def write_json(self, model: Any, description: MADescription) -> Any:
+    def write_json(self, model: Any, description: MADescription, accessor=None) -> Any:
         self._model = model
+        self._accessor = description.accessor if accessor is None else accessor
         self._json = self._test_jsonable(description.undefinedValue)
         self.visit(description)
         return self._json
@@ -42,10 +44,10 @@ class MAValueJsonWriter(MAVisitor):
             super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
-        self._json = self._test_jsonable(description.accessor.read(self._model))
+        self._json = self._test_jsonable(self._accessor.read(self._model))
 
     def visitDateAndTimeDescription(self, description: MADescription):
-        value = description.accessor.read(self._model)
+        value = self._accessor.read(self._model)
         self._json = self._test_jsonable(value.isoformat() if value else None)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
