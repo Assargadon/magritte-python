@@ -513,12 +513,14 @@ class MAReferencedDataHumanReadableDeserializer:
             raise MAKindError(description, 'Kind is not defined to make an instance of the described entity')
         return c()
 
-    def instaniateHumanReadable(self, dump: Any, description: MADescription, dto_factory=default_dto_factory) -> Any:
+    def instaniateHumanReadable(self, dump: Any, description: MADescription, dto_factory=None) -> Any:
+        if dto_factory is None:
+            dto_factory = self.default_dto_factory
         descriptorWalker = self.__class__._HumanReadableInstaniateModelWalkerVisitor()
         model = descriptorWalker.instaniateModelHumanReadable(dump, description, dto_factory)
         return model
 
-    def deserializeHumanReadable(self, serialized_str: str, description: MADescription, dto_factory=default_dto_factory) -> Any:
+    def deserializeHumanReadable(self, serialized_str: str, description: MADescription, dto_factory=None) -> Any:
         dump = json.loads(serialized_str)
         return self.instaniateHumanReadable(dump, description, dto_factory)
 
