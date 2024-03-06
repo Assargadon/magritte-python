@@ -15,7 +15,7 @@ class User(MAModel):
         self._organization = None
         self._dateofadmission = None
         self._dateofdeparture = None
-        self._setofaccounts = None
+        self._setofaccounts = []
         self.plan = None
 
     @staticmethod
