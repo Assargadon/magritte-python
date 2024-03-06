@@ -80,6 +80,12 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         hostFromJson = loads(hostSerialized)
         self.assertIsInstance(hostFromJson, dict, "MAContainerDescription in a serialized form should result in a json object")
 
+    def testIgnoreReadonly(self):
+        portLabelDescription = self.findDescriptionByProperty(Port.label)
+        self.assertTrue(portLabelDescription.isReadOnly(), "Initial condition is not met, Port.label should be described as read-only")
+        portDumped = self.serializer.dumpHumanReadable(self.port, self.portDescription)
+        self.assertNotIn(portLabelDescription.name, portDumped, f"Read-only value should not exist in a dump")
+
 
 class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
 

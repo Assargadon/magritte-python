@@ -67,9 +67,15 @@ class MADescriptorWalker:
             description_clone = copy(description)
             return description_clone
 
+        def _shouldProcessDescription(self, description: MADescription):
+            return description.isVisible() and not description.isReadOnly()
+
+        def _shouldSkipDescription(self, description: MADescription):
+            return not self._shouldProcessDescription(description)
+
         def _walkFromCurrent(self):
             description = self._context.description
-            if description.isReadOnly() or not description.isVisible():
+            if self._shouldSkipDescription(description):
                 return
             description.acceptMagritte(self)
 
@@ -184,13 +190,20 @@ class MADescriptorWalker:
                 if aDescription.name is None:
                     return str(aDescription.__class__.__name__)
                 return aDescription.name
+
+            def print_value(context_index):
+                if context_index in self._source_indices_by_context_index:
+                    return self._sources[self._source_indices_by_context_index[context_index]]
+                else:
+                    return '// Context was not processed'
+
             def printContext(sPrefix: str, aContext):
                 context_index = aContext.context_index
                 printed_contexts.add(context_index)
                 print(f'{sPrefix}Context {context_index}, {print_description(aContext.description)}, referenced {aContext.ref_count} time(s):')
                 subPrefix = f'{sPrefix}  '
                 if aContext.subcontexts is None:
-                    print(f'{subPrefix}Value of {print_description(aContext.description)}, {self._sources[self._source_indices_by_context_index[aContext.context_index]]}')
+                    print(f'{subPrefix}Value of {print_description(aContext.description)}, {print_value(aContext.context_index)}')
                 else:
                     for subcontext in aContext.subcontexts:
                         subcontext_index = subcontext.context_index
@@ -356,7 +369,7 @@ class MAReferencedDataHumanReadableSerializer:
             dumpResult = {'_key': context.context_index}
             self._dumpResultPerContextIndex[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
-                if subcontext.description.visible:
+                if self._shouldProcessDescription(subcontext.description):
                     dumpResult[subcontext.description.name] = self._dumpResultPerContextIndex[subcontext.context_index]
             #print(f'processContainerContext {aDescription.name} {dumpResult}')
 
