@@ -7,21 +7,15 @@ from Magritte.model_for_tests.Port import Port
 
 class Account(MAModel):
 
-    def __init__(self, Login, Password, Dateofreg, Days, port):
-        assert isinstance(port, Port), "Expected port to be an instance of Port"
-        assert Login is not None, "Login cannot be None"
-        assert Password is not None, "Password cannot be None"
-        assert Dateofreg is not None, "Dateofreg cannot be None"
-        assert Days is not None, "Days cannot be None"
-
-        self._login = Login
-        self._password = Password
+    def __init__(self):
+        self._login = None
+        self._password = None
+        self._dateofreg = None
+        self._time = None
+        self._port = None
         self._ntlm = ''
         for i in range(32):
             self._ntlm += hex(random.randint(0, 15))[2:]
-        self._dateofreg = Dateofreg.timestamp()
-        self._time = Days
-        self._port = port
 
     @staticmethod
     def generate_login():
@@ -46,7 +40,12 @@ class Account(MAModel):
         dateofreg = cls.generate_dateofreg()
         days = cls.generate_days()
         port = new_port
-        new_account = cls(login, password, dateofreg, days, port)
+        new_account = cls()
+        new_account.login = login
+        new_account.password = password
+        new_account.dateofreg = dateofreg #.strftime('%Y-%m-%d')
+        new_account.days = days
+        new_account.port = port
         return new_account
 
     def expiration_date(self):
@@ -62,6 +61,7 @@ class Account(MAModel):
 
     @login.setter
     def login(self, new_login):
+        assert new_login is not None, "Login cannot be None"
         self._login = new_login
 
     @property
@@ -70,6 +70,7 @@ class Account(MAModel):
 
     @password.setter
     def password(self, new_password):
+        assert new_password is not None, "Password cannot be None"
         self._password = new_password
 
     @property
@@ -82,12 +83,13 @@ class Account(MAModel):
 
     @property
     def dateofreg(self):
-        date = datetime.datetime.fromtimestamp(self._dateofreg)
+        date = self._dateofreg # datetime.datetime.fromtimestamp()
         return date.strftime('%Y-%m-%d')
 
     @dateofreg.setter
     def dateofreg(self, new_dateofreg):
-        self._dateofreg = (datetime.datetime.strptime(new_dateofreg, '%Y-%m-%d')).timestamp()
+        assert new_dateofreg is not None, "Dateofreg cannot be None"
+        self._dateofreg = new_dateofreg #(datetime.datetime.strptime(new_dateofreg, '%Y-%m-%d')).timestamp()
 
     @property
     def days(self):
@@ -95,6 +97,7 @@ class Account(MAModel):
 
     @days.setter
     def days(self, new_days):
+        assert new_days is not None, "Days cannot be None"
         self._time = new_days
 
     @property
@@ -103,4 +106,5 @@ class Account(MAModel):
 
     @port.setter
     def port(self, new_port):
+        assert isinstance(new_port, Port), "Expected port to be an instance of Port"
         self._port = new_port
