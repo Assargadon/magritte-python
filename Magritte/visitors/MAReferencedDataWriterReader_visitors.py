@@ -2,7 +2,6 @@
 from typing import Any, Union
 from copy import copy
 import json
-from Magritte.accessors.MAAccessor_class import MAAccessor
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAContainer_class import MAContainer
@@ -87,13 +86,15 @@ class MADescriptorWalker:
 
         def visitContainer(self, description: MAContainer):
             context = self._context
-            self.processContainerContext(context)
+            subsource = self.processContainerContext(context)
+            (subsource_index, was_added,) = self._addSourceOnce(subsource)
+            self._contexts_by_source_id[subsource_index] = context
             context.subcontexts = []
             for subdescription in description:
                 subcontext = self._createEmptyContext()
                 subcontext.parent_context = context
                 context.subcontexts.append(subcontext)
-                subcontext.source = context.source
+                subcontext.source = subsource
                 subcontext.description = subdescription
                 self._walkFromCurrent()
 
@@ -150,8 +151,7 @@ class MADescriptorWalker:
             context.subcontexts = [subcontext]
 
         def processContainerContext(self, context):
-            (source_index, was_added,) = self._addSourceOnce(context.source)
-            self._contexts_by_source_id[source_index] = context
+            return None
 
         def processElementDescriptionContext(self, context):
             return None
@@ -222,6 +222,12 @@ class MADescriptorWalker:
             value = MAModel.readUsingWrapper(model, description)
             return value
 
+        def processContainerContext(self, context):
+            model = context.source
+            description = context.description
+            value = MAModel.readUsingWrapper(model, description)
+            return value
+
         def processToOneRelationContext(self, context):
             model = context.source
             description = context.description
@@ -253,9 +259,6 @@ class MADescriptorWalker:
         def _clear(self):
             super()._clear()
             self._dtos_by_dump_index = {}
-
-        #def processContainerContext(self, context):
-        #    if context.context_index in self._dtos_by_context_index: return
 
         def _getOrCreateDTO(self, dump_index, dto_description):
             if dump_index not in self._dtos_by_dump_index:
@@ -396,7 +399,9 @@ class MAReferencedDataHumanReadableSerializer:
         def visitSingleOptionDescription(self, aDescription):
             context = self._context
             super().visitSingleOptionDescription(aDescription)
-            dumpResult = self._jsonWriter.write_json(context.source, aDescription.reference, aDescription.accessor)
+            #dumpResult = self._jsonWriter.write_json(context.source, aDescription.reference, aDescription.accessor)
+            subcontext = context.subcontexts[0]
+            dumpResult = self._emitDumpOnce(subcontext)
             self._dumpResultPerContextIndex[context.context_index] = dumpResult
 
         def dumpModelHumanReadable(self, aModel: Any, aDescription: MADescription):
@@ -616,7 +621,7 @@ if __name__ == "__main__":
     #host.ports = [host.ports[0]]
 
     dumpVisitor = MADescriptorWalker.DumpModelWalkerVisitor()
-    dumpVisitor.dumpModel(host, hostDescriptor)
+    dumpVisitor.dumpModel(user, userDescriptor)
     dumpVisitor._dbg_print()
 
     serializer = MAReferencedDataHumanReadableSerializer()
@@ -635,10 +640,14 @@ if __name__ == "__main__":
     serialized_str_user = serializer.serializeHumanReadable(user, userDescriptor)
     print(serialized_str_user)
 
+
     deserializer = MAReferencedDataHumanReadableDeserializer()
 
     dto_h = deserializer.deserializeHumanReadable(serialized_str_h, hostDescriptor)
     print(dto_h)
+
+    exit(0)
+
 
     dto_p = deserializer.deserializeHumanReadable(serialized_str_p, portDescriptor)
     print(dto_p)
