@@ -183,7 +183,10 @@ class TestModelDescriptor:
                     name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),
                     options=Port.STATUSES,
                     reference=MAStringDescription()
-                    )
+                    ),
+                MAStringDescription(
+                    accessor = MAAttrAccessor('label'), readOnly = True
+                    ),
                 ]
             )
 

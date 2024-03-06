@@ -73,3 +73,7 @@ class Port(MAModel):
         if new_status not in Port.STATUSES:
             raise ValueError(f"Invalid status: {new_status}")
         self._status = new_status
+
+    @property
+    def label(self):
+        return f"{self.host.ip}:{self.numofport}"
