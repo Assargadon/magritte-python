@@ -86,6 +86,30 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         portDumped = self.serializer.dumpHumanReadable(self.port, self.portDescription)
         self.assertNotIn(portLabelDescription.name, portDumped, f"Read-only value should not exist in a dump")
 
+    def testDistinctKeys(self):
+        allKeys = set()
+        def traverseList(l):
+            for val in l:
+                if isinstance(val, dict):
+                    traverseDict(val)
+                if isinstance(val, list):
+                    traverseList(val)
+        def traverseDict(d):
+            for key in d:
+                val = d[key]
+                if key == '_key':
+                    self.assertNotIn(val, allKeys, "MAContainerDescription in a dumped form should not have duplicated '_key' values at any depth")
+                    allKeys.add(val)
+                if isinstance(val, dict):
+                    traverseDict(val)
+                if isinstance(val, list):
+                    traverseList(val)
+        hostDumped = self.serializer.dumpHumanReadable(self.host, self.hostDescription)
+        self.assertIsInstance(hostDumped, dict, f"MAContainerDescription in a dumped form should result in a dict, got {hostDumped}")
+        traverseDict(hostDumped)
+        self.assertGreater(len(allKeys), 1, f"MAContainerDescription with child containers in a dumped form should have '_key' properties at several depths")
+
+
 
 class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
 

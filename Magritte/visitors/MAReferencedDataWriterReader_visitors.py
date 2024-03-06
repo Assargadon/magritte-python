@@ -134,20 +134,21 @@ class MADescriptorWalker:
 
         def visitSingleOptionDescription(self, description: MAReferenceDescription):
             context = self._context
-            subsource = self.processSingleOptionContext(context)
-            (subsource_index, was_added,) = self._addSourceOnce(subsource)
-            if was_added:
+            #subsource = self.processSingleOptionContext(context)
+            #(subsource_index, was_added,) = self._addSourceOnce(subsource)
+            #if was_added:
+            if True:
                 subcontext = self._createEmptyContext()
                 subcontext.parent_context = context
                 subcontext.source = context.source
                 subcontext.description = self._descriptionClone(description.reference)
                 subcontext.description.name = description.name
                 subcontext.description.accessor = description.accessor
-                self._contexts_by_source_id[subsource_index] = subcontext
+                #self._contexts_by_source_id[subsource_index] = subcontext
                 self._walkFromCurrent()
-            else:
-                subcontext = self._contexts_by_source_id[subsource_index]
-                subcontext.ref_count += 1
+            #else:
+            #    subcontext = self._contexts_by_source_id[subsource_index]
+            #    subcontext.ref_count += 1
             context.subcontexts = [subcontext]
 
         def processContainerContext(self, context):
@@ -162,8 +163,8 @@ class MADescriptorWalker:
         def processToManyRelationContext(self, context):
             return []
 
-        def processSingleOptionContext(self, context):
-            return None
+        #def processSingleOptionContext(self, context):
+        #    return None
 
         def walkDescription(self, aSource: Any, aDescription: MADescription):
             self._clear()
@@ -240,11 +241,11 @@ class MADescriptorWalker:
             values = MAModel.readUsingWrapper(model, description)
             return values
 
-        def processSingleOptionContext(self, context):
-            model = context.source
-            description = context.description
-            value = MAModel.readUsingWrapper(model, description)
-            return value
+        #def processSingleOptionContext(self, context):
+        #    model = context.source
+        #    description = context.description
+        #    value = MAModel.readUsingWrapper(model, description)
+        #    return value
 
         def dumpModel(self, aModel: Any, aDescription: MADescription):
             return self.walkDescription(aModel, aDescription)
@@ -513,6 +514,10 @@ class MAReferencedDataHumanReadableDeserializer:
                 #self._addValueForDump(subcontext_dump, value)
             return None
 
+        def processContainerContext(self, context):
+            subcontext_dump = context.source
+            return subcontext_dump
+
         def processToOneRelationContext(self, context):
             model = self._getParentModel(context)
             description = context.description
@@ -560,11 +565,11 @@ class MAReferencedDataHumanReadableDeserializer:
                     relations_list.extend(description.undefinedValue)
             return subcontext_dumps
 
-        def processSingleOptionContext(self, context):
-            found, subcontext_dump = self._findMatchingSubcontextDump(context)
-            if found:
-                return subcontext_dump
-            return None
+        #def processSingleOptionContext(self, context):
+        #    found, subcontext_dump = self._findMatchingSubcontextDump(context)
+        #    if found:
+        #        return subcontext_dump
+        #    return None
 
         def instaniateModelHumanReadable(self, dump, description, dto_factory):
             if dump is None:
@@ -621,7 +626,7 @@ if __name__ == "__main__":
     #host.ports = [host.ports[0]]
 
     dumpVisitor = MADescriptorWalker.DumpModelWalkerVisitor()
-    dumpVisitor.dumpModel(user, userDescriptor)
+    dumpVisitor.dumpModel(host, hostDescriptor)
     dumpVisitor._dbg_print()
 
     serializer = MAReferencedDataHumanReadableSerializer()
@@ -646,9 +651,6 @@ if __name__ == "__main__":
     dto_h = deserializer.deserializeHumanReadable(serialized_str_h, hostDescriptor)
     print(dto_h)
 
-    exit(0)
-
-
     dto_p = deserializer.deserializeHumanReadable(serialized_str_p, portDescriptor)
     print(dto_p)
 
@@ -659,3 +661,5 @@ if __name__ == "__main__":
     print(dto_ports)
     print(len(host.ports), len(dto_ports))
 
+    dto_user = deserializer.deserializeHumanReadable(serialized_str_user, userDescriptor)
+    print(dto_user)
