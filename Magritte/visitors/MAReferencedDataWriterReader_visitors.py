@@ -63,9 +63,8 @@ class MADescriptorWalker:
                 self._sources_by_source_index[source_index] = source
             return (source_index, was_added,)
 
-        def _descriptionWithAccessor(self, description: MADescription, accessor: MAAccessor) -> MADescription:
+        def _descriptionClone(self, description: MADescription) -> MADescription:
             description_clone = copy(description)
-            description_clone.accessor = accessor
             return description_clone
 
         def _walkFromCurrent(self):
@@ -133,8 +132,10 @@ class MADescriptorWalker:
             if was_added:
                 subcontext = self._createEmptyContext()
                 subcontext.parent_context = context
-                subcontext.source = subsource
-                subcontext.description = self._descriptionWithAccessor(description.reference, MAIdentityAccessor())
+                subcontext.source = context.source
+                subcontext.description = self._descriptionClone(description.reference)
+                subcontext.description.name = description.name
+                subcontext.description.accessor = description.accessor
                 self._contexts_by_source_id[subsource_index] = subcontext
                 self._walkFromCurrent()
             else:
@@ -162,7 +163,8 @@ class MADescriptorWalker:
             self._clear()
             self._createEmptyContext()
             self._context.source = aSource
-            self._context.description = self._descriptionWithAccessor(aDescription, MAIdentityAccessor())
+            self._context.description = self._descriptionClone(aDescription)
+            self._context.description.accessor = MAIdentityAccessor()
             self._walkFromCurrent()
 
         def rewalkDescription(self):
@@ -444,11 +446,16 @@ class MAReferencedDataHumanReadableDeserializer:
                 self._dumps_by_key[key] = dump
             return self._dtos_by_key[key]
 
+        def _getOrCreateModel(self, dump, model_description):
+            if isinstance(dump, dict) and '_key' in dump:
+                return self._getOrCreateDTO(dump, model_description)
+            return self._jsonReader.read_json(None, dump, model_description)
+
         def _getParentModel(self, context):
             if context.parent_context is None:
                 return None
             else:
-                return self._getOrCreateDTO(context.source, context.parent_context.description)
+                return self._getOrCreateDTO(context.parent_context.source, context.parent_context.description)
 
         def _getDTOdumpByKey(self, dump):
             if isinstance(dump, int):
@@ -474,7 +481,7 @@ class MAReferencedDataHumanReadableDeserializer:
             description = context.description
             if model is None:  # The MAElementDescription serialized data is the root model without enclosing DTO - special handling
                 dump = context.source
-                value = self._jsonReader.read_json(None, dump, description)
+                value = self._getOrCreateModel(dump, description)
                 self._addValueForDump(dump, value)
             else:
                 found, subcontext_dump = self._findMatchingSubcontextDump(context)
@@ -513,7 +520,7 @@ class MAReferencedDataHumanReadableDeserializer:
                 found = True
                 subcontext_dump = dump
             else:
-                relations_list = self._readModelValue(context, model)
+                relations_list = MAModel.readUsingWrapper(model, description)
                 found, subcontext_dump = self._findMatchingSubcontextDump(context)
             if found:
                 subcontext_dumps = []
@@ -532,6 +539,12 @@ class MAReferencedDataHumanReadableDeserializer:
                 if description.undefinedValue is not None:
                     relations_list.extend(description.undefinedValue)
             return subcontext_dumps
+
+        def processSingleOptionContext(self, context):
+            found, subcontext_dump = self._findMatchingSubcontextDump(context)
+            if found:
+                return subcontext_dump
+            return None
 
         def instaniateModelHumanReadable(self, dump, description, dto_factory):
             if dump is None:
@@ -601,9 +614,6 @@ if __name__ == "__main__":
     serialized_str_ports = serializer.serializeHumanReadable(host.ports, portsDescriptor)
     print(serialized_str_ports)
 
-    exit(0)
-
-
 
     deserializer = MAReferencedDataHumanReadableDeserializer()
 
@@ -619,3 +629,4 @@ if __name__ == "__main__":
     dto_ports = deserializer.deserializeHumanReadable(serialized_str_ports, portsDescriptor)
     print(dto_ports)
     print(len(host.ports), len(dto_ports))
+
