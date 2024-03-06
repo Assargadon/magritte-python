@@ -46,9 +46,13 @@ class MAValueJsonWriter(MAVisitor):
     def visitElementDescription(self, description: MADescription):
         self._json = self._test_jsonable(self._accessor.read(self._model))
 
-    def visitDateAndTimeDescription(self, description: MADescription):
+    def visitDateDescription(self, description: MADescription):
         value = self._accessor.read(self._model)
         self._json = self._test_jsonable(value.isoformat() if value else None)
+
+    def visitDateAndTimeDescription(self, description: MADescription):
+        value = self._accessor.read(self._model)
+        self._json = self._test_jsonable(value)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(

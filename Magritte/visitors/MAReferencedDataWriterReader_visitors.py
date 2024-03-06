@@ -598,7 +598,7 @@ class MAReferencedDataHumanReadableDeserializer:
 if __name__ == "__main__":
 
     from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, Port
+    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, Port, User
 
     provider = TestEnvironmentProvider()
     host = provider.hosts[0]
@@ -606,6 +606,9 @@ if __name__ == "__main__":
 
     port = host.ports[5]
     portDescriptor = TestModelDescriptor.description_for(Port.__name__)
+
+    user = provider.users[0]
+    userDescriptor = TestModelDescriptor.description_for(User.__name__)
 
     ipDescriptor = hostDescriptor.children[0]
     portsDescriptor = hostDescriptor.children[1]
@@ -629,6 +632,8 @@ if __name__ == "__main__":
     serialized_str_ports = serializer.serializeHumanReadable(host.ports, portsDescriptor)
     print(serialized_str_ports)
 
+    serialized_str_user = serializer.serializeHumanReadable(user, userDescriptor)
+    print(serialized_str_user)
 
     deserializer = MAReferencedDataHumanReadableDeserializer()
 
