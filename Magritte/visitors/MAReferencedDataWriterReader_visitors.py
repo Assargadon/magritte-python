@@ -187,9 +187,11 @@ class MADescriptorWalker:
         def _dbg_print(self):
             printed_contexts = set()
             def print_description(aDescription):
+                class_name = str(aDescription.__class__.__name__)
                 if aDescription.name is None:
-                    return str(aDescription.__class__.__name__)
-                return aDescription.name
+                    return class_name
+                else:
+                    return f'{class_name} "{aDescription.name}"'
 
             def print_value(context_index):
                 if context_index in self._source_indices_by_context_index:
