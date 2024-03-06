@@ -7,26 +7,15 @@ from Magritte.model_for_tests.Account import Account
 
 class User(MAModel):
 
-    def __init__(self, RegNum, FIO, DateOfBirth, Gender, organization,
-                 DateOfAdmission, DateOfDeparture, SetOfAccounts):
-        from Magritte.model_for_tests.Organization import Organization
-        assert RegNum is not None, "RegNum cannot be None"
-        assert FIO is not None, "FIO cannot be None"
-        assert DateOfBirth is not None, "DateOfBirth cannot be None"
-        assert Gender is not None, "Gender cannot be None"
-        assert isinstance(organization, Organization), "Expected organization to be an instance of Organization"
-        assert DateOfAdmission is not None, "DateOfAdmission cannot be None"
-        assert DateOfDeparture is not None, "DateOfDeparture cannot be None"
-        assert SetOfAccounts is not None and isinstance(SetOfAccounts, list) and all(isinstance(account, Account) for account in SetOfAccounts), "SetOfAccounts must be a list of Account instances"
-
-        self._regnum = RegNum
-        self._fio = FIO
-        self._dateofbirth = DateOfBirth
-        self._gender = Gender
-        self._organization = organization
-        self._dateofadmission = DateOfAdmission
-        self._dateofdeparture = DateOfDeparture
-        self._setofaccounts = SetOfAccounts
+    def __init__(self):
+        self._regnum = None
+        self._fio = None
+        self._dateofbirth = None
+        self._gender = None
+        self._organization = None
+        self._dateofadmission = None
+        self._dateofdeparture = None
+        self._setofaccounts = None
         self.plan = None
 
     @staticmethod
@@ -85,7 +74,15 @@ class User(MAModel):
         dateofadmission = cls.generate_dateofadmission()
         dateofdeparture = cls.generate_dateofdeparture()
         setofacc = cls.generate_setofaccounts()
-        new_user = cls(regnum, fio, dateofbirth, gender, org,  dateofadmission, dateofdeparture, setofacc)
+        new_user = cls()
+        new_user.regnum = regnum
+        new_user.fio = fio
+        new_user.dateofbirth = dateofbirth
+        new_user.gender = gender
+        new_user.organization = org
+        new_user.dateofadmission = dateofadmission
+        new_user.dateofdeparture = dateofdeparture
+        new_user.setofaccounts = setofacc
         new_user.plan = cls.generate_subscription_plan()
         return new_user
 
@@ -98,6 +95,7 @@ class User(MAModel):
 
     @regnum.setter
     def regnum(self, new_regnum):
+        assert new_regnum is not None, "RegNum cannot be None"
         self._regnum = new_regnum
 
     @property
@@ -106,6 +104,7 @@ class User(MAModel):
 
     @fio.setter
     def fio(self, new_fio):
+        assert new_fio is not None, "FIO cannot be None"
         self._fio = new_fio
 
     @property
@@ -114,6 +113,7 @@ class User(MAModel):
 
     @dateofbirth.setter
     def dateofbirth(self, new_dateofbirth):
+        assert new_dateofbirth is not None, "DateOfBirth cannot be None"
         self._dateofbirth = new_dateofbirth
 
     @property
@@ -122,6 +122,7 @@ class User(MAModel):
 
     @gender.setter
     def gender(self, new_gender):
+        assert new_gender is not None, "Gender cannot be None"
         self._gender = new_gender
 
     @property
@@ -130,6 +131,8 @@ class User(MAModel):
 
     @organization.setter
     def organization(self, new_organization):
+        from Magritte.model_for_tests.Organization import Organization
+        assert isinstance(new_organization, Organization), "Expected organization to be an instance of Organization"
         self._organization = new_organization
 
     @property
@@ -138,6 +141,7 @@ class User(MAModel):
 
     @dateofadmission.setter
     def dateofadmission(self, new_dateofadmission):
+        assert new_dateofadmission is not None, "DateOfAdmission cannot be None"
         self._dateofadmission = new_dateofadmission
 
     @property
@@ -146,6 +150,7 @@ class User(MAModel):
 
     @dateofdeparture.setter
     def dateofdeparture(self, new_dateofdeparture):
+        assert new_dateofdeparture is not None, "DateOfDeparture cannot be None"
         self._dateofdeparture = new_dateofdeparture
 
     @property
@@ -160,4 +165,5 @@ class User(MAModel):
 
     @setofaccounts.setter
     def setofaccounts(self, new_setofaccounts):
+        assert new_setofaccounts is not None and isinstance(new_setofaccounts, list) and all(isinstance(account, Account) for account in new_setofaccounts), "SetOfAccounts must be a list of Account instances"
         self._setofaccounts = new_setofaccounts
