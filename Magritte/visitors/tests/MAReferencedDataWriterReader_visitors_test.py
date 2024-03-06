@@ -36,17 +36,17 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
 
     def testStringDescription(self):
         hostIpDescription = self.findDescriptionByProperty(Host.ip)
-        hostIpDumped = self.serializer.dumpHumanReadable(self.host, hostIpDescription)
+        hostIpDumped = self.serializer.dumpHumanReadable(self.host.ip, hostIpDescription)
         self.assertEqual(hostIpDumped, self.host.ip, f"MAStringDescription in a dumped form should result in the same string {self.host.ip}, got {hostIpDumped}")
-        hostIpSerialized = self.serializer.serializeHumanReadable(self.host, hostIpDescription)
+        hostIpSerialized = self.serializer.serializeHumanReadable(self.host.ip, hostIpDescription)
         hostIpJson = dumps(self.host.ip)
         self.assertEqual(hostIpSerialized, hostIpJson, f"MAStringDescription in a serialized form should result in a json encoded string {hostIpJson}, got {hostIpSerialized}")
 
     def testIntDescription(self):
         numofportDescription = self.findDescriptionByProperty(Port.numofport)
-        numofportDumped = self.serializer.dumpHumanReadable(self.port, numofportDescription)
+        numofportDumped = self.serializer.dumpHumanReadable(self.port.numofport, numofportDescription)
         self.assertEqual(numofportDumped, self.port.numofport, f"MAIntDescription in a dumped form should result in the same number {self.port.numofport}, got {numofportDumped}")
-        numofportSerialized = self.serializer.serializeHumanReadable(self.port, numofportDescription)
+        numofportSerialized = self.serializer.serializeHumanReadable(self.port.numofport, numofportDescription)
         numofportJson = dumps(self.port.numofport)
         self.assertEqual(numofportSerialized, numofportJson, f"MAIntDescription in a serialized form should result in a json encoded number {numofportJson}, got {numofportSerialized}")
 
@@ -54,17 +54,17 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         ntlmDescription = self.findDescriptionByProperty(Account.ntlm)
         account = Account.random_account(self.port)
         account.ntlm = None
-        ntlmDumped = self.serializer.dumpHumanReadable(account, ntlmDescription)
+        ntlmDumped = self.serializer.dumpHumanReadable(account.ntlm, ntlmDescription)
         self.assertIsNone(ntlmDumped, f"MAElementDescription of None in a dumped form should result in None, got {ntlmDumped}")
-        ntlmSerialized = self.serializer.serializeHumanReadable(account, ntlmDescription)
+        ntlmSerialized = self.serializer.serializeHumanReadable(account.ntlm, ntlmDescription)
         noneJson = dumps(None)
         self.assertEqual(ntlmSerialized,  noneJson, f"MAElementDescription of None in a serialized form should result in json null, got {ntlmSerialized}")
 
     def testToManyRelationDescription(self):
         portsDescription = self.findDescriptionByProperty(Host.ports)
-        portsDumped = self.serializer.dumpHumanReadable(self.host, portsDescription)
+        portsDumped = self.serializer.dumpHumanReadable(self.host.ports, portsDescription)
         self.assertIsInstance(portsDumped, list, f"MAToManyRelationDescription in a dumped form should result in a list, got {portsDumped}")
-        portsSerialized = self.serializer.serializeHumanReadable(self.host, portsDescription)
+        portsSerialized = self.serializer.serializeHumanReadable(self.host.ports, portsDescription)
         portsFromJson = loads(portsSerialized)
         self.assertIsInstance(portsFromJson, list, "MAToManyRelationDescription in a serialized form should result in a json array")
         self.assertEqual(len(portsFromJson), len(self.host.ports), "MAToManyRelationDescription in a serialized form should be json array of the same length as original list")
@@ -136,7 +136,7 @@ class MAReferencedDataWriterReaderVisitorPassthroughTest(MAReferencedDataWriterV
 
     def test_passthroughWithPorts(self):
         portsDescription = self.findDescriptionByProperty(Host.ports)
-        serialized_str_ports = self.serializer.serializeHumanReadable(self.host, portsDescription)
+        serialized_str_ports = self.serializer.serializeHumanReadable(self.host.ports, portsDescription)
         dto_ports = self.deserializer.deserializeHumanReadable(serialized_str_ports, portsDescription)
         self.assertIsInstance(dto_ports, list, f"Passed through ports should result in list instance, got {dto_ports}")
         self.assertEqual(len(self.host.ports), len(dto_ports), f"Passed through ports list should have the same length as for host {len(self.host.ports)}, got {len(dto_ports)}")
