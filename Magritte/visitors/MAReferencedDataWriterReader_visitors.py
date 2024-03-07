@@ -465,6 +465,7 @@ class MAReferencedDataHumanReadableDeserializer:
                 dto = self._dto_factory(dto_description)
                 self._dtos_by_key[key] = dto
                 self._dumps_by_key[key] = dump
+                self._addValueForDump(dump, dto)
             return self._dtos_by_key[key]
 
         def _getOrCreateModel(self, dump, model_description):
