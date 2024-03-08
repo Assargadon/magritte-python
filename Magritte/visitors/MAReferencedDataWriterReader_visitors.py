@@ -6,6 +6,7 @@ from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.MAModel_class import MAModel
 from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonReader, MAValueJsonWriter
@@ -134,22 +135,25 @@ class MADescriptorWalker:
 
         def visitSingleOptionDescription(self, description: MAReferenceDescription):
             context = self._context
-            #subsource = self.processSingleOptionContext(context)
-            #(subsource_index, was_added,) = self._addSourceOnce(subsource)
-            #if was_added:
-            if True:
-                subcontext = self._createEmptyContext()
-                subcontext.parent_context = context
-                subcontext.source = context.source
-                subcontext.description = self._descriptionClone(description.reference)
-                subcontext.description.name = description.name
-                subcontext.description.accessor = description.accessor
-                #self._contexts_by_source_id[subsource_index] = subcontext
-                self._walkFromCurrent()
-            #else:
-            #    subcontext = self._contexts_by_source_id[subsource_index]
-            #    subcontext.ref_count += 1
-            context.subcontexts = [subcontext]
+            description = context.description
+            isContainer = isinstance(description.reference, MAContainer)
+
+            if isContainer:
+                subcontext_description = MAToOneRelationDescription()
+                subcontext_description.reference = description.reference
+            else:
+                subcontext_description = self._descriptionClone(description.reference)
+            subcontext_description.name = description.name
+            subcontext_description.accessor = description.accessor
+
+            context.description = subcontext_description
+
+            #subcontext = self._createEmptyContext()
+            #subcontext.parent_context = context
+            #subcontext.source = context.source
+            #subcontext.description = subcontext_description
+            #context.subcontexts = [subcontext]
+            self._walkFromCurrent()
 
         def processContainerContext(self, context):
             return None
@@ -162,9 +166,6 @@ class MADescriptorWalker:
 
         def processToManyRelationContext(self, context):
             return []
-
-        #def processSingleOptionContext(self, context):
-        #    return None
 
         def walkDescription(self, aSource: Any, aDescription: MADescription):
             self._clear()
@@ -241,12 +242,6 @@ class MADescriptorWalker:
             values = MAModel.readUsingWrapper(model, description)
             return values
 
-        #def processSingleOptionContext(self, context):
-        #    model = context.source
-        #    description = context.description
-        #    value = MAModel.readUsingWrapper(model, description)
-        #    return value
-
         def dumpModel(self, aModel: Any, aDescription: MADescription):
             return self.walkDescription(aModel, aDescription)
 
@@ -315,7 +310,7 @@ class MADescriptorWalker:
         def processToManyRelationContext(self, context):
             model = self._getOrCreateDTO(context.source, context.parent_context.description)
             description = context.description
-            relations_list = self._readModelValue(context, model)
+            relations_list = MAModel.readUsingWrapper(model, description)
             subcontext_dump_index_matching_name = self._findMatchingSubcontextDump(context)
             if subcontext_dump_index_matching_name is None:
                 subcontext_dump_indices = []
@@ -397,13 +392,10 @@ class MAReferencedDataHumanReadableSerializer:
                 dumpResult.append(subResult)
             #print(f'processToManyRelationContext {aDescription.name} {dumpResult}')
 
-        def visitSingleOptionDescription(self, aDescription):
-            context = self._context
-            super().visitSingleOptionDescription(aDescription)
-            #dumpResult = self._jsonWriter.write_json(context.source, aDescription.reference, aDescription.accessor)
-            subcontext = context.subcontexts[0]
-            dumpResult = self._emitDumpOnce(subcontext)
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+        #def visitSingleOptionDescription(self, aDescription):
+        #    context = self._context
+        #    super().visitSingleOptionDescription(aDescription)
+        #    self._dumpResultPerContextIndex[context.context_index] = self._dumpResultPerContextIndex[context.subcontexts[0].context_index]
 
         def dumpModelHumanReadable(self, aModel: Any, aDescription: MADescription):
             self.dumpModel(aModel, aDescription)
@@ -566,11 +558,15 @@ class MAReferencedDataHumanReadableDeserializer:
                     relations_list.extend(description.undefinedValue)
             return subcontext_dumps
 
-        #def processSingleOptionContext(self, context):
-        #    found, subcontext_dump = self._findMatchingSubcontextDump(context)
-        #    if found:
-        #        return subcontext_dump
-        #    return None
+        def processSingleOptionContext(self, context, isContainer):
+            found, subcontext_dump = self._findMatchingSubcontextDump(context)
+            if found and isContainer:
+                submodel = self._getOrCreateDTO(subcontext_dump, context.description.reference)
+                self._addValueForDump(subcontext_dump, submodel)
+                model = self._getParentModel(context)
+                if model is not None:
+                    MAModel.writeUsingWrapper(model, context.description, submodel)
+            return subcontext_dump
 
         def instaniateModelHumanReadable(self, dump, description, dto_factory):
             if dump is None:
@@ -623,6 +619,16 @@ if __name__ == "__main__":
 
     ipDescriptor = hostDescriptor.children[0]
     portsDescriptor = hostDescriptor.children[1]
+
+    deserializer = MAReferencedDataHumanReadableDeserializer()
+    serialized_str_user = '{"_key": 0, "regnum": "user76", "plan": {"_key": 3, "name": "Community", "price": 0, "description": "Free plan for non-commercial use"}}'
+    serializer = MAReferencedDataHumanReadableSerializer()
+    serialized_str_user = serializer.serializeHumanReadable(user, userDescriptor)
+    print(serialized_str_user)
+    dto_user = deserializer.deserializeHumanReadable(serialized_str_user, userDescriptor)
+    print(dto_user)
+    #exit(0)
+
 
     #host.ports = [host.ports[0]]
 
