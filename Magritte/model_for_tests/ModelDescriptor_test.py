@@ -76,7 +76,7 @@ class TestModelDescriptor:
                     ),
                 MADateDescription(
                     name='dateofdeparture', label='DateOfDeparture',
-                    required=True, accessor=MAAttrAccessor('dateofdeparture'),
+                    required=False, accessor=MAAttrAccessor('dateofdeparture'),
                     ),
                 MAToManyRelationDescription(
                     name='setofaccounts', label='SetOfAccounts', required=True,

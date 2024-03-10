@@ -57,7 +57,7 @@ def main():
 
     print("\nUsers")
     for user in provider.users:
-        print(f"RegNum: {user.regnum}, FIO: {user.fio} [{user.organization.name}] - {user.plan}")
+        print(f"RegNum: {user.regnum}, FIO: {user.fio} [{user.organization.name}] - {user.plan}, Date of Birth: {user.dateofbirth}, Date of Admission: {user.dateofadmission}, Date of Departure: {user.dateofdeparture}, Work: {user.is_works_now()}")
 
 if __name__ == "__main__":
     main()

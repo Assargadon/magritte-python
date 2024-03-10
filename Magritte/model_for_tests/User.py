@@ -31,7 +31,7 @@ class User(MAModel):
 
     @staticmethod
     def generate_dateofbirth():
-        return datetime.datetime(random.randint(1970, 2004), random.randint(1, 12), random.randint(1, 28))
+        return datetime.date(random.randint(1970, 2004), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_gender():
@@ -44,11 +44,15 @@ class User(MAModel):
 
     @staticmethod
     def generate_dateofadmission():
-        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 28))
+        return datetime.date(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_dateofdeparture():
-        return datetime.datetime(random.randint(2000, 2023), random.randint(1, 12), random.randint(1, 28))
+    # in half of the cases, the user will not have a date of departure
+        if random.random() < 0.5:
+            return None
+        else:
+            return datetime.date(random.randint(2022, 2025), random.randint(1, 12), random.randint(1, 28))
 
     @staticmethod
     def generate_setofaccounts():
@@ -86,8 +90,11 @@ class User(MAModel):
         new_user.plan = cls.generate_subscription_plan()
         return new_user
 
-    def work(self):
-        return (self._dateofdeparture.timestamp() - (datetime.datetime.now()).timestamp()) > 0
+    def is_works_now(self):
+        if self.dateofdeparture is None:
+            return self.dateofadmission <= datetime.date.today()
+        else:
+            return self.dateofadmission <= datetime.date.today() <= self.dateofdeparture
 
     @property
     def regnum(self):
@@ -109,7 +116,7 @@ class User(MAModel):
 
     @property
     def dateofbirth(self):
-        return self._dateofbirth.date()
+        return self._dateofbirth
 
     @dateofbirth.setter
     def dateofbirth(self, new_dateofbirth):
@@ -137,7 +144,7 @@ class User(MAModel):
 
     @property
     def dateofadmission(self):
-        return self._dateofadmission.date()
+        return self._dateofadmission
 
     @dateofadmission.setter
     def dateofadmission(self, new_dateofadmission):
@@ -146,11 +153,10 @@ class User(MAModel):
 
     @property
     def dateofdeparture(self):
-        return self._dateofdeparture.date()
+        return self._dateofdeparture
 
     @dateofdeparture.setter
     def dateofdeparture(self, new_dateofdeparture):
-        assert new_dateofdeparture is not None, "DateOfDeparture cannot be None"
         self._dateofdeparture = new_dateofdeparture
 
     @property
