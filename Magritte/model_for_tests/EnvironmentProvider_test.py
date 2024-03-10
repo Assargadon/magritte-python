@@ -49,7 +49,7 @@ def main():
 
     print("\nAccounts:")
     for account in provider.accounts:
-        print(f"Login: {account.login}, Password: {account.password}, NTLM: {account.ntlm}, DateOfReg: {account.dateofreg}, Days: {account.days}, Port: {account.port.numofport}")
+        print(f"Login: {account.login}, Password: {account.password}, NTLM: {account.ntlm}, Registered: {account.reg_timestamp}, Days: {account.days}, Port: {account.port.numofport}")
 
     print("\nOrganization")
     org = provider.organization

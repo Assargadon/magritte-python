@@ -10,7 +10,7 @@ class Account(MAModel):
     def __init__(self):
         self._login = None
         self._password = None
-        self._dateofreg = None
+        self._reg_timestamp = None
         self._time = None
         self._port = None
         self._ntlm = ''
@@ -26,8 +26,8 @@ class Account(MAModel):
         return f'{random.randint(0, 9)}{random.randint(0, 9)}{random.randint(0, 9)}{random.randint(0, 9)}{random.randint(0, 9)}{random.randint(0, 9)}'
 
     @staticmethod
-    def generate_dateofreg():
-        return datetime.datetime(random.randint(2010, 2020), random.randint(1, 12), random.randint(1, 28))
+    def generate_reg_timestamp():
+        return datetime.datetime(random.randint(2010, 2020), random.randint(1, 12), random.randint(1, 28), random.randint(0, 23), random.randint(0, 59), random.randint(0, 59))
 
     @staticmethod
     def generate_days():
@@ -37,19 +37,19 @@ class Account(MAModel):
     def random_account(cls, new_port):
         login = cls.generate_login()
         password = cls.generate_password()
-        dateofreg = cls.generate_dateofreg()
+        reg_timestamp = cls.generate_reg_timestamp()
         days = cls.generate_days()
         port = new_port
         new_account = cls()
         new_account.login = login
         new_account.password = password
-        new_account.dateofreg = dateofreg #.strftime('%Y-%m-%d')
+        new_account.reg_timestamp = reg_timestamp
         new_account.days = days
         new_account.port = port
         return new_account
 
     def expiration_date(self):
-        current_datetime = datetime.datetime.fromtimestamp(self._dateofreg)
+        current_datetime = datetime.datetime.fromtimestamp(self._reg_timestamp)
         date_exp = current_datetime + datetime.timedelta(days=self._time)
         date_exp_timestamp = date_exp.timestamp()
 
@@ -82,14 +82,13 @@ class Account(MAModel):
         self._ntlm = newNtlm
 
     @property
-    def dateofreg(self):
-        date = self._dateofreg # datetime.datetime.fromtimestamp()
-        return date.strftime('%Y-%m-%d')
+    def reg_timestamp(self):
+        return self._reg_timestamp
 
-    @dateofreg.setter
-    def dateofreg(self, new_dateofreg):
-        assert new_dateofreg is not None, "Dateofreg cannot be None"
-        self._dateofreg = new_dateofreg #(datetime.datetime.strptime(new_dateofreg, '%Y-%m-%d')).timestamp()
+    @reg_timestamp.setter
+    def reg_timestamp(self, new_reg_timestamp):
+        assert new_reg_timestamp is not None, "Registration timestamp cannot be None"
+        self._reg_timestamp = new_reg_timestamp
 
     @property
     def days(self):

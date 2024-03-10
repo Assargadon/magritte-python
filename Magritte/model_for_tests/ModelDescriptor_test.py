@@ -135,8 +135,8 @@ class TestModelDescriptor:
                     name='ntlm', label='NTLM', accessor=MAAttrAccessor('ntlm')
                     ),
                 MADateAndTimeDescription(
-                    name='dateofreg', label='Date Of Registration',
-                    required=True, accessor=MAAttrAccessor('dateofreg')
+                    name='reg_timestamp', label='Timestamp Of Registration',
+                    required=True, accessor=MAAttrAccessor('reg_timestamp')
                     ),
                 MAIntDescription(
                     name='days', label='Days valid', required=True, accessor=MAAttrAccessor('days')
