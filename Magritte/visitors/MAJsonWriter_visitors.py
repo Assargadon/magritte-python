@@ -44,11 +44,23 @@ class MAValueJsonWriter(MAVisitor):
             super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
-        self._json = self._test_jsonable(self._accessor.read(self._model))
+        value_jsonable = self._accessor.read(self._model)
+        self._json = self._test_jsonable(value_jsonable)
 
     def visitDateAndTimeDescription(self, description: MADescription):
         value = self._accessor.read(self._model)
-        self._json = self._test_jsonable(value.isoformat() if value else None)
+        value_jsonable = value.isoformat() if value else None
+        self._json = self._test_jsonable(value_jsonable)
+
+    def visitDateDescription(self, description: MADescription):
+        value = self._accessor.read(self._model)
+        value_jsonable = value.strftime('%Y-%m-%d') if value else None
+        self._json = self._test_jsonable(value_jsonable)
+
+    def visitTimeDescription(self, description: MADescription):
+        value = self._accessor.read(self._model)
+        value_jsonable = value.strftime('%H:%M:%S')
+        self._json = self._test_jsonable(value_jsonable)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
@@ -92,18 +104,26 @@ class MAValueJsonReader(MAVisitor):
 
     def visitDateAndTimeDescription(self, description: MADescription):
         from datetime import datetime
-        if self._json_value is not None:
-            self._decoded_value = datetime.fromisoformat(self._json_value)
-        else:
+        if self._json_value is None:
             self._decoded_value = description.undefinedValue
+        else:
+            self._decoded_value = datetime.fromisoformat(self._json_value)
         self._write_to_model(description)
 
     def visitDateDescription(self, description: MADescription):
-        from datetime import date
-        if self._json_value is not None:
-            self._decoded_value = date.fromisoformat(self._json_value)
-        else:
+        from datetime import datetime
+        if self._json_value is None:
             self._decoded_value = description.undefinedValue
+        else:
+            self._decoded_value = datetime.strptime(self._json_value, "%Y-%m-%d").date()
+        self._write_to_model(description)
+
+    def visitTimeDescription(self, description: MADescription):
+        from datetime import datetime
+        if self._json_value is None:
+            self._decoded_value = description.undefinedValue
+        else:
+            self._decoded_value = datetime.strptime(self._json_value, "%H:%M:%S").time()
         self._write_to_model(description)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
