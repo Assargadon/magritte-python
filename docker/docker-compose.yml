@@ -7,7 +7,8 @@ networks:
 services:
   phyton:
     build:
-      dockerfile: ./images/python/Dockerfile
+      context: ../
+      dockerfile: ./docker/images/python/Dockerfile
       args:
         PYTHON_VERSION: ${PYTHON_VERSION}
         APP_CODE_PATH_CONTAINER: ${APP_CODE_PATH_CONTAINER}
