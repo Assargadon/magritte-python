@@ -1,4 +1,4 @@
-# magritte-phyton package
+# magritte-python package
 
 To install package run:
 ```
