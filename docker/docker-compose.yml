@@ -5,13 +5,14 @@ networks:
     name: ${COMPOSE_PROJECT_NAME}-docker
 
 services:
-  phyton:
+  python:
     build:
-      dockerfile: ./images/python/Dockerfile
+      context: ../
+      dockerfile: ./docker/images/python/Dockerfile
       args:
         PYTHON_VERSION: ${PYTHON_VERSION}
         APP_CODE_PATH_CONTAINER: ${APP_CODE_PATH_CONTAINER}
-    container_name: ${COMPOSE_PROJECT_NAME?}-phyton
+    container_name: ${COMPOSE_PROJECT_NAME?}-python
     volumes:
       - ${APP_CODE_PATH_HOST?}:${APP_CODE_PATH_CONTAINER?}
     restart: ${RESTART:-no}

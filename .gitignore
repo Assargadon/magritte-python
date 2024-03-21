@@ -2,3 +2,5 @@
 /.idea/
 __pycache__
 .env
+/build/
+/magritte_python.egg-info/

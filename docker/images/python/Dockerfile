@@ -4,8 +4,10 @@ FROM python:$PYTHON_VERSION
 ARG APP_CODE_PATH_CONTAINER
 WORKDIR $APP_CODE_PATH_CONTAINER
 
-RUN pip install SQLAlchemy \
-    && pip install psycopg2-binary
+RUN apk add git
+
+COPY requirements.txt /magritte-python-pakage/
+RUN pip install -r /magritte-python-pakage/requirements.txt
 
 # Uncomment to run script on container start. Please note the only single CMD command is allowed
 #CMD ["python", "dynamic-model.py"]
