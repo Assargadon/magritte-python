@@ -9,14 +9,14 @@ import sqlalchemy
 
 if __name__ == '__main__':
     descriptions = [TestModelDescriptor.description_for(x) for x in (
-        'User', 'Organization', 'Account', 'Host', 'Port', 'SubscriptionPlan',
+        'Host', 'Port', #'User', 'Organization', 'Account', 'SubscriptionPlan',
         )]
 
     registry = registrator.register(*descriptions)
 
-    engine = create_engine("sqlite://", echo=True)
-    # conn_str = "postgresql://postgres:postgres@localhost/sqlalchemy"
-    # engine = create_engine(conn_str, echo=True)
+    # engine = create_engine("sqlite://", echo=True)
+    conn_str = "postgresql://postgres:postgres@localhost/sqlalchemy"
+    engine = create_engine(conn_str, echo=True)
 
 
 
@@ -26,11 +26,11 @@ if __name__ == '__main__':
 
     with Session(engine) as session:
         session.add_all([
-            env.organization,
+            #env.organization,
             *env.hosts,
             *env.ports,
-            *env.users,
-            *env.accounts,
+            #*env.users,
+            #*env.accounts,
             ])
         session.commit()
 

@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String
 
-from descriptions.MAContainer_class import MAContainer
-from visitors.MAVisitor_class import MAVisitor
+from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.visitors.MAVisitor_class import MAVisitor
 from sqlalchemy.orm import registry as sa_registry
 
 
