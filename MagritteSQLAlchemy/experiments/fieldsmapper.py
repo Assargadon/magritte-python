@@ -23,7 +23,7 @@ class FieldsMapper(MAVisitor):
 
     def visitIntDescription(self, description):
         print(f'visitIntDescription {description.name}')
-        self.table.append_column(Column(description.name, Integer))
+        self.table.append_column(Column(description.name, Integer, primary_key=description.isPrimaryKey))
 
     def visitStringDescription(self, description):
         print(f'visitStringDescription {description.name}')

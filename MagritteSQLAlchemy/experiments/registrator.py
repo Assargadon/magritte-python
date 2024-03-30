@@ -10,24 +10,6 @@ import random
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
 
-class CustomDict(dict):
-    def __init__(self, original_dict):
-        self.original_dict = original_dict
-        print(f"CustomDict initialized with type {type(original_dict)} and structure {dir(original_dict)}")
-
-    def __getattr__(self, name): #track unimplemented methods
-        print(f"requested unknown attribute (method?) = {name}")
-
-    def __getitem__(self, key):
-        print (f"requested key = {key}")
-        if key == 'numofport':
-            return 42
-        elif key == 'id':
-            return random.randint(1, 100000)
-        else:
-            return self.original_dict.__getitem__(key)
-  
-
 class DictWrapper:
     def __init__(self , original_dict, model, description):
         self._dict = original_dict
@@ -35,22 +17,27 @@ class DictWrapper:
         self.description = description
 
     def __getitem__(self, key):
-        print(f"Getting item: {key}")
-        if key == 'numofport':
-            return 42
-        return self._dict[key]
+        field_desc = self.description.get_child(key)
+        print(self.model)
+        res = field_desc.accessor.read(self.model)
+        print(f"Getting item: {key} - result: {res}")
+        return res
 
     def __setitem__(self, key, value):
         print(f"Setting item: {key} = {value}")
-        self._dict[key] = value
+        field_desc = self.description.get_child(key)
+        field_desc.accessor.write(self.model, value)
+        #self._dict[key] = value
 
     def __delitem__(self, key):
         print(f"Deleting item: {key}")
         del self._dict[key]
 
     def __contains__(self, key):
-        print(f"Checking if {key} is in dict")
-        return key in self._dict
+        field_desc = self.description.get_child(key)
+        res = field_desc is not None
+        print(f"Checking if {key} is in dict: {res}")
+        return res
 
     def __len__(self):
         print("Getting length of dict")
@@ -58,7 +45,11 @@ class DictWrapper:
 
     def __iter__(self):
         print("Iterating over dict")
-        return iter(self._dict)
+        props = {}
+        for field_desc in self.description.children:
+            props[field_desc.name] = field_desc.accessor.read(self.model)
+        #props['id'] = random.randint(1, 100000)
+        return iter(props)
 
     def __str__(self):
         print("Converting dict to string")
@@ -113,7 +104,7 @@ def attach_getattribute(cls, desc):
     old_getattribute = cls.__getattribute__
     # for __dict__ return antiwrapper, for other attributes call old_getattribute
     def new_getattribute(self, attr):
-        #print(f"getattribute {attr}")
+        print(f"getting attribute {attr}")
         if attr == '__dict__':
             mydict = DictWrapper({'numofport': random.randint(22, 250), 'id': random.randint(1, 100000)}, self, desc)
             return mydict
@@ -141,7 +132,7 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
             registry.metadata,
             )
 
-        table.append_column(Column("id", Integer, primary_key=True))
+        #table.append_column(Column("id", Integer, primary_key=True))
 
         fields_mapper.map(descriptor, table)
 
@@ -153,6 +144,8 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
             if not isinstance(desc, MAReferenceDescription):
                 properties_to_map[desc.name] = table.c[desc.name]
 
+        attach_getattribute(descriptor.kind, descriptor)
+
         registry.map_imperatively(
             descriptor.kind,
             table,
@@ -160,7 +153,6 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
             )
         print(f'KIND: {dir(descriptor.kind)}')
 
-        attach_getattribute(descriptor.kind, descriptor)
         '''
         properties={
             "addresses": relationship(

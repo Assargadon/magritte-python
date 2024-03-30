@@ -8,6 +8,7 @@ class Host(MAModel):
     def __init__(self):
         self._ip = None
         self._ports = []
+        self._id = None
 
     @staticmethod
     def generate_ip():
@@ -27,6 +28,14 @@ class Host(MAModel):
         new_host._ip = ip
         new_host._ports = ports
         return new_host
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, new_id):
+        self._id = new_id
 
     @property
     def ip(self):

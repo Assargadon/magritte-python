@@ -154,8 +154,11 @@ class TestModelDescriptor:
         host_desc_container.label = 'Host model'
         host_desc_container.setChildren(
             [
+                MAIntDescription(
+                    name='id', label='ID', required=True, accessor=MAAttrAccessor('id'), isPrimaryKey=True
+                    ),
                 MAStringDescription(
-                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'), isPrimaryKey=True
+                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'), isPrimaryKey=False
                     ),
                 MAToManyRelationDescription(
                     name='ports', label='Ports', required=True,
@@ -171,13 +174,16 @@ class TestModelDescriptor:
         port_desc_container.setChildren(
             [
                 MAIntDescription(
+                    name='id', label='ID', required=True, accessor=MAAttrAccessor('id'), isPrimaryKey=True
+                    ),
+                MAIntDescription(
                     name='numofport', label='Number of Port', required=True, accessor=MAAttrAccessor('numofport')
-                    , isPrimaryKey=True
+                    , isPrimaryKey=False
                     ),
                 MAToOneRelationDescription(
                     name='host', label='Host', required=True,
                     accessor=MAAttrAccessor('host'), classes=[Host],
-                    reference=host_desc_container, isPrimaryKey=True
+                    reference=host_desc_container, isPrimaryKey=False
                     ),
                 MASingleOptionDescription(
                     name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),

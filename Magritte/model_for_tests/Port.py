@@ -23,6 +23,7 @@ class Port(MAModel):
         self._host = None
         self._numofport = None
         self._status = None
+        self._id = None
 
     @staticmethod
     def generate_numofport():
@@ -47,6 +48,14 @@ class Port(MAModel):
         new_port._numofport = cls.generate_numofport()
         new_port._status = new_port.generate_status()
         return new_port
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, new_id):
+        self._id = new_id
 
     @property
     def host(self):

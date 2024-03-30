@@ -158,6 +158,8 @@ class MAContainer(MADescription):
         #result.setChildren(items)
         #return result
 
+    def get_child(self, key):
+        return self.detect(lambda item: item.name == key)
 
     def detect(self, aBlock):
         return next((item for item in self.children if aBlock(item)))
