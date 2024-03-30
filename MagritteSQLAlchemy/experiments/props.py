@@ -5,6 +5,7 @@ from sqlalchemy.orm import registry, Session
 class TClass:
     def __init__(self):
         self._prop = None
+        self.attr = 'abc'
 
     @property
     def prop(self):
@@ -47,10 +48,12 @@ if __name__ == "__main__":
     getattr = my_log(getattr)
     TClass.__getattribute__ = my_log(TClass.__getattribute__)
 
-    '''
+    print(" =========================== Before mapping: =========================")
+
     obj = TClass()
 
-    print(" =========================== Before mapping: =========================")
+    print(" ============== Printing ordinary attribute ==============")
+    print(f"obj.attr = {obj.attr}")
 
     print(" ============== Before prop assignment ==============")
     print(f"obj.__dict__ = {obj.__dict__}")
@@ -62,7 +65,7 @@ if __name__ == "__main__":
     print(f"obj.prop = {obj.prop}")
     print(f"obj.prop = {getattr(obj, 'prop')}")
     print(f"obj._prop = {obj._prop}")
-    
+    '''
     '''
 
     mapper_registry.map_imperatively(
@@ -74,9 +77,9 @@ if __name__ == "__main__":
             },
         )
 
-    obj = TClass()
-
     print(" =============================== After mapping: ================================")
+
+    obj = TClass()
 
     print(" ============== Before prop assignment ==============")
     print(f"obj.__dict__ = {obj.__dict__}")
