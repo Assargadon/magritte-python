@@ -17,6 +17,20 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
 
         print(table.c)
 
+        registry.map_imperatively(
+            descriptor.kind,
+            table,
+            )
+        '''
+        properties={
+            "addresses": relationship(
+                Address,
+                back_populates="user",
+                ),
+            "nick": user_table.c.nickname,
+            },
+        '''
+
         '''
         registry.map_imperatively(descriptor.cls, descriptor.table)
         for rel in descriptor.relations:
