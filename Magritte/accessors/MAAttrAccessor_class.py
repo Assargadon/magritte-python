@@ -34,6 +34,7 @@ class MAAttrAccessor(MAAccessor):
         return self._attrName
 
     def read(self, aModel):
+        print(f"MAAttrAccessor.read: aModel = {aModel}, self._attrName = {self._attrName}")
         return getattr(aModel, self._attrName)
 
     def write(self, aModel, anObject):

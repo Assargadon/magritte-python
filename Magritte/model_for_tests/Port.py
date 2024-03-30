@@ -46,7 +46,7 @@ class Port(MAModel):
         new_port = cls()
         new_port._host = host
         new_port._numofport = cls.generate_numofport()
-        new_port._status = new_port.generate_status()
+        new_port._status = new_port.generate_status(new_port)
         return new_port
 
     @property

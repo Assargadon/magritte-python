@@ -102,19 +102,28 @@ class DictWrapper:
 
 def attach_getattribute(cls, desc):
     old_getattribute = cls.__getattribute__
+    print(f"old_getattribute = {old_getattribute}")
     # for __dict__ return antiwrapper, for other attributes call old_getattribute
     def new_getattribute(self, attr):
         print(f"getting attribute {attr}")
         if attr == '__dict__':
             mydict = DictWrapper({'numofport': random.randint(22, 250), 'id': random.randint(1, 100000)}, self, desc)
             return mydict
-#            if(hasattr(self, 'antiwrapper')):
-#                return self.antiwrapper
-#            else:
-#                self.antiwrapper = CustomDict(old_getattribute(self, '__dict__'))
-#                return self.antiwrapper    
         else:
-            return old_getattribute(self, attr)
+            old_dict = old_getattribute(self, '__dict__')
+            print(f"old_dict = {old_dict.keys()}")
+            # let's check if the attribute is in the dict
+            if attr in old_dict:
+                print(f'attribute {attr} found in old_dict')
+                return old_dict[attr]
+            else:
+                if attr in cls.__dict__:
+                    res = cls.__dict__[attr]
+                    print(f'!!!!!!!!!!!!!!!!!!{attr}-{type(res)}')
+                    if(isinstance(res, property)):
+                        return res.fget(self)
+                    return res
+                return old_getattribute(self, attr)
     cls.__getattribute__ = new_getattribute
     print(f"attached antiwrapper for {cls} for __dict__")
 
