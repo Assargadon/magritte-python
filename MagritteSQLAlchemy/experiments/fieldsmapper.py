@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String
+from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime
 
 from descriptions.MAContainer_class import MAContainer
 from visitors.MAVisitor_class import MAVisitor
@@ -28,3 +28,15 @@ class FieldsMapper(MAVisitor):
     def visitStringDescription(self, description):
         print(f'visitStringDescription {description.name}')
         self.table.append_column(Column(description.name, String(250)))
+
+    def visitDateDescription(self, description):
+        print(f'visitDateDescription {description.name}')
+        self.table.append_column(Column(description.name, Date))
+
+    def visitDateAndTimeDescription(self, description):
+        print(f'visitDateAndTimeDescription {description.name}')
+        self.table.append_column(Column(description.name, DateTime))
+
+    def visitBooleanDescription(self, description):
+        print(f'visitBooleanDescription {description.name}')
+        self.table.append_column(Column(description.name, Boolean))

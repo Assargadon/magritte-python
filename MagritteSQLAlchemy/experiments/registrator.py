@@ -2,8 +2,10 @@ from sqlalchemy import Table, Column, Integer
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from sqlalchemy.orm import registry as sa_registry
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from MagritteSQLAlchemy.experiments.fieldsmapper import FieldsMapper
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
 
 def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_registry:
@@ -26,24 +28,17 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
 
         print(table.c)
 
+        print(" ============================================================= ")
+
+        properties_to_map = {}
+        for desc in descriptor.children:
+            print(f'desc = {desc}, desc.name = {desc.name}, is reference = {isinstance(desc, MAReferenceDescription)}')
+            if not isinstance(desc, MAReferenceDescription):
+                properties_to_map[desc.name + '_'] = table.c[desc.name]
         registry.map_imperatively(
             descriptor.kind,
             table,
+            properties=properties_to_map,
             )
-        '''
-        properties={
-            "addresses": relationship(
-                Address,
-                back_populates="user",
-                ),
-            "nick": user_table.c.nickname,
-            },
-        '''
-
-        '''
-        registry.map_imperatively(descriptor.cls, descriptor.table)
-        for rel in descriptor.relations:
-            registry.map_imperatively(rel.cls, rel.table, properties=rel.properties)
-        '''
 
     return registry
