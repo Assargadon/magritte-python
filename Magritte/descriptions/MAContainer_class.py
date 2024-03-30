@@ -147,7 +147,7 @@ class MAContainer(MADescription):
     def copyWithout(self, anObject):
         return self.reject(lambda item: item == anObject)
         #result = copy(self)
-        #items = [item for _, item in enumerate(self.children) if item != anObject]
+        #items = [item for _, item in enumerate(self.children) if item != description]
         #result.setChildren(items)
         #return result
 

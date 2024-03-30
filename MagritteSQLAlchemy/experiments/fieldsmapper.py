@@ -1,4 +1,5 @@
-from sqlalchemy import Table, Column, Integer, String
+from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from descriptions.MAContainer_class import MAContainer
 from visitors.MAVisitor_class import MAVisitor
@@ -19,6 +20,11 @@ class FieldsMapper(MAVisitor):
 
     def visitContainer(self, description):
         print(f'visitContainer {description.name}')
+        for desc in description.children:
+            setattr(description.kind, desc.name + '_', hybrid_property(
+                fget=lambda model: desc.accessor.read(model),
+                fset=lambda model, value: desc.accessor.write(model, value),
+                ))
         self.visitAll(description.children)
 
     def visitIntDescription(self, description):
@@ -28,3 +34,15 @@ class FieldsMapper(MAVisitor):
     def visitStringDescription(self, description):
         print(f'visitStringDescription {description.name}')
         self.table.append_column(Column(description.name, String(250)))
+
+    def visitDateDescription(self, description):
+        print(f'visitDateDescription {description.name}')
+        self.table.append_column(Column(description.name, Date))
+
+    def visitDateAndTimeDescription(self, description):
+        print(f'visitDateAndTimeDescription {description.name}')
+        self.table.append_column(Column(description.name, DateTime))
+
+    def visitBooleanDescription(self, description):
+        print(f'visitBooleanDescription {description.name}')
+        self.table.append_column(Column(description.name, Boolean))
