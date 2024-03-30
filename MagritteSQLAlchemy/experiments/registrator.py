@@ -3,17 +3,26 @@ from sqlalchemy import Table, Column, Integer
 from Magritte.descriptions.MAContainer_class import MAContainer
 from sqlalchemy.orm import registry as sa_registry
 
+from MagritteSQLAlchemy.experiments.fieldsmapper import FieldsMapper
+
+
 def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_registry:
+
     if not registry:
         registry = sa_registry()
+    fields_mapper = FieldsMapper()
+
     for descriptor in descriptors:
         print(descriptor.name)
 
         table = Table(
             descriptor.name,
             registry.metadata,
-            Column("id", Integer, primary_key=True),
             )
+
+        table.append_column(Column("id", Integer, primary_key=True))
+
+        fields_mapper.map(descriptor, table)
 
         print(table.c)
 

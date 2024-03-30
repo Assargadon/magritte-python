@@ -36,4 +36,6 @@ if __name__ == '__main__':
 
     with Session(engine) as session:
         for desc in descriptions:
-            print(f'count of {desc.name} = {session.query(desc.kind).count()}')
+            count = session.query(desc.kind).count()
+            print(f'count of {desc.name} = {count}')
+
