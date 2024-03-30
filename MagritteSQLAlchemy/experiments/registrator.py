@@ -28,13 +28,95 @@ class CustomDict(dict):
             return self.original_dict.__getitem__(key)
   
 
-def attach_getattribute(cls):
+class DictWrapper:
+    def __init__(self , original_dict, model, description):
+        self._dict = original_dict
+        self.model = model
+        self.description = description
+
+    def __getitem__(self, key):
+        print(f"Getting item: {key}")
+        if key == 'numofport':
+            return 42
+        return self._dict[key]
+
+    def __setitem__(self, key, value):
+        print(f"Setting item: {key} = {value}")
+        self._dict[key] = value
+
+    def __delitem__(self, key):
+        print(f"Deleting item: {key}")
+        del self._dict[key]
+
+    def __contains__(self, key):
+        print(f"Checking if {key} is in dict")
+        return key in self._dict
+
+    def __len__(self):
+        print("Getting length of dict")
+        return len(self._dict)
+
+    def __iter__(self):
+        print("Iterating over dict")
+        return iter(self._dict)
+
+    def __str__(self):
+        print("Converting dict to string")
+        return str(self._dict)
+
+    def __repr__(self):
+        print("Representing dict")
+        return repr(self._dict)
+
+    def clear(self):
+        print("Clearing dict")
+        self._dict.clear()
+
+    def copy(self):
+        print("Copying dict")
+        return self._dict.copy()
+
+    def get(self, key, default=None):
+        print(f"Getting item with default: {key}, {default}")
+        return self._dict.get(key, default)
+
+    def items(self):
+        print("Getting items of dict")
+        return self._dict.items()
+
+    def keys(self):
+        print("Getting keys of dict")
+        return self._dict.keys()
+
+    def pop(self, key, default=None):
+        print(f"Popping item: {key}, {default}")
+        return self._dict.pop(key, default)
+
+    def popitem(self):
+        print("Popping item")
+        return self._dict.popitem()
+
+    def setdefault(self, key, default=None):
+        print(f"Setting default for key: {key}, {default}")
+        return self._dict.setdefault(key, default)
+
+    def update(self, *args, **kwargs):
+        print(f"Updating dict with: {args}, {kwargs}")
+        self._dict.update(*args, **kwargs)
+
+    def values(self):
+        print("Getting values of dict")
+        return self._dict.values()
+
+
+def attach_getattribute(cls, desc):
     old_getattribute = cls.__getattribute__
     # for __dict__ return antiwrapper, for other attributes call old_getattribute
     def new_getattribute(self, attr):
-        print(f"getattribute {attr}")
+        #print(f"getattribute {attr}")
         if attr == '__dict__':
-            return {'numofport': 42, 'id': random.randint(1, 100000)}
+            mydict = DictWrapper({'numofport': random.randint(22, 250), 'id': random.randint(1, 100000)}, self, desc)
+            return mydict
 #            if(hasattr(self, 'antiwrapper')):
 #                return self.antiwrapper
 #            else:
@@ -78,7 +160,7 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
             )
         print(f'KIND: {dir(descriptor.kind)}')
 
-        attach_getattribute(descriptor.kind)
+        attach_getattribute(descriptor.kind, descriptor)
         '''
         properties={
             "addresses": relationship(
