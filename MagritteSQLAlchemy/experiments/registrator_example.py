@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
+# from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
 from MagritteSQLAlchemy.experiments import registrator
 import sqlalchemy
 
@@ -13,9 +14,9 @@ if __name__ == '__main__':
 
     registry = registrator.register(*descriptions)
 
-#    engine = create_engine("sqlite://", echo=True)
-    conn_str = "postgresql://postgres:postgres@localhost/sqlalchemy"
-    engine = create_engine(conn_str, echo=True)
+    engine = create_engine("sqlite://", echo=True)
+    # conn_str = "postgresql://postgres:postgres@localhost/sqlalchemy"
+    # engine = create_engine(conn_str, echo=True)
 
 
 
@@ -33,3 +34,6 @@ if __name__ == '__main__':
             ])
         session.commit()
 
+    with Session(engine) as session:
+        for desc in descriptions:
+            print(f'count of {desc.name} = {session.query(desc.kind).count()}')
