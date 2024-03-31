@@ -18,7 +18,7 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         print(descriptor.name)
 
         table = Table(
-            descriptor.name,
+            descriptor.sa_tableName,
             registry.metadata,
             )
 
@@ -31,7 +31,7 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         print(" ============================================================= ")
 
         properties_to_map = {}
-        for desc in descriptor.children:
+        for desc in filter(lambda x: x.sa_storable, descriptor.children):
             print(f'desc = {desc}, desc.name = {desc.name}, is reference = {isinstance(desc, MAReferenceDescription)}')
             if not isinstance(desc, MAReferenceDescription):
                 properties_to_map['_'+desc.name] = table.c[desc.name]

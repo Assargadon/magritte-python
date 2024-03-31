@@ -19,24 +19,24 @@ class FieldsMapper(MAVisitor):
 
     def visitContainer(self, description):
         print(f'visitContainer {description.name}')
-        self.visitAll(description.children)
+        self.visitAll(filter(lambda x: x.sa_storable, description.children))
 
     def visitIntDescription(self, description):
         print(f'visitIntDescription {description.name}')
-        self.table.append_column(Column(description.name, Integer))
+        self.table.append_column(Column(description.sa_fieldName, Integer))
 
     def visitStringDescription(self, description):
         print(f'visitStringDescription {description.name}')
-        self.table.append_column(Column(description.name, String(250)))
+        self.table.append_column(Column(description.sa_fieldName, String(250)))
 
     def visitDateDescription(self, description):
         print(f'visitDateDescription {description.name}')
-        self.table.append_column(Column(description.name, Date))
+        self.table.append_column(Column(description.sa_fieldName, Date))
 
     def visitDateAndTimeDescription(self, description):
         print(f'visitDateAndTimeDescription {description.name}')
-        self.table.append_column(Column(description.name, DateTime))
+        self.table.append_column(Column(description.sa_fieldName, DateTime))
 
     def visitBooleanDescription(self, description):
         print(f'visitBooleanDescription {description.name}')
-        self.table.append_column(Column(description.name, Boolean))
+        self.table.append_column(Column(description.sa_fieldName, Boolean))
