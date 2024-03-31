@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-# from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
+from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
 from MagritteSQLAlchemy.experiments import registrator
 import sqlalchemy
 
