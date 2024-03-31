@@ -34,7 +34,8 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         for desc in descriptor.children:
             print(f'desc = {desc}, desc.name = {desc.name}, is reference = {isinstance(desc, MAReferenceDescription)}')
             if not isinstance(desc, MAReferenceDescription):
-                properties_to_map[desc.name + '_'] = table.c[desc.name]
+                properties_to_map['_'+desc.name] = table.c[desc.name]
+                
         registry.map_imperatively(
             descriptor.kind,
             table,
