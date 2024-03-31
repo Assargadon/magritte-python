@@ -42,6 +42,6 @@ if __name__ == '__main__':
 
     # For the test reasons let's find all the ports with port number < 150
     with Session(engine) as session:
-        ports = session.query(Port.Port).filter(Port.Port._numofport < 150).all()
+        ports = session.query(Port).filter(Port._numofport < 150).all()
         for port in ports:
             print(f'port = {port.numofport} ')
