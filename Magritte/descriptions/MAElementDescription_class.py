@@ -91,7 +91,7 @@ class MAElementDescription(MADescription):
         try:
             return self._sa_field_name
         except AttributeError:
-            return self._name
+            return self.sa_defaultFieldName()
 
     @sa_fieldName.setter
     def sa_fieldName(self, aSymbol):
@@ -99,6 +99,9 @@ class MAElementDescription(MADescription):
             self._sa_field_name = None
         else:
             self._sa_field_name = intern(aSymbol)
+
+    def sa_defaultFieldName(self):
+        return self.name
 
     @property
     def sa_storable(self):

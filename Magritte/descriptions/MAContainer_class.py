@@ -86,7 +86,7 @@ class MAContainer(MADescription):
             self._sa_table_name = intern(aSymbol)
 
     def sa_defaultTableName(self):
-        return self._name
+        return self.name
 
 
     @classmethod
