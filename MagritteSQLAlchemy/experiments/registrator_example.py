@@ -26,11 +26,11 @@ if __name__ == '__main__':
 
     with Session(engine) as session:
         session.add_all([
-            env.organization,
+            # env.organization,
             *env.hosts,
             *env.ports,
-            *env.users,
-            *env.accounts,
+            # *env.users,
+            # *env.accounts,
             ])
         session.commit()
 
@@ -45,3 +45,6 @@ if __name__ == '__main__':
         ports = session.query(Port).filter(Port._numofport < 150).all()
         for port in ports:
             print(f'port = {port.numofport} ')
+        hosts = session.query(Host).all()
+        for host in hosts:
+            print(f'host = {host.ip} ')

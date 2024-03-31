@@ -15,7 +15,7 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
     fields_mapper = FieldsMapper()
 
     for descriptor in descriptors:
-        print(descriptor.name)
+        print(f' ================= > Registering {descriptor.name} ...')
 
         table = Table(
             descriptor.sa_tableName,
@@ -34,7 +34,8 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         for desc in filter(lambda x: x.sa_storable, descriptor.children):
             print(f'desc = {desc}, desc.name = {desc.name}, is reference = {isinstance(desc, MAReferenceDescription)}')
             if not isinstance(desc, MAReferenceDescription):
-                properties_to_map['_'+desc.name] = table.c[desc.name]
+                print(f' ... sa_attrName = {desc.sa_attrName}')
+                properties_to_map[desc.sa_attrName] = table.c[desc.name]
                 
         registry.map_imperatively(
             descriptor.kind,

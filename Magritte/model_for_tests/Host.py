@@ -6,8 +6,8 @@ from Magritte.model_for_tests.Port import Port
 class Host(MAModel):
 
     def __init__(self):
-        self._ip = None
-        self._ports = []
+        self.ip = None
+        self.ports = []
 
     @staticmethod
     def generate_ip():
@@ -24,22 +24,6 @@ class Host(MAModel):
         ip = cls.generate_ip()
         new_host = cls()
         ports = [Port.randomPortForHost(new_host) for _ in range(num_ports)]
-        new_host._ip = ip
-        new_host._ports = ports
+        new_host.ip = ip
+        new_host.ports = ports
         return new_host
-
-    @property
-    def ip(self):
-        return self._ip
-
-    @ip.setter
-    def ip(self, newIP):
-        self._ip = newIP
-
-    @property
-    def ports(self):
-        return self._ports
-
-    @ports.setter
-    def ports(self, newPorts):
-        self._ports = newPorts
