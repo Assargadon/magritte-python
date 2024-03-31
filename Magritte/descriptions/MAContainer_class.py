@@ -72,21 +72,22 @@ class MAContainer(MADescription):
         self.children.extend(aCollection)
 
     @property
-    def tableName(self):
+    def sa_tableName(self):
         try:
-            return self._table_name
+            return self._sa_table_name
         except AttributeError:
-            return self._name
+            return self.sa_defaultTableName()
 
-    @tableName.setter
-    def tableName(self, aSymbol):
-        self.defaultTableName(aSymbol)
-
-    def defaultTableName(self, aSymbol):
+    @sa_tableName.setter
+    def sa_tableName(self, aSymbol):
         if aSymbol is None:
-            self._table_name = None
+            del self._sa_table_name
         else:
-            self._table_name = intern(aSymbol)
+            self._sa_table_name = intern(aSymbol)
+
+    def sa_defaultTableName(self):
+        return self._name
+
 
     @classmethod
     def withDescription(cls, aDescription):

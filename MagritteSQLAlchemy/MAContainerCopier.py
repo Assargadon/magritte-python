@@ -40,10 +40,10 @@ class MAContainerCopier(MAVisitor):
 
 class MAContainerDbCopier(MAContainerCopier):
     def visitToManyRelationDescription(self, element_description: MARelationDescription):
-        to_many_src_data_list = getattr(self._src, element_description.fieldName)
-        dest_data_list = getattr(self._dest, element_description.fieldName)
+        to_many_src_data_list = getattr(self._src, element_description.sa_fieldName)
+        dest_data_list = getattr(self._dest, element_description.sa_fieldName)
         for data in to_many_src_data_list:
-            to_many_dest_instance = getattr(type(self._dest), element_description.fieldName)
+            to_many_dest_instance = getattr(type(self._dest), element_description.sa_fieldName)
             to_many_dest_model_instance = to_many_dest_instance.comparator.entity.class_()
             to_many_dest_model_instance.copy_from(data)
             dest_data_list.append(to_many_dest_model_instance)
