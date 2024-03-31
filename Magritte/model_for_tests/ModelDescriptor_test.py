@@ -36,13 +36,17 @@ class TestModelDescriptor:
         subscription_plan_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), sa_isPrimaryKey=True
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'),
+                    sa_isPrimaryKey=True, sa_attrName='_name',
                 ),
                 MAIntDescription(
-                    name='price', label='Price (per month)', required=True, accessor=MAAttrAccessor('price')
+                    name='price', label='Price (per month)', required=True, accessor=MAAttrAccessor('price'),
+                    sa_attrName='_price',
                 ),
                 MAStringDescription(
-                    name='description', label='Description of the plan features', required=False, accessor=MAAttrAccessor('description')
+                    name='description', label='Description of the plan features', required=False,
+                    accessor=MAAttrAccessor('description'),
+                    sa_attrName='_description',
                 ),
             ]
         )
@@ -53,17 +57,20 @@ class TestModelDescriptor:
         user_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='regnum', label='RegNum', required=True, accessor=MAAttrAccessor('regnum'), sa_isPrimaryKey=True
+                    name='regnum', label='RegNum', required=True, accessor=MAAttrAccessor('regnum'),
+                    sa_isPrimaryKey=True, sa_attrName='_regnum',
                     ),
                 MAStringDescription(
-                    name='fio', label='FIO', required=True, accessor=MAAttrAccessor('fio')
+                    name='fio', label='FIO', required=True, accessor=MAAttrAccessor('fio'), sa_attrName='_fio',
                     ),
                 MADateDescription(
                     name='dateofbirth', label='DateOfBirth',
                     required=True, accessor=MAAttrAccessor('dateofbirth'),
+                    sa_attrName='_dateofbirth',
                     ),
                 MAStringDescription(
-                    name='gender', label='Gender', required=True, accessor=MAAttrAccessor('gender')
+                    name='gender', label='Gender', required=True, accessor=MAAttrAccessor('gender'),
+                    sa_attrName='_gender',
                     ),
                 MAToOneRelationDescription(
                     name='organization', label='Organization', required=True,
@@ -72,11 +79,11 @@ class TestModelDescriptor:
                     ),
                 MADateDescription(
                     name='dateofadmission', label='DateOfAdmission',
-                    required=True, accessor=MAAttrAccessor('dateofadmission'),
+                    required=True, accessor=MAAttrAccessor('dateofadmission'), sa_attrName='_dateofadmission',
                     ),
                 MADateDescription(
                     name='dateofdeparture', label='DateOfDeparture',
-                    required=False, accessor=MAAttrAccessor('dateofdeparture'),
+                    required=False, accessor=MAAttrAccessor('dateofdeparture'), sa_attrName='_dateofdeparture',
                     ),
                 MAToManyRelationDescription(
                     name='setofaccounts', label='SetOfAccounts', required=True,
@@ -97,13 +104,16 @@ class TestModelDescriptor:
         org_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), sa_isPrimaryKey=True
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'),
+                    sa_isPrimaryKey=True, sa_attrName='_name',
                     ),
                 MAStringDescription(
-                    name='address', label='Address', required=True, accessor=MAAttrAccessor('address')
+                    name='address', label='Address', required=True, accessor=MAAttrAccessor('address'),
+                    sa_attrName='_address',
                     ),
                 MABooleanDescription(
-                    name='active', label='Active', required=True, accessor=MAAttrAccessor('active')
+                    name='active', label='Active', required=True, accessor=MAAttrAccessor('active'),
+                    sa_attrName='_active',
                     ),
                 MAToManyRelationDescription(
                     name='listusers', label='List of Users', required=True,
@@ -124,22 +134,27 @@ class TestModelDescriptor:
         acc_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='login', label='Login', required=True, accessor=MAAttrAccessor('login'), sa_isPrimaryKey=True
+                    name='login', label='Login', required=True, accessor=MAAttrAccessor('login'),
+                    sa_isPrimaryKey=True, sa_attrName='_login',
                     ),
                 #!TODO Change to MAPasswordDescription when it is implemented
                 MAStringDescription(
-                    name='password', label='Password', required=True, accessor=MAAttrAccessor('password')
+                    name='password', label='Password', required=True, accessor=MAAttrAccessor('password'),
+                    sa_attrName='_password',
                     ),
                 # !TODO Change to MAPasswordDescription when it is implemented
                 MAStringDescription(
-                    name='ntlm', label='NTLM', accessor=MAAttrAccessor('ntlm')
+                    name='ntlm', label='NTLM', accessor=MAAttrAccessor('ntlm'),
+                    sa_attrName='_ntlm',
                     ),
                 MADateAndTimeDescription(
                     name='reg_timestamp', label='Timestamp Of Registration',
-                    required=True, accessor=MAAttrAccessor('reg_timestamp')
+                    required=True, accessor=MAAttrAccessor('reg_timestamp'),
+                    sa_attrName='_reg_timestamp',
                     ),
                 MAIntDescription(
-                    name='days', label='Days valid', required=True, accessor=MAAttrAccessor('days')
+                    name='days', label='Days valid', required=True, accessor=MAAttrAccessor('days'),
+                    sa_attrName='_days',
                     ),
                 MAToOneRelationDescription(
                     name='port', label='Port', required=True,

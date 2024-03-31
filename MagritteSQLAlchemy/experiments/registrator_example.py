@@ -7,6 +7,8 @@ from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
 from MagritteSQLAlchemy.experiments import registrator
 import sqlalchemy
 
+from model_for_tests import SubscriptionPlan
+
 if __name__ == '__main__':
     descriptions = [TestModelDescriptor.description_for(x) for x in (
         'User', 'Organization', 'Account', 'Host', 'Port', 'SubscriptionPlan',
@@ -26,11 +28,11 @@ if __name__ == '__main__':
 
     with Session(engine) as session:
         session.add_all([
-            # env.organization,
+            env.organization,
             *env.hosts,
             *env.ports,
-            # *env.users,
-            # *env.accounts,
+            *env.users,
+            *env.accounts,
             ])
         session.commit()
 
@@ -48,3 +50,15 @@ if __name__ == '__main__':
         hosts = session.query(Host).all()
         for host in hosts:
             print(f'host = {host.ip} ')
+        accounts = session.query(Account).all()
+        for account in accounts:
+            print(f'account = {account.login} : {account.password}')
+        users = session.query(User).all()
+        for user in users:
+            print(f'user = {user.regnum}: {user.fio} ')
+        organizations = session.query(Organization).all()
+        for organization in organizations:
+            print(f'organization = {organization.name} ')
+        subscription_plans = session.query(SubscriptionPlan).all()
+        for subscription_plan in subscription_plans:
+            print(f'subscription_plan = {subscription_plan.name} ')
