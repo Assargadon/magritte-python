@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-# from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
+from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
 from MagritteSQLAlchemy.experiments import registrator
 import sqlalchemy
 
@@ -39,3 +39,9 @@ if __name__ == '__main__':
             count = session.query(desc.kind).count()
             print(f'count of {desc.name} = {count}')
 
+
+    # For the test reasons let's find all the ports with port number < 150
+    with Session(engine) as session:
+        ports = session.query(Port.Port).filter(Port.Port._numofport < 150).all()
+        for port in ports:
+            print(f'port = {port.numofport} ')
