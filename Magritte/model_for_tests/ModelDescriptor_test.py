@@ -36,7 +36,7 @@ class TestModelDescriptor:
         subscription_plan_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), isPrimaryKey=True
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), sa_isPrimaryKey=True
                 ),
                 MAIntDescription(
                     name='price', label='Price (per month)', required=True, accessor=MAAttrAccessor('price')
@@ -53,7 +53,7 @@ class TestModelDescriptor:
         user_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='regnum', label='RegNum', required=True, accessor=MAAttrAccessor('regnum'), isPrimaryKey=True
+                    name='regnum', label='RegNum', required=True, accessor=MAAttrAccessor('regnum'), sa_isPrimaryKey=True
                     ),
                 MAStringDescription(
                     name='fio', label='FIO', required=True, accessor=MAAttrAccessor('fio')
@@ -97,7 +97,7 @@ class TestModelDescriptor:
         org_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), isPrimaryKey=True
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), sa_isPrimaryKey=True
                     ),
                 MAStringDescription(
                     name='address', label='Address', required=True, accessor=MAAttrAccessor('address')
@@ -124,7 +124,7 @@ class TestModelDescriptor:
         acc_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='login', label='Login', required=True, accessor=MAAttrAccessor('login'), isPrimaryKey=True
+                    name='login', label='Login', required=True, accessor=MAAttrAccessor('login'), sa_isPrimaryKey=True
                     ),
                 #!TODO Change to MAPasswordDescription when it is implemented
                 MAStringDescription(
@@ -155,7 +155,7 @@ class TestModelDescriptor:
         host_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'), isPrimaryKey=True
+                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'), sa_isPrimaryKey=True
                     ),
                 MAToManyRelationDescription(
                     name='ports', label='Ports', required=True,
@@ -172,12 +172,12 @@ class TestModelDescriptor:
             [
                 MAIntDescription(
                     name='numofport', label='Number of Port', required=True, accessor=MAAttrAccessor('numofport')
-                    , isPrimaryKey=True
+                    , sa_isPrimaryKey=True
                     ),
                 MAToOneRelationDescription(
                     name='host', label='Host', required=True,
                     accessor=MAAttrAccessor('host'), classes=[Host],
-                    reference=host_desc_container, isPrimaryKey=True
+                    reference=host_desc_container, sa_isPrimaryKey=True
                     ),
                 MASingleOptionDescription(
                     name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),
