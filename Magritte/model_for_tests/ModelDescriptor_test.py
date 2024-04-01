@@ -1,4 +1,5 @@
 import datetime
+import itertools
 
 from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
 from Magritte.descriptions.MAContainer_class import MAContainer
@@ -16,6 +17,7 @@ from Magritte.model_for_tests.Host import Host
 from Magritte.model_for_tests.Port import Port
 from Magritte.model_for_tests.User import User
 from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
+from Magritte.model_for_tests.SoftwarePackage import SoftwarePackage
 
 
 class TestModelDescriptor:
@@ -29,6 +31,21 @@ class TestModelDescriptor:
         acc_desc_container = MAContainer()
         host_desc_container = MAContainer()
         port_desc_container = MAContainer()
+        soft_desc_container = MAContainer()
+
+        soft_desc_container.kind = SoftwarePackage
+        soft_desc_container.name = 'SoftwarePackage'
+        soft_desc_container.label = 'Software Package model'
+        soft_desc_container.setChildren(
+            [
+                MAStringDescription(
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), isPrimaryKey=True
+                    ),
+                MAStringDescription(
+                    name='version', label='Version', required=True, accessor=MAAttrAccessor('version')
+                    ),
+                ]
+            )
 
         subscription_plan_desc_container.kind = SubscriptionPlan
         subscription_plan_desc_container.name = 'SubscriptionPlan'
@@ -162,6 +179,11 @@ class TestModelDescriptor:
                     accessor=MAAttrAccessor('ports'), classes=[Port],
                     reference=port_desc_container,
                     ),
+                MAToManyRelationDescription(
+                    name='software', label='Software', required=True,
+                    accessor=MAAttrAccessor('software'), classes=[SoftwarePackage],
+                    reference=soft_desc_container,
+                    ),
                 ]
             )
 
@@ -202,6 +224,8 @@ class TestModelDescriptor:
             return port_desc_container
         elif model_type == 'SubscriptionPlan':
             return subscription_plan_desc_container
+        elif model_type == 'SoftwarePackage':
+            return soft_desc_container
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 
@@ -215,6 +239,7 @@ if __name__ == "__main__":
     acc_desc = TestModelDescriptor.description_for("Account")
     host_desc = TestModelDescriptor.description_for("Host")
     port_desc = TestModelDescriptor.description_for("Port")
+    soft_desc = TestModelDescriptor.description_for("SoftwarePackage")
 
     test_env_provider = TestEnvironmentProvider()
     org = test_env_provider.organization
@@ -222,6 +247,7 @@ if __name__ == "__main__":
     accounts = test_env_provider.accounts
     hosts = test_env_provider.hosts
     ports = test_env_provider.ports
+    soft = list(itertools.chain(*[host.software for host in hosts]))
     '''
     org = Organization.random_organization()
     users = org.listusers
@@ -288,3 +314,12 @@ if __name__ == "__main__":
             print(f"Validation failed with {err}: {err.description.name}, {err.message}")
     print("Validation complete.")
     print(f"Ports: {ports}")
+
+    print("Validating software packages...")
+    for sp in soft:
+        errs = soft_desc.validate(sp)
+        for err in errs:
+            print(f"Validation failed with {err}: {err.description.name}, {err.message}")
+    print("Validation complete.")
+    print(f"Software packages: {soft}")
+

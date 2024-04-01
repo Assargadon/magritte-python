@@ -41,7 +41,7 @@ def main():
 
     print("Hosts:")
     for host in provider.hosts:
-        print(f"IP: {host.ip}")
+        print(f"IP: {host.ip}, Software: {', '.join([str(item) for item in host.software])}")
 
     print("\nPorts:")
     for port in provider.ports:

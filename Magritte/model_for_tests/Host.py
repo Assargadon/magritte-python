@@ -2,12 +2,15 @@
 import random
 from Magritte.MAModel_class import MAModel
 from Magritte.model_for_tests.Port import Port
+from Magritte.model_for_tests.SoftwarePackage import SoftwarePackage
+
 
 class Host(MAModel):
 
     def __init__(self):
         self._ip = None
         self._ports = []
+        self._software = []
 
     @staticmethod
     def generate_ip():
@@ -24,8 +27,10 @@ class Host(MAModel):
         ip = cls.generate_ip()
         new_host = cls()
         ports = [Port.randomPortForHost(new_host) for _ in range(num_ports)]
+        software = [SoftwarePackage.random_software_package() for _ in range(3)]
         new_host._ip = ip
         new_host._ports = ports
+        new_host._software = software
         return new_host
 
     @property
@@ -43,3 +48,11 @@ class Host(MAModel):
     @ports.setter
     def ports(self, newPorts):
         self._ports = newPorts
+
+    @property
+    def software(self):
+        return self._software
+
+    @software.setter
+    def software(self, newSoftware):
+        self._software = newSoftware
