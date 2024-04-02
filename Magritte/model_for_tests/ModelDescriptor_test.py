@@ -39,7 +39,7 @@ class TestModelDescriptor:
         soft_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), sa_isPrimaryKey=True
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name')
                     ),
                 MAStringDescription(
                     name='version', label='Version', required=True, accessor=MAAttrAccessor('version')

@@ -5,4 +5,4 @@ from Magritte.model_for_tests.Port import Port
 from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
 from Magritte.model_for_tests.User import User
 
-__all__ = ['Account', 'Host', 'Organization', 'Port', 'SubscriptionPlan', 'User', ]
+__all__ = ['Account', 'Host', 'Organization', 'Port', 'SubscriptionPlan', 'User', 'SoftwarePackage', ]
