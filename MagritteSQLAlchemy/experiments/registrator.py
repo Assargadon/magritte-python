@@ -13,7 +13,8 @@ from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelati
 
 
 def add_missing_primary_keys(table: Table) -> Table:
-    if not any([col.primary_key for col in table.c]):
+    if(len(table.primary_key) == 0):
+        print(f'Adding ID as default primary key to table {table.name} ({table.primary_key})')
         table.append_column(Column("id", Integer, primary_key=True))
     return table
 

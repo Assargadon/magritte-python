@@ -23,23 +23,23 @@ class FieldsMapper(MAVisitor):
 
     def visitIntDescription(self, description):
         print(f'visitIntDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, Integer))
+        self.table.append_column(Column(description.sa_fieldName, Integer, primary_key=description.sa_isPrimaryKey))
 
     def visitStringDescription(self, description):
         print(f'visitStringDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, String(250)))
+        self.table.append_column(Column(description.sa_fieldName, String(250), primary_key=description.sa_isPrimaryKey))
 
     def visitDateDescription(self, description):
         print(f'visitDateDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, Date))
+        self.table.append_column(Column(description.sa_fieldName, Date, primary_key=description.sa_isPrimaryKey))
 
     def visitDateAndTimeDescription(self, description):
         print(f'visitDateAndTimeDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, DateTime))
+        self.table.append_column(Column(description.sa_fieldName, DateTime, primary_key=description.sa_isPrimaryKey))
 
     def visitBooleanDescription(self, description):
         print(f'visitBooleanDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, Boolean))
+        self.table.append_column(Column(description.sa_fieldName, Boolean, primary_key=description.sa_isPrimaryKey))
         
     def visitSingleOptionDescription(self, description):
         print(f'visitSingleOptionDescription {description.name}')

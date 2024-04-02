@@ -186,13 +186,13 @@ class TestModelDescriptor:
         port_desc_container.setChildren(
             [
                 MAIntDescription(
-                    name='numofport', label='Number of Port', required=True, accessor=MAAttrAccessor('numofport')
-                    , sa_isPrimaryKey=True, sa_attrName='_numofport',
+                    name='numofport', label='Number of Port', required=True, accessor=MAAttrAccessor('numofport'),
+                    sa_attrName='_numofport',
                     ),
                 MAToOneRelationDescription(
                     name='host', label='Host', required=True,
                     accessor=MAAttrAccessor('host'), classes=[Host], reference=host_desc_container,
-                    sa_isPrimaryKey=True, sa_attrName='_host',
+                    sa_attrName='_host',
                     ),
                 MASingleOptionDescription(
                     name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),
