@@ -3,15 +3,13 @@ from sqlalchemy.orm import Session
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
+from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, )
 from MagritteSQLAlchemy.experiments import registrator
-import sqlalchemy
 
-from Magritte.model_for_tests import SubscriptionPlan
 
 if __name__ == '__main__':
     descriptions = [TestModelDescriptor.description_for(x) for x in (
-        'User', 'Organization', 'Account', 'Host', 'Port', 'SubscriptionPlan',
+        'User', 'Organization', 'Account', 'Host', 'Port', 'SubscriptionPlan', 'SoftwarePackage',
         )]
 
     registry = registrator.register(*descriptions)
@@ -33,6 +31,7 @@ if __name__ == '__main__':
             *env.ports,
             *env.users,
             *env.accounts,
+            *(sp for host in env.hosts for sp in host.software)
             ])
         session.commit()
 
@@ -49,7 +48,7 @@ if __name__ == '__main__':
             print(f'port = {port.numofport} - {port.status}')
         hosts = session.query(Host).all()
         for host in hosts:
-            print(f'host = {host.ip} ')
+            print(f'host = {host.ip}')  # , Software: {", ".join([str(item) for item in host.software])} ')
         accounts = session.query(Account).all()
         for account in accounts:
             print(f'account = {account.login} : {account.password}')
@@ -62,3 +61,6 @@ if __name__ == '__main__':
         subscription_plans = session.query(SubscriptionPlan).all()
         for subscription_plan in subscription_plans:
             print(f'subscription_plan = {subscription_plan.name} ')
+        software_packages = session.query(SubscriptionPlan).all()
+        for software_package in software_packages:
+            print(f'software_package = {software_package.name} ')
