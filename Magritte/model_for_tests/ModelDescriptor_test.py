@@ -39,7 +39,7 @@ class TestModelDescriptor:
         soft_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), isPrimaryKey=True
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'), sa_isPrimaryKey=True
                     ),
                 MAStringDescription(
                     name='version', label='Version', required=True, accessor=MAAttrAccessor('version')
@@ -187,17 +187,20 @@ class TestModelDescriptor:
         host_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'), sa_isPrimaryKey=True
+                    name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'),
+                    sa_isPrimaryKey=True, sa_attrName='_ip',
                     ),
                 MAToManyRelationDescription(
                     name='ports', label='Ports', required=True,
                     accessor=MAAttrAccessor('ports'), classes=[Port],
                     reference=port_desc_container,
+                    sa_attrName='_ports',
                     ),
                 MAToManyRelationDescription(
                     name='software', label='Software', required=True,
                     accessor=MAAttrAccessor('software'), classes=[SoftwarePackage],
                     reference=soft_desc_container,
+                    sa_attrName='_software',
                     ),
                 ]
             )
