@@ -197,7 +197,8 @@ class TestModelDescriptor:
                 MASingleOptionDescription(
                     name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),
                     options=Port.STATUSES,
-                    reference=MAStringDescription()
+                    reference=MAStringDescription(),
+                    sa_attrName='_status'
                     ),
                 MAStringDescription(
                     accessor = MAAttrAccessor('label'), readOnly = True

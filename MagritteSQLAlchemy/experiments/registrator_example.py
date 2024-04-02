@@ -7,7 +7,7 @@ from Magritte.model_for_tests import (Organization, Host, User, Port, Account, )
 from MagritteSQLAlchemy.experiments import registrator
 import sqlalchemy
 
-from model_for_tests import SubscriptionPlan
+from Magritte.model_for_tests import SubscriptionPlan
 
 if __name__ == '__main__':
     descriptions = [TestModelDescriptor.description_for(x) for x in (
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     with Session(engine) as session:
         ports = session.query(Port).filter(Port._numofport < 150).all()
         for port in ports:
-            print(f'port = {port.numofport} ')
+            print(f'port = {port.numofport} - {port.status}')
         hosts = session.query(Host).all()
         for host in hosts:
             print(f'host = {host.ip} ')

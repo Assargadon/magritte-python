@@ -40,3 +40,21 @@ class FieldsMapper(MAVisitor):
     def visitBooleanDescription(self, description):
         print(f'visitBooleanDescription {description.name}')
         self.table.append_column(Column(description.sa_fieldName, Boolean))
+        
+    def visitSingleOptionDescription(self, description):
+        print(f'visitSingleOptionDescription {description.name}')
+        reference = description.reference.__copy__()
+        reference.name = description.name
+        reference.sa_fieldName = description.sa_fieldName
+        reference.sa_attrName = description.sa_attrName
+        reference.sa_storable = description.sa_storable
+        reference.sa_isPrimaryKey = description.sa_isPrimaryKey
+        # if reference is scalar type, i.e. not subclass of MAContainer, then it's just a scalar field
+        if not isinstance(reference, MAContainer):
+            print('!!!! reference is scalar !!!')
+            self.visit(reference)
+        else:
+            print('!!!! reference is container !!!')
+        #else:
+            # if reference is a container, then it's a reference field
+        #    self.table.append_column(Column(description.name, Integer, ForeignKey(reference.sa_tableName + ".id")))

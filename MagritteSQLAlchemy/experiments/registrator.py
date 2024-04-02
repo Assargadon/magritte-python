@@ -6,6 +6,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from MagritteSQLAlchemy.experiments.fieldsmapper import FieldsMapper
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 
 
 def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_registry:
@@ -32,10 +33,9 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
 
         properties_to_map = {}
         for desc in filter(lambda x: x.sa_storable, descriptor.children):
-            print(f'desc = {desc}, desc.name = {desc.name}, is reference = {isinstance(desc, MAReferenceDescription)}')
-            if not isinstance(desc, MAReferenceDescription):
-                print(f' ... sa_attrName = {desc.sa_attrName}')
-                properties_to_map[desc.sa_attrName] = table.c[desc.name]
+            if not isinstance(desc, MAReferenceDescription) or (isinstance(desc, MASingleOptionDescription) and not isinstance(desc.reference, MAContainer)):
+                print(f' Mapping scalar attribute = {desc.sa_attrName}')
+                properties_to_map[desc.sa_attrName] = table.c[desc.sa_fieldName]
                 
         registry.map_imperatively(
             descriptor.kind,
