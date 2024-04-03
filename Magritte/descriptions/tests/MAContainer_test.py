@@ -29,11 +29,15 @@ class MAContainerTest(TestCase):
         self.assertEqual(len(self.inst1), 4)
 
     def test_getitem(self):
-        self.inst1 += 'exm1'
-        self.inst1 += 'exm2'
-        self.inst1 += 'exm3'
-        self.inst1 += 'exm4'
-        self.assertEqual(self.inst1[0], 'exm1')
+        class SmthWName:
+            def __init__(self, name):
+                self.name = name
+        elements = [SmthWName('exm1'), SmthWName('exm2'), SmthWName('exm3'), SmthWName('exm4')]
+        self.inst1 += elements[0]
+        self.inst1 += elements[1]
+        self.inst1 += elements[2]
+        self.inst1 += elements[3]
+        self.assertEqual(self.inst1['exm2'], elements[1])
 
     def test_copy(self):
         exm = copy(self.inst1)
@@ -91,8 +95,8 @@ class MAContainerTest(TestCase):
 
     def test_get(self):
         self.inst1.setChildren([1, 2, 3, 4])
-        self.assertEqual(self.inst1[2] if 2 < len(self.inst1) else 'index > len', 3)
-        self.assertEqual(self.inst1[7] if 7 < len(self.inst1) else 'index > len', 'index > len')
+        self.assertEqual(self.inst1.children[2] if 2 < len(self.inst1) else 'index > len', 3)
+        self.assertEqual(self.inst1.children[7] if 7 < len(self.inst1) else 'index > len', 'index > len')
 
     def test_allSatisfy(self):
         self.inst1.setChildren([1, 2, 3, 4])
