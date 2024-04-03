@@ -31,15 +31,17 @@ class MAContainer(MADescription):
     def __len__(self):
         return len(self._children)
 
-    def __getitem__(self, item):
-        return self._children[item]
+    def __getitem__(self, name):
+        try:
+            return self.detect(lambda item: item.name == name)
+        except StopIteration:
+            raise KeyError(name)
 
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
         clone.setChildren(copy(self.children))
         return clone
-
 
     @classmethod
     def defaultAccessor(cls):
