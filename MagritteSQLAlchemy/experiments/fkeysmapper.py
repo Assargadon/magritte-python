@@ -1,9 +1,13 @@
+import logging
 from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from sqlalchemy.orm import registry as sa_registry
 from sqlalchemy.schema import ForeignKeyConstraint
+
+logger = logging.getLogger(__name__)
+
 
 class FKeysMapper(MAVisitor):
     def __init__(self):
@@ -38,20 +42,20 @@ class FKeysMapper(MAVisitor):
 
 
     def visitDescription(self, description):
-        print(f'Description {description} not supported in FKeysMapper')
+        logger.error(f'Description {description} not supported in FKeysMapper')
 
     def visitContainer(self, description):
-        print(f'visitContainer {description.name}')
+        logger.debug(f'visitContainer {description.name}')
         self.visitAll(description.children)
 
 
     def visitToOneRelationDescription(self, description):
-        print(f'visitToOneRelationDescription {description.name}')
+        logger.debug(f'visitToOneRelationDescription {description.name}')
         target_table = self.registered_tables[description.reference.sa_tableName]
         self.append_fkey(description.name, self.my_table, target_table)
 
 
 #    def visitToManyRelationDescription(self, description):
-#        print(f'visitToManyRelationDescription {description.name}')
+#        logger.debug(f'visitToManyRelationDescription {description.name}')
 #        target_table = self.registered_tables[description.reference.sa_tableName]
 #        self.append_fkey(description.name, target_table, self.my_table)

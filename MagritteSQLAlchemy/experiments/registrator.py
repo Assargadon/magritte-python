@@ -1,3 +1,4 @@
+import logging
 from sqlalchemy import Table, Column, Integer
 
 from Magritte.descriptions.MAContainer_class import MAContainer
@@ -11,10 +12,12 @@ from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescri
 from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 
+logger = logging.getLogger(__name__)
+
 
 def add_missing_primary_keys(table: Table) -> Table:
     if(len(table.primary_key) == 0):
-        print(f'Adding ID as default primary key to table {table.name} ({table.primary_key})')
+        logger.debug(f'Adding ID as default primary key to table {table.name} ({table.primary_key})')
         table.append_column(Column("id", Integer, primary_key=True))
     return table
 
@@ -40,7 +43,7 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         table = add_missing_primary_keys(table)
 
         registered_tables[descriptor.sa_tableName] = table
-        print(table.c)
+        logger.debug(table.c)
 
     fkeys_mapper = FKeysMapper()
     for descriptor in descriptors:
@@ -48,16 +51,16 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         fkeys_mapper.map(descriptor, registered_tables) 
 
     for descriptor in descriptors:
-        print(f' ================= > Registering {descriptor.name} ...')
+        logger.debug(f' ================= > Registering {descriptor.name} ...')
 
         properties_to_map = {}
         table = registered_tables[descriptor.sa_tableName]
         for desc in filter(lambda x: x.sa_storable, descriptor.children):
             if not isinstance(desc, MAReferenceDescription) or (isinstance(desc, MASingleOptionDescription) and not isinstance(desc.reference, MAContainer)):
-                print(f' Mapping scalar attribute = {desc.sa_attrName}')
+                logger.debug(f' Mapping scalar attribute = {desc.sa_attrName}')
                 properties_to_map[desc.sa_attrName] = table.c[desc.sa_fieldName]
             if isinstance(desc, MAToOneRelationDescription) and isinstance(desc.reference, MAContainer):
-                print(f' Mapping REFERENCE attribute = {desc.sa_attrName}')
+                logger.debug(f' Mapping REFERENCE attribute = {desc.sa_attrName}')
                 table = registered_tables[descriptor.sa_tableName]
                 properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind)
                 

@@ -1,3 +1,4 @@
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -6,8 +7,21 @@ from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentPro
 from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, )
 from MagritteSQLAlchemy.experiments import registrator
 
+logger = logging.getLogger(__name__)
+
 
 if __name__ == '__main__':
+
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.INFO,
+        )
+
+    logger.setLevel(logging.DEBUG)
+    logging.getLogger("MagritteSQLAlchemy.experiments.registrator").setLevel(logging.DEBUG)
+    logging.getLogger("MagritteSQLAlchemy.experiments.fieldsmapper").setLevel(logging.DEBUG)
+    logging.getLogger("MagritteSQLAlchemy.experiments.fkeysmapper").setLevel(logging.DEBUG)
+
     descriptions = [TestModelDescriptor.description_for(x) for x in (
         'User', 'Organization', 'Account', 'Host', 'Port', 'SubscriptionPlan', 'SoftwarePackage',
         )]

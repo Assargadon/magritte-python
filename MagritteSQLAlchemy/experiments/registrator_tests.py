@@ -1,5 +1,9 @@
+import logging
+import sys
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+import unittest
 from unittest import TestCase
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
@@ -7,10 +11,18 @@ from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentPro
 from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, SoftwarePackage, )
 from MagritteSQLAlchemy.experiments import registrator
 
-from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
-from Magritte.descriptions.MAContainer_class import MAContainer
-from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
-from descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.DEBUG,
+    )
+
+logger.setLevel(logging.DEBUG)
+logging.getLogger("MagritteSQLAlchemy.experiments.registrator").setLevel(logging.DEBUG)
+logging.getLogger("MagritteSQLAlchemy.experiments.fieldsmapper").setLevel(logging.DEBUG)
+logging.getLogger("MagritteSQLAlchemy.experiments.fkeysmapper").setLevel(logging.DEBUG)
+
 
 model_names = ('Organization', 'Host', 'Port', 'User', 'Account', 'SubscriptionPlan', 'SoftwarePackage')
 descriptions = {k: v for k, v in ((x, TestModelDescriptor.description_for(x)) for x in model_names)}
@@ -20,9 +32,10 @@ engine = create_engine("sqlite://", echo=False)
 # conn_str = "postgresql://postgres:postgres@localhost/sqlalchemy"
 # engine = create_engine(conn_str, echo=True)
 
-
 class TestRegistratorExample(TestCase):
+
     def setUp(self):
+
         registry.metadata.create_all(engine)
         self.env = TestEnvironmentProvider()
 
@@ -162,3 +175,7 @@ class TestRegistratorExample(TestCase):
             expected_removed_count = self.org_name.count(self.org_name)
             self.assertEqual(org_count_after, org_count_before - expected_removed_count)
 
+
+if __name__ == '__main__':
+
+    unittest.main()
