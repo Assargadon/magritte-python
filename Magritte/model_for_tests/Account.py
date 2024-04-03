@@ -7,6 +7,8 @@ from Magritte.model_for_tests.Port import Port
 
 class Account(MAModel):
 
+    _taken_ids = set()
+
     def __init__(self):
         self._login = None
         self._password = None
@@ -19,7 +21,11 @@ class Account(MAModel):
 
     @staticmethod
     def generate_login():
-        return f'user{random.randint(1, 9999)}'
+        id_ = random.randint(1, 9999)
+        while id_ in Account._taken_ids:
+            id_ = random.randint(1, 9999)
+        Account._taken_ids.add(id_)
+        return f'user{id_}'
 
     @staticmethod
     def generate_password():

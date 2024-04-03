@@ -7,6 +7,8 @@ from Magritte.model_for_tests.SoftwarePackage import SoftwarePackage
 
 class Host(MAModel):
 
+    _taken_ips = set()
+
     def __init__(self):
         self._ip = None
         self._ports = []
@@ -19,7 +21,15 @@ class Host(MAModel):
         block3 = random.randint(0, 255)
         block4 = random.randint(0, 255)
 
+        while f'{block1}.{block2}.{block3}.{block4}' in Host._taken_ips:
+            block1 = random.randint(0, 255)
+            block2 = random.randint(0, 255)
+            block3 = random.randint(0, 255)
+            block4 = random.randint(0, 255)
+
         ipAddress = f'{block1}.{block2}.{block3}.{block4}'
+        Host._taken_ips.add(ipAddress)
+
         return ipAddress
 
     @classmethod
