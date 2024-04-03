@@ -11,6 +11,7 @@ from MagritteSQLAlchemy.experiments.fkeysmapper import FKeysMapper
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
+from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,11 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
                 logger.debug(f' Mapping scalar attribute = {desc.sa_attrName}')
                 properties_to_map[desc.sa_attrName] = table.c[desc.sa_fieldName]
             if isinstance(desc, MAToOneRelationDescription) and isinstance(desc.reference, MAContainer):
-                logger.debug(f' Mapping REFERENCE attribute = {desc.sa_attrName}')
+                logger.debug(f' Mapping TO ONE attribute = {desc.sa_attrName}')
+                table = registry.metadata.tables[descriptor.sa_tableName]
+                properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind)
+            if isinstance(desc, MAToManyRelationDescription) and isinstance(desc.reference, MAContainer):
+                logger.debug(f' Mapping TO MANY attribute = {desc.sa_attrName}')
                 table = registry.metadata.tables[descriptor.sa_tableName]
                 properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind)
                 

@@ -62,7 +62,7 @@ if __name__ == '__main__':
             print(f'port = {port.numofport} - {port.status}')
         hosts = session.query(Host).all()
         for host in hosts:
-            print(f'host = {host.ip}')  # , Software: {", ".join([str(item) for item in host.software])} ')
+            print(f'host = {host.ip} Software: {", ".join([str(item) for item in host.software])} ')
         accounts = session.query(Account).all()
         for account in accounts:
             print(f'account = {account.login} : {account.password}')
