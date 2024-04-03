@@ -18,7 +18,7 @@ class FieldsMapper(MAVisitor):
         return self.table
 
     def visitDescription(self, description):
-        logger.error(f'Description {description} not supported')
+        logger.warning(f'Description {description} not supported')
 
     def visitContainer(self, description):
         logger.debug(f'visitContainer {description.name}')

@@ -42,7 +42,7 @@ class FKeysMapper(MAVisitor):
 
 
     def visitDescription(self, description):
-        logger.error(f'Description {description} not supported in FKeysMapper')
+        logger.warning(f'Description {description} not supported in FKeysMapper')
 
     def visitContainer(self, description):
         logger.debug(f'visitContainer {description.name}')
