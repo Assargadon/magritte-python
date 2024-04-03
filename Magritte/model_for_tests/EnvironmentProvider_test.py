@@ -8,12 +8,15 @@ class TestEnvironmentProvider:
     def __init__(self, num_hosts=3, num_ports_per_host=12, num_accounts=3, num_users=3):
         self._hosts = [Host.random_host(num_ports=num_ports_per_host) for _ in range(num_hosts)]
         self._ports = [port for host in self._hosts for port in host.ports]
-        self._accounts = [Account.random_account(self._ports[_]) for _ in range(num_accounts)]
         self._organization = Organization.random_organization(num_users)
-        self._users = self._organization.listusers
         self._organization.listcomp = self._hosts
+        self._users = self._organization.listusers
         for user in self._users:
-            user.setofaccounts = self._accounts
+            user.setofaccounts = [Account.random_account(self._ports[_]) for _ in range(num_accounts)]
+        self._accounts = [account for user in self._users for account in user.setofaccounts]
+        self._software = [software for host in self._hosts for software in host.software]
+        self._subscription_plans = [user.plan for user in self._users]
+
 
     @property
     def hosts(self):
@@ -34,6 +37,14 @@ class TestEnvironmentProvider:
     @property
     def users(self):
         return self._users
+
+    @property
+    def software(self):
+        return self._software
+
+    @property
+    def subscription_plans(self):
+        return self._subscription_plans
 
 
 def main():

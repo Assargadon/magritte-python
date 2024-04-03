@@ -19,7 +19,7 @@ class Account(MAModel):
 
     @staticmethod
     def generate_login():
-        return f'user{random.randint(1, 99)}'
+        return f'user{random.randint(1, 9999)}'
 
     @staticmethod
     def generate_password():

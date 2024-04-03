@@ -111,7 +111,12 @@ class TestModelDescriptor:
                     name='plan', label='Subscription Plan', required=False, accessor=MAAttrAccessor('plan'),
                     options=SubscriptionPlan.entries,
                     reference=subscription_plan_desc_container
-                )
+                    ),
+                #MAToOneRelationDescription(
+                #    name='plan', label='Subscription Plan', required=False,
+                #    accessor=MAAttrAccessor('plan'), classes=[SubscriptionPlan],
+                #    reference=subscription_plan_desc_container,
+                #    ),
                 ]
             )
 
