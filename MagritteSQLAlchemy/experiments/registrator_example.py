@@ -59,7 +59,7 @@ if __name__ == '__main__':
     with Session(engine) as session:
         ports = session.query(Port).filter(Port._numofport < 150).all()
         for port in ports:
-            print(f'port = {port.numofport} - {port.status}')
+            print(f'port = {port.label} - {port.status}')
         hosts = session.query(Host).all()
         for host in hosts:
             print(f'host = {host.ip} Software: {", ".join([str(item) for item in host.software])} ')
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             print(f'user = {user.regnum}: {user.fio} ')
         organizations = session.query(Organization).all()
         for organization in organizations:
-            print(f'organization = {organization.name} ')
+            print(f'organization = {organization.name} Hosts: {", ".join([str(item.ip) for item in organization.listcomp])}')
         subscription_plans = session.query(SubscriptionPlan).all()
         for subscription_plan in subscription_plans:
             print(f'subscription_plan = {subscription_plan.name} ')

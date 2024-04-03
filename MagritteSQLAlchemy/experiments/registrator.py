@@ -53,6 +53,13 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         # add foreign keys
         fkeys_mapper.map(descriptor, registry.metadata.tables)
 
+
+    def find_attribute_for_back_populates(myKind, reference_descriptor_container):
+        for desc in reference_descriptor_container.children:
+            if isinstance(desc, MAReferenceDescription) and desc.reference.kind == myKind:
+                return desc.sa_attrName
+        return None
+
     for descriptor in descriptors:
         logger.debug(f' ================= > Registering {descriptor.name} ...')
 
@@ -64,12 +71,12 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
                 properties_to_map[desc.sa_attrName] = table.c[desc.sa_fieldName]
             if isinstance(desc, MAToOneRelationDescription) and isinstance(desc.reference, MAContainer):
                 logger.debug(f' Mapping TO ONE attribute = {desc.sa_attrName}')
-                table = registry.metadata.tables[descriptor.sa_tableName]
-                properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind)
+                back_populates_attr = find_attribute_for_back_populates(descriptor.kind, desc.reference)
+                properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind, back_populates=back_populates_attr)
             if isinstance(desc, MAToManyRelationDescription) and isinstance(desc.reference, MAContainer):
                 logger.debug(f' Mapping TO MANY attribute = {desc.sa_attrName}')
-                table = registry.metadata.tables[descriptor.sa_tableName]
-                properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind)
+                back_populates_attr = find_attribute_for_back_populates(descriptor.kind, desc.reference)
+                properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind, back_populates=back_populates_attr)
                 
         registry.map_imperatively(
             descriptor.kind,
