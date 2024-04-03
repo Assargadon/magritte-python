@@ -26,7 +26,6 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
     if not registry:
         registry = sa_registry()
 
-    registered_tables = {}
     fields_mapper = FieldsMapper()
     for descriptor in descriptors:
 
@@ -36,32 +35,35 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
             registry.metadata,
             )
 
+        logger.debug(f' ==== registry.metadata.tables ===')
+        logger.debug(f'{registry.metadata.tables}')
+        logger.debug(f' =================================')
+
         # map scalar fields
         fields_mapper.map(descriptor, table)
 
         # add missing primary keys
         table = add_missing_primary_keys(table)
 
-        registered_tables[descriptor.sa_tableName] = table
         logger.debug(table.c)
 
     fkeys_mapper = FKeysMapper()
     for descriptor in descriptors:
         # add foreign keys
-        fkeys_mapper.map(descriptor, registered_tables) 
+        fkeys_mapper.map(descriptor, registry.metadata.tables)
 
     for descriptor in descriptors:
         logger.debug(f' ================= > Registering {descriptor.name} ...')
 
         properties_to_map = {}
-        table = registered_tables[descriptor.sa_tableName]
+        table = registry.metadata.tables[descriptor.sa_tableName]
         for desc in filter(lambda x: x.sa_storable, descriptor.children):
             if not isinstance(desc, MAReferenceDescription) or (isinstance(desc, MASingleOptionDescription) and not isinstance(desc.reference, MAContainer)):
                 logger.debug(f' Mapping scalar attribute = {desc.sa_attrName}')
                 properties_to_map[desc.sa_attrName] = table.c[desc.sa_fieldName]
             if isinstance(desc, MAToOneRelationDescription) and isinstance(desc.reference, MAContainer):
                 logger.debug(f' Mapping REFERENCE attribute = {desc.sa_attrName}')
-                table = registered_tables[descriptor.sa_tableName]
+                table = registry.metadata.tables[descriptor.sa_tableName]
                 properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind)
                 
         registry.map_imperatively(

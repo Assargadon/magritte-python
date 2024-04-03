@@ -13,7 +13,7 @@ class FKeysMapper(MAVisitor):
     def __init__(self):
         self.table = None
 
-    def map(self, description: MAContainer, registered_tables: map):
+    def map(self, description: MAContainer, registered_tables: dict):
         self.registered_tables = registered_tables
         self.my_table = self.registered_tables[description.sa_tableName]
         self.visit(description)
