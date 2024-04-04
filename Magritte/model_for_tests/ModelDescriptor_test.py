@@ -54,16 +54,15 @@ class TestModelDescriptor:
             [
                 MAStringDescription(
                     name='name', label='Name', required=True, accessor=MAAttrAccessor('name'),
-                    sa_isPrimaryKey=True, sa_attrName='_name',
+                    sa_isPrimaryKey=True,
                 ),
                 MAIntDescription(
                     name='price', label='Price (per month)', required=True, accessor=MAAttrAccessor('price'),
-                    sa_attrName='_price',
+                    
                 ),
                 MAStringDescription(
                     name='description', label='Description of the plan features', required=False,
                     accessor=MAAttrAccessor('description'),
-                    sa_attrName='_description',
                 ),
             ]
         )

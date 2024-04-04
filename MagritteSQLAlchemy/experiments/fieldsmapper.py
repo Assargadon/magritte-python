@@ -56,8 +56,3 @@ class FieldsMapper(MAVisitor):
         if not isinstance(reference, MAContainer):
             logger.debug('!!!! reference is scalar !!!')
             self.visit(reference)
-        else:
-            logger.debug('!!!! reference is container !!!')
-        #else:
-            # if reference is a container, then it's a reference field
-        #    self.table.append_column(Column(description.name, Integer, ForeignKey(reference.sa_tableName + ".id")))

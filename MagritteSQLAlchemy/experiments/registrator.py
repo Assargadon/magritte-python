@@ -73,6 +73,10 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
                 logger.debug(f' Mapping TO ONE attribute = {desc.sa_attrName}')
                 back_populates_attr = find_attribute_for_back_populates(descriptor.kind, desc.reference)
                 properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind, back_populates=back_populates_attr)
+            if isinstance(desc, MASingleOptionDescription) and isinstance(desc.reference, MAContainer):
+                back_populates_attr = find_attribute_for_back_populates(descriptor.kind, desc.reference)
+                logger.debug(f' Mapping SINGLE OPTION to-object attribute = {desc.sa_attrName} back_populates_attr = {back_populates_attr}')
+                properties_to_map[desc.sa_attrName] = relationship(desc.reference.kind, back_populates=back_populates_attr)
             if isinstance(desc, MAToManyRelationDescription) and isinstance(desc.reference, MAContainer):
                 logger.debug(f' Mapping TO MANY attribute = {desc.sa_attrName}')
                 back_populates_attr = find_attribute_for_back_populates(descriptor.kind, desc.reference)

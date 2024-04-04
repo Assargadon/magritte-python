@@ -48,7 +48,7 @@ class FKeysMapper(MAVisitor):
     def is_fkey_already_exists(self, source_table: Table, target_table: Table):
     # TODO: this would not work with SEVERAL relations from one table to another - but it's rare case
     # it would need to identify the mere _relation_ between the tables, not just the presence of SOME foreign key
-    
+
         for fkey in source_table.foreign_keys:
             if fkey.references(target_table):
                 return True
@@ -68,6 +68,11 @@ class FKeysMapper(MAVisitor):
         target_table = self.registered_tables[description.reference.sa_tableName]
         self.append_fkey(description.name, self.my_table, target_table)
 
+    def visitSingleOptionDescription(self, description):
+        logger.debug(f'visitSingleOptionDescription {description.name}')
+        if isinstance(description.reference, MAContainer):
+            logger.debug('!!!! reference is container !!!')
+            self.visitToOneRelationDescription(description)
 
     def visitToManyRelationDescription(self, description):
         logger.debug(f'visitToManyRelationDescription {description.name}')

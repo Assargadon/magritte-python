@@ -70,9 +70,9 @@ class User(MAModel):
     def generate_subscription_plan():
         from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
         if random.random() < 0.5:
-            return SubscriptionPlan.entries[0]
+            return SubscriptionPlan.entries()[0]
         else: #select a random non-free plan
-            return random.choice(SubscriptionPlan.entries[1:])
+            return random.choice(SubscriptionPlan.entries()[1:])
 
     @classmethod
     def random_user(cls, organization):

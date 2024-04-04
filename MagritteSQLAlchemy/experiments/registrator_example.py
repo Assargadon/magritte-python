@@ -45,6 +45,7 @@ if __name__ == '__main__':
             *env.ports,
             *env.users,
             *env.accounts,
+            *env.subscription_plans,
             *(sp for host in env.hosts for sp in host.software)
             ])
         session.commit()
@@ -68,7 +69,7 @@ if __name__ == '__main__':
             print(f'account = {account.login} : {account.password}')
         users = session.query(User).all()
         for user in users:
-            print(f'user = {user.regnum}: {user.fio} ')
+            print(f'user = {user.regnum}: {user.fio} [{user.plan}]')
         organizations = session.query(Organization).all()
         for organization in organizations:
             print(f'organization = {organization.name} Hosts: {", ".join([str(item.ip) for item in organization.listcomp])}')

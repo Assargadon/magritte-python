@@ -2,6 +2,7 @@
 from Magritte.model_for_tests.Host import Host
 from Magritte.model_for_tests.Account import Account
 from Magritte.model_for_tests.Organization import Organization
+from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
 
 
 class TestEnvironmentProvider:
@@ -15,7 +16,7 @@ class TestEnvironmentProvider:
             user.setofaccounts = [Account.random_account(self._ports[_]) for _ in range(num_accounts)]
         self._accounts = [account for user in self._users for account in user.setofaccounts]
         self._software = [software for host in self._hosts for software in host.software]
-        self._subscription_plans = [user.plan for user in self._users]
+        self._subscription_plans = SubscriptionPlan.entries()
 
 
     @property
