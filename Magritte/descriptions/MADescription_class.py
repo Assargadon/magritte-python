@@ -406,21 +406,6 @@ class MADescription(MAModel):
 
     # =========== validation ===========
 
-    @classmethod
-    def defaultValidator(cls):
-        return MAValidatorVisitor
-
-    @property
-    def validator(self):
-        try:
-            return self._validator
-        except AttributeError:
-            return self.defaultValidator()
-
-    @validator.setter
-    def validator(self, aVisitorClass):
-        self._validator = aVisitorClass
-
     def validate(self, model):
         visitor = self.validator()
         errors = visitor.validateModelDescription(model, self)
