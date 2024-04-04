@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, SoftwarePackage)
-from MagritteSQLAlchemy.experiments import registrator
+from MagritteSQLAlchemy import registrator
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,11 @@ if __name__ == '__main__':
         )
 
     logger.setLevel(logging.DEBUG)
-    logging.getLogger("MagritteSQLAlchemy.experiments.registrator").setLevel(logging.DEBUG)
-    logging.getLogger("MagritteSQLAlchemy.experiments.fieldsmapper").setLevel(logging.DEBUG)
-    logging.getLogger("MagritteSQLAlchemy.experiments.fkeysmapper").setLevel(logging.DEBUG)
+    logging.getLogger("MagritteSQLAlchemy").setLevel(logging.DEBUG)
+    # Fine-grained logging
+    # logging.getLogger("MagritteSQLAlchemy.registrator").setLevel(logging.DEBUG)
+    # logging.getLogger("MagritteSQLAlchemy.fieldsmapper").setLevel(logging.DEBUG)
+    # logging.getLogger("MagritteSQLAlchemy.fkeysmapper").setLevel(logging.DEBUG)
 
     descriptions = [TestModelDescriptor.description_for(x) for x in (
         'User', 'Organization', 'Account', 'Host', 'Port', 'SubscriptionPlan', 'SoftwarePackage',
