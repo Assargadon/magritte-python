@@ -48,6 +48,8 @@ class TestRegistratorExample(TestCase):
 
     def tearDown(self):
         registry.metadata.drop_all(engine)
+        delattr(SubscriptionPlan, '_entries')
+
 
     def test_insert_then_count(self):
         with Session(engine) as session:
