@@ -1,18 +1,14 @@
 from datetime import date
 from pprint import pprint
 
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session, registry
-
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MADateDescription_class import MADateDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from MagritteSQLAlchemy.MAContainerCopier import MAContainerCopier
+from MagritteSQLAlchemy.declarative.MAContainerCopier import MAContainerCopier
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
-from MagritteSQLAlchemy.SQLAlchemyModelGenerator import SQLAlchemyModelGenerator
 
 
 class PersonSrc:

@@ -8,7 +8,7 @@ from Magritte.descriptions.MARelationDescription_class import MARelationDescript
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
-from MagritteSQLAlchemy.MAContainerCopier import MAContainerDbCopier
+from MagritteSQLAlchemy.declarative.MAContainerCopier import MAContainerDbCopier
 
 
 class SqlAlchemyFieldExtractorFromMAElementVisitor(MAVisitor):

@@ -5,8 +5,8 @@ from Magritte.descriptions.MAContainer_class import MAContainer
 from sqlalchemy.orm import registry as sa_registry
 from sqlalchemy.orm import relationship
 
-from MagritteSQLAlchemy.fieldsmapper import FieldsMapper
-from MagritteSQLAlchemy.fkeysmapper import FKeysMapper
+from MagritteSQLAlchemy.imperative.fieldsmapper import FieldsMapper
+from MagritteSQLAlchemy.imperative.fkeysmapper import FKeysMapper
 
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
