@@ -56,13 +56,6 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         
     prop_mapper = PropMapper()
     for descriptor in descriptors:
-        table = registry.metadata.tables[descriptor.sa_tableName]
-        properties_to_map = prop_mapper.map(descriptor, table)
-                
-        registry.map_imperatively(
-            descriptor.kind,
-            table,
-            properties=properties_to_map,
-            )
+        prop_mapper.map(descriptor, registry)
 
     return registry
