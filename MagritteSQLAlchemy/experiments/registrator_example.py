@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, )
+from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, SoftwarePackage)
 from MagritteSQLAlchemy.experiments import registrator
 
 logger = logging.getLogger(__name__)
@@ -76,6 +76,6 @@ if __name__ == '__main__':
         subscription_plans = session.query(SubscriptionPlan).all()
         for subscription_plan in subscription_plans:
             print(f'subscription_plan = {subscription_plan.name} ')
-        software_packages = session.query(SubscriptionPlan).all()
+        software_packages = session.query(SoftwarePackage).all()
         for software_package in software_packages:
             print(f'software_package = {software_package.name} ')
