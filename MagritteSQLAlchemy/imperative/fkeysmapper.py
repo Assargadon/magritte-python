@@ -21,7 +21,7 @@ class FKeysMapper(MAVisitor):
     # adds a foreign key to the source_table which points to the target_table with the property_name as part of the fields for the foreign key columns
     def append_fkey(self, property_name: String, source_table: Table, target_table: Table):
         if self.is_fkey_already_exists(source_table, target_table):
-            print(f'Foreign key from {source_table.name} to {target_table.name} already exists')
+            logger.debug(f'Foreign key from {source_table.name} to {target_table.name} already exists')
             return
 
         # first, let's add all the columns to the source_table that are part of the foreign key
