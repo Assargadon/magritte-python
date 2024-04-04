@@ -30,16 +30,12 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
 
     fields_mapper = FieldsMapper()
     for descriptor in descriptors:
-
+        logger.debug(f' ================= > Creating table for {descriptor.name} ...')
         # table stub
         table = Table(
             descriptor.sa_tableName,
             registry.metadata,
             )
-
-        logger.debug(f' ==== registry.metadata.tables ===')
-        logger.debug(f'{registry.metadata.tables}')
-        logger.debug(f' =================================')
 
         # map scalar fields
         fields_mapper.map(descriptor, table)
@@ -47,15 +43,30 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         # add missing primary keys
         table = add_missing_primary_keys(table)
 
-        logger.debug(table.c)
+        logger.debug(f'Table columns for {descriptor.name}: {table.c}')
+        logger.debug(f' ================= > Created table for {descriptor.name} ...')
 
     fkeys_mapper = FKeysMapper()
     for descriptor in descriptors:
+        logger.debug(f' ================= > Adding foreign keys for {descriptor.name} ...')
         # add foreign keys
         fkeys_mapper.map(descriptor, registry.metadata.tables)
+        logger.debug(f' ================= > Added foreign keys for {descriptor.name} ...')
         
     prop_mapper = PropMapper()
     for descriptor in descriptors:
-        prop_mapper.map(descriptor, registry)
+        logger.debug(f' ================= > Mapping tables with properties for {descriptor.name} ...')
+        table = registry.metadata.tables[descriptor.sa_tableName]
+
+        properties_to_map = prop_mapper.map(descriptor, table)
+        logger.debug(f' Properties to map: {properties_to_map}')
+
+        registry.map_imperatively(
+            descriptor.kind,
+            table,
+            properties=properties_to_map,
+            )
+
+        logger.debug(f' ================= > Mapped tables with properties for {descriptor.name} ...')
 
     return registry

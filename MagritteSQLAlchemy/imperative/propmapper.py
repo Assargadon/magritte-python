@@ -1,5 +1,6 @@
 import logging
 
+from sqlalchemy import Table
 from sqlalchemy.orm import relationship, registry as sa_registry
 
 from Magritte.descriptions.MAContainer_class import MAContainer
@@ -11,37 +12,30 @@ logger = logging.getLogger(__name__)
 
 class PropMapper(MAVisitor):
     def __init__(self):
-        self._registry = None
+        self._root_desc = None
         self._table = None
         self._properties_to_map = None
 
-    def _find_attribute_for_back_populates(self, myKind, ref_desc: MAContainer):
+    @staticmethod
+    def _find_attribute_for_back_populates(myKind, ref_desc: MAContainer):
         for desc in ref_desc.children:
             if isinstance(desc, MAReferenceDescription) and desc.reference.kind == myKind:
                 return desc.sa_attrName
         return None
 
-    def map(self, description: MAContainer, registry: sa_registry):
-        logger.debug(f' ================= > Registering {description.name} ...')
+    def map(self, description: MAContainer, table: Table) -> dict:
         if not isinstance(description, MAContainer):
             raise ValueError(f'{description} is not a container')
-        if registry is None:
-            raise ValueError('Registry is not provided')
+        if table is None:
+            raise ValueError('Table is not provided')
 
-        self._registry = registry
-        self._table = registry.metadata.tables[description.sa_tableName]
+        self._root_desc = description
+        self._table = table
         self._properties_to_map = {}
 
         self.visit(description)
 
-        self._registry.map_imperatively(
-            description.kind,
-            self._table,
-            properties=self._properties_to_map,
-            )
-
-        logger.debug(f' Properties to map: {self._properties_to_map}')
-        logger.debug(f' ================= > Registered {description.name} ...')
+        return self._properties_to_map
 
     def visitDescription(self, description):
         logger.warning(f'Description {description} not supported')
@@ -69,7 +63,7 @@ class PropMapper(MAVisitor):
                 )
             self._properties_to_map[description.sa_attrName] = self._table.c[description.sa_fieldName]
         else:
-            back_populates = self._find_attribute_for_back_populates(description.kind, reference)
+            back_populates = self._find_attribute_for_back_populates(self._root_desc.kind, reference)
             logger.debug(
                 f"Mapping SINGLE OPTION to-object attribute '{description.sa_attrName}' "
                 f"as relationship to '{reference.kind}' "
@@ -81,7 +75,7 @@ class PropMapper(MAVisitor):
         # logger.debug(f'visitToOneRelationDescription {description.name}')
         if not isinstance(description.reference, MAContainer):
             raise ValueError('Reference is not a container')
-        back_populates = self._find_attribute_for_back_populates(description.kind, description.reference)
+        back_populates = self._find_attribute_for_back_populates(self._root_desc.kind, description.reference)
         logger.debug(
             f"Mapping TO ONE attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
@@ -93,7 +87,7 @@ class PropMapper(MAVisitor):
         # logger.debug(f'visitToManyRelationDescription {description.name}')
         if not isinstance(description.reference, MAContainer):
             raise ValueError('Reference is not a container')
-        back_populates = self._find_attribute_for_back_populates(description.kind, description.reference)
+        back_populates = self._find_attribute_for_back_populates(self._root_desc.kind, description.reference)
         logger.debug(
             f"Mapping TO MANY attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
