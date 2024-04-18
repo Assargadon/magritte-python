@@ -54,10 +54,10 @@ interface_desc.setChildren(
             accessor=MAAttrAccessor('ip4_addr'), classes=[Host],
             reference=host_desc
             ),
-        # MAToOneRelationDescription(
-        #     name='gateway', label='Gateway', accessor=MAAttrAccessor('gateway'), classes=[Host],
-        #     reference=host_desc
-        #     )
+        MAToOneRelationDescription(
+            name='gateway', label='Gateway', accessor=MAAttrAccessor('gateway'), classes=[Host],
+            reference=host_desc
+            )
         ]
     )
 
@@ -84,8 +84,9 @@ if __name__ == '__main__':
     # Create some data
     hosts = [Host(address='192.168.0.1', protocol='http'), Host(address='192.168.0.2', protocol='https')]
     interfaces = [Interface(
-        interface='eth0', ip4_addr=hosts[0],
-        # gateway=hosts[1]
+        interface='eth0',
+        ip4_addr=hosts[0],
+        gateway=hosts[1]
         )]
 
     with Session(engine) as session:

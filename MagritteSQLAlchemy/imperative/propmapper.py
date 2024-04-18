@@ -27,7 +27,7 @@ class PropMapper(MAVisitor):
         logger.debug(f'Getting foreign key from {source_table.name} for property name {property_name}.')
         fkeys = []
         for fkey in source_table.foreign_keys:
-            logger.debug(f"Testing foreign key from {source_table.name} - {fkey}:")
+            logger.debug(f"Testing foreign key from {source_table.name} - {fkey.parent}:")
             logger.debug(f"{fkey.__dict__}")
             if fkey.parent is not None:
                 logger.debug(f"fkey.parent = {fkey.parent}")
@@ -37,7 +37,7 @@ class PropMapper(MAVisitor):
                         f"Foreign key from {source_table.name} for property name {property_name} found."
                         f" Column: {(id(fkey.parent), fkey.parent)}"
                         )
-                    fkeys.append(fkey.column)
+                    fkeys.append(fkey.parent)
                 else:
                     logger.debug(f"Foreign key from {source_table.name} for property name {property_name} does not match.")
         if not fkeys:
@@ -110,7 +110,7 @@ class PropMapper(MAVisitor):
             f"and foreign_keys = '{foreign_keys}'"
             )
         self._properties_to_map[description.sa_attrName] = relationship(
-            description.reference.kind, back_populates=back_populates, # foreign_keys=foreign_keys
+            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys
             )
 
     def visitToManyRelationDescription(self, description):
