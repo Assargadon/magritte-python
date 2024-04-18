@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     registry = registrator.register(*descriptions)
 
-    engine = create_engine("sqlite://", echo=False)
+    engine = create_engine("sqlite://", echo=True)
     # conn_str = "postgresql://postgres:postgres@localhost/sqlalchemy"
     # engine = create_engine(conn_str, echo=True)
 
