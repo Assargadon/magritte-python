@@ -30,7 +30,7 @@ descriptions = {k: v for k, v in ((x, TestModelDescriptor.description_for(x)) fo
 
 registry = registrator.register(*descriptions.values())
 engine = create_engine("sqlite://", echo=False)
-# conn_str = "postgresql://postgres:postgres@localhost/sqlalchemy"
+# conn_str = "postgresql://postgres:postgres@localhost/registrator_test"
 # engine = create_engine(conn_str, echo=True)
 
 class TestRegistratorExample(TestCase):

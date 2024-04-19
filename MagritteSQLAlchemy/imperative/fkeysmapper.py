@@ -75,7 +75,7 @@ class FKeysMapper(MAVisitor):
 
     def visitContainer(self, description):
         logger.debug(f'visitContainer {description.name}')
-        self.visitAll(description.children)
+        self.visitAll(description.children)  # no filtering?
 
 
     def visitToOneRelationDescription(self, description):

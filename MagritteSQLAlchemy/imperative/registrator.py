@@ -3,15 +3,8 @@ from sqlalchemy import Table, Column, Integer
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from sqlalchemy.orm import registry as sa_registry
-from sqlalchemy.orm import relationship
 
 from MagritteSQLAlchemy.imperative.fieldsmapper import FieldsMapper
-from MagritteSQLAlchemy.imperative.fkeysmapper import FKeysMapper
-
-from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
-from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
-from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
-from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from MagritteSQLAlchemy.imperative.propmapper import PropMapper
 
 logger = logging.getLogger(__name__)
@@ -46,24 +39,18 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         logger.debug(f'Table columns for {descriptor.name}: {table.c}')
         logger.debug(f' ================= > Created table for {descriptor.name} ...')
 
-    fkeys_mapper = FKeysMapper()
-    for descriptor in descriptors:
-        logger.debug(f' ================= > Adding foreign keys for {descriptor.name} ...')
-        # add foreign keys
-        fkeys_mapper.map(descriptor, registry.metadata.tables)
-        logger.debug(f' ================= > Added foreign keys for {descriptor.name} ...')
-        
     prop_mapper = PropMapper()
     for descriptor in descriptors:
         logger.debug(f' ================= > Mapping tables with properties for {descriptor.name} ...')
-        table = registry.metadata.tables[descriptor.sa_tableName]
 
-        properties_to_map = prop_mapper.map(descriptor, table)
+        logger.debug(f' ----------------- > Constructing properties and foreign keys...')
+        properties_to_map = prop_mapper.map(descriptor, registry.metadata.tables)
         logger.debug(f' Properties to map: {properties_to_map}')
 
+        logger.debug(f' ----------------- > Invoke imperative mapping...')
         registry.map_imperatively(
             descriptor.kind,
-            table,
+            registry.metadata.tables[descriptor.sa_tableName],
             properties=properties_to_map,
             )
 
