@@ -15,7 +15,7 @@ from Magritte.errors.MAKindError import MAKindError
 
 class MADescriptorWalker:
 
-    class WalkerVisitor(MAVisitor):
+    class MADescriptorWalkerVisitor(MAVisitor):
 
         class _Context:
             parent_context = None
@@ -182,7 +182,7 @@ class MADescriptorWalker:
                 self._context = None
             self._walkFromCurrent()
 
-    class DumpModelWalkerVisitor(WalkerVisitor):
+    class MADumpModelWalkerVisitor(MADescriptorWalkerVisitor):
         def __init__(self):
             super().__init__()
 
@@ -245,7 +245,7 @@ class MADescriptorWalker:
         def dumpModel(self, aModel: Any, aDescription: MADescription):
             return self.walkDescription(aModel, aDescription)
 
-    class InstantiateModelWalkerVisitor(WalkerVisitor):  # Not used for now
+    class MAInstantiateModelWalkerVisitor(MADescriptorWalkerVisitor):  # Not used for now
         def __init__(self):
             super().__init__()
             self._contexts_dump = None
@@ -339,7 +339,7 @@ class MADescriptorWalker:
 
 class MAReferencedDataHumanReadableSerializer:
 
-    class _HumanReadableDumpModelWalkerVisitor(MADescriptorWalker.DumpModelWalkerVisitor):
+    class MAHumanReadableDumpModelWalkerVisitor(MADescriptorWalker.MADumpModelWalkerVisitor):
         def __init__(self):
             super().__init__()
             self._jsonWriter = MAValueJsonWriter()
@@ -402,7 +402,7 @@ class MAReferencedDataHumanReadableSerializer:
             return self._dumpResultPerContextIndex[0] if 0 in self._dumpResultPerContextIndex else None
 
     def dumpHumanReadable(self, model: Any, description: MADescription) -> Any:
-        descriptorWalker = self.__class__._HumanReadableDumpModelWalkerVisitor()
+        descriptorWalker = self.__class__.MAHumanReadableDumpModelWalkerVisitor()
         return descriptorWalker.dumpModelHumanReadable(model, description)
 
     def serializeHumanReadable(self, model: Any, description: MADescription) -> str:
@@ -436,7 +436,7 @@ class MAReferencedDataDeserializer:
 
 class MAReferencedDataHumanReadableDeserializer:
 
-    class _HumanReadableInstantiateModelWalkerVisitor(MADescriptorWalker.WalkerVisitor):
+    class MAHumanReadableInstantiateModelWalkerVisitor(MADescriptorWalker.MADescriptorWalkerVisitor):
 
         def __init__(self):
             super().__init__()
@@ -593,7 +593,7 @@ class MAReferencedDataHumanReadableDeserializer:
     def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory=None) -> Any:
         if dto_factory is None:
             dto_factory = self.default_dto_factory
-        descriptorWalker = self.__class__._HumanReadableInstantiateModelWalkerVisitor()
+        descriptorWalker = self.__class__.MAHumanReadableInstantiateModelWalkerVisitor()
         model = descriptorWalker.instantiateModelHumanReadable(dump, description, dto_factory)
         return model
 
@@ -632,7 +632,7 @@ if __name__ == "__main__":
 
     #host.ports = [host.ports[0]]
 
-    dumpVisitor = MADescriptorWalker.DumpModelWalkerVisitor()
+    dumpVisitor = MADescriptorWalker.MADumpModelWalkerVisitor()
     dumpVisitor.dumpModel(host, hostDescriptor)
     dumpVisitor._dbg_print()
 
