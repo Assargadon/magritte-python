@@ -531,17 +531,18 @@ class MAReferencedDataHumanReadableDeserializer:
         def processToManyRelationContext(self, context):
             model = self._getParentModel(context)
             description = context.description
+            relations_list = []
             if model is None:  # The MAToManyRelationDescription serialized data is the root model without enclosing DTO - special handling
                 dump = context.source
-                relations_list = []
                 self._addValueForDump(dump, relations_list)
                 found = True
                 subcontext_dump = dump
             else:
-                relations_list = MAModel.readUsingWrapper(model, description)
+                MAModel.writeUsingWrapper(model, description, relations_list)
                 found, subcontext_dump = self._findMatchingSubcontextDump(context)
             if found:
                 subcontext_dumps = []
+                #relations_list.clear()
                 for relation_dump_or_key in subcontext_dump:
                     found, relation_dump = self._getDTOdumpByKey(relation_dump_or_key)
                     if not found:
@@ -553,7 +554,7 @@ class MAReferencedDataHumanReadableDeserializer:
                     relations_list.append(submodel)
             else:
                 subcontext_dumps = []
-                relations_list.clear()
+                #relations_list.clear()
                 if description.undefinedValue is not None:
                     relations_list.extend(description.undefinedValue)
             return subcontext_dumps
