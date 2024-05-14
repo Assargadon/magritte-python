@@ -342,36 +342,36 @@ class MAReferencedDataHumanReadableSerializer:
     class MAHumanReadableDumpModelWalkerVisitor(MADescriptorWalker.MADumpModelWalkerVisitor):
         def __init__(self):
             super().__init__()
-            self._jsonWriter = MAValueJsonWriter()
+            self._json_writer = MAValueJsonWriter()
 
         def _clear(self):
             super()._clear()
-            self._dumpResultPerContextIndex = {}
-            self._dumpEmittedPerContextIndex = set()
+            self._dump_result_by_context_index = {}
+            self._dump_is_already_emitted_by_context_index = set()
 
         def _emitDumpOnce(self, context):
             context_index = context.context_index
-            if context_index in self._dumpResultPerContextIndex and context_index not in self._dumpEmittedPerContextIndex:
-                self._dumpEmittedPerContextIndex.add(context_index)
-                return self._dumpResultPerContextIndex[context_index]
+            if context_index in self._dump_result_by_context_index and context_index not in self._dump_is_already_emitted_by_context_index:
+                self._dump_is_already_emitted_by_context_index.add(context_index)
+                return self._dump_result_by_context_index[context_index]
             else:
                 return context_index
 
         def visitElementDescription(self, aDescription):
             context = self._context
             super().visitElementDescription(aDescription)
-            dumpResult = self._jsonWriter.write_json(context.source, aDescription)
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            dumpResult = self._json_writer.write_json(context.source, aDescription)
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             #print(f'processElementDescriptionContext {aDescription.name} {dumpResult}')
 
         def visitContainer(self, aDescription):
             context = self._context
             super().visitContainer(aDescription)
             dumpResult = {'_key': context.context_index}
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
                 if self._shouldProcessDescription(subcontext.description):
-                    dumpResult[subcontext.description.name] = self._dumpResultPerContextIndex[subcontext.context_index]
+                    dumpResult[subcontext.description.name] = self._dump_result_by_context_index[subcontext.context_index]
             #print(f'processContainerContext {aDescription.name} {dumpResult}')
 
         def visitToOneRelationDescription(self, aDescription):
@@ -379,14 +379,14 @@ class MAReferencedDataHumanReadableSerializer:
             super().visitToOneRelationDescription(aDescription)
             subcontext = context.subcontexts[0]
             dumpResult = self._emitDumpOnce(subcontext)
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             #print(f'processToOneRelationContext {aDescription.name} {dumpResult}')
 
         def visitToManyRelationDescription(self, aDescription):
             context = self._context
             super().visitToManyRelationDescription(aDescription)
             dumpResult = []
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
                 subResult = self._emitDumpOnce(subcontext)
                 dumpResult.append(subResult)
@@ -399,7 +399,7 @@ class MAReferencedDataHumanReadableSerializer:
 
         def dumpModelHumanReadable(self, aModel: Any, aDescription: MADescription):
             self.dumpModel(aModel, aDescription)
-            return self._dumpResultPerContextIndex[0] if 0 in self._dumpResultPerContextIndex else None
+            return self._dump_result_by_context_index[0] if 0 in self._dump_result_by_context_index else None
 
     def dumpHumanReadable(self, model: Any, description: MADescription) -> Any:
         descriptorWalker = self.__class__.MAHumanReadableDumpModelWalkerVisitor()
