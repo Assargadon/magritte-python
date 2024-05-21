@@ -367,7 +367,10 @@ class MAReferencedDataHumanReadableSerializer:
         def visitContainer(self, aDescription):
             context = self._context
             super().visitContainer(aDescription)
-            dumpResult = {'-x-magritte-key': context.context_index}
+            dumpResult = {
+                '-x-magritte-key': context.context_index,
+                '-x-magritte-class': context.source.__class__.__name__,
+            }
             self._dump_result_by_context_index[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
                 if self._shouldProcessDescription(subcontext.description):
