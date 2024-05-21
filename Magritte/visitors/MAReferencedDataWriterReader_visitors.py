@@ -9,7 +9,7 @@ from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescri
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.MAModel_class import MAModel
-from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonReader, MAValueJsonWriter
+from Magritte.visitors.MAJson_visitors import MAValueJsonReader, MAValueJsonWriter
 from Magritte.errors.MAKindError import MAKindError
 
 

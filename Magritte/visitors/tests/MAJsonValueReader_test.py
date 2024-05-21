@@ -15,7 +15,7 @@ from Magritte.descriptions.MADateDescription_class import MADateDescription
 
 
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
-from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonReader
+from Magritte.visitors.MAJson_visitors import MAValueJsonReader
 
 
 class ValueHolder:
