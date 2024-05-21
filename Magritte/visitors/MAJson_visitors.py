@@ -111,7 +111,12 @@ class MAValueJsonReader(MAVisitor):
         self._write_to_model(description)
 
     def visitDateDescription(self, description: MADescription):
-        self.visitDateAndTimeDescription(description)
+        from datetime import datetime
+        if self._json_value is None:
+            self._decoded_value = description.undefinedValue
+        else:
+            self._decoded_value = datetime.strptime(self._json_value, "%Y-%m-%d").date()
+        self._write_to_model(description)
 
     def visitTimeDescription(self, description: MADescription):
         from datetime import datetime
