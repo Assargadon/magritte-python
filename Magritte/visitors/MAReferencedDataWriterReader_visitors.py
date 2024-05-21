@@ -367,7 +367,7 @@ class MAReferencedDataHumanReadableSerializer:
         def visitContainer(self, aDescription):
             context = self._context
             super().visitContainer(aDescription)
-            dumpResult = {'_key': context.context_index}
+            dumpResult = {'-x-magritte-key': context.context_index}
             self._dump_result_by_context_index[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
                 if self._shouldProcessDescription(subcontext.description):
@@ -452,7 +452,7 @@ class MAReferencedDataHumanReadableDeserializer:
             self._fulfilled_all_references = True
 
         def _getOrCreateDTO(self, dump, dto_description):
-            key = dump['_key']
+            key = dump['-x-magritte-key']
             if key not in self._dtos_by_key:
                 dto = self._dto_factory(dto_description)
                 self._dtos_by_key[key] = dto
@@ -461,7 +461,7 @@ class MAReferencedDataHumanReadableDeserializer:
             return self._dtos_by_key[key]
 
         def _getOrCreateModel(self, dump, model_description):
-            if isinstance(dump, dict) and '_key' in dump:
+            if isinstance(dump, dict) and '-x-magritte-key' in dump:
                 return self._getOrCreateDTO(dump, model_description)
             return self._json_reader.read_json(None, dump, model_description)
 
@@ -622,7 +622,7 @@ if __name__ == "__main__":
     portsDescriptor = hostDescriptor.children[1]
 
     deserializer = MAReferencedDataHumanReadableDeserializer()
-    serialized_str_user = '{"_key": 0, "regnum": "user76", "plan": {"_key": 3, "name": "Community", "price": 0, "description": "Free plan for non-commercial use"}}'
+    serialized_str_user = '{"-x-magritte-key": 0, "regnum": "user76", "plan": {"-x-magritte-key": 3, "name": "Community", "price": 0, "description": "Free plan for non-commercial use"}}'
     serializer = MAReferencedDataHumanReadableSerializer()
     serialized_str_user = serializer.serializeHumanReadable(user, userDescriptor)
     print(serialized_str_user)
