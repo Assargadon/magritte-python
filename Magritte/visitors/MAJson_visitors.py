@@ -1,4 +1,5 @@
 import json
+from datetime import timezone
 from typing import Dict, Any, Union, List
 
 from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
@@ -49,7 +50,7 @@ class MAValueJsonWriter(MAVisitor):
 
     def visitDateAndTimeDescription(self, description: MADescription):
         value = self._accessor.read(self._model)
-        value_jsonable = value.isoformat() if value else None
+        value_jsonable = value.astimezone(timezone.utc).isoformat() if value else None
         self._json = self._test_jsonable(value_jsonable)
 
     def visitDateDescription(self, description: MADescription):
