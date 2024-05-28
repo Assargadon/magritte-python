@@ -81,7 +81,7 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
     def testContainerDescription(self):
         hostDumped = self.serializer.dumpHumanReadable(self.host, self.hostDescription)
         self.assertIsInstance(hostDumped, dict, f"MAContainerDescription in a dumped form should result in a dict, got {hostDumped}")
-        self.assertIn('_key', hostDumped, "MAContainerDescription in a dumped form should have internal '_key' property")
+        self.assertIn('-x-magritte-key', hostDumped, "MAContainerDescription in a dumped form should have internal '-x-magritte-key' property")
         for child in self.hostDescription.children:
             name = child.name
             self.assertIn(name, hostDumped, f"MAContainerDescription in a dumped form should have every child property, but {name} was not found")
@@ -119,8 +119,8 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         def traverseDict(d):
             for key in d:
                 val = d[key]
-                if key == '_key':
-                    self.assertNotIn(val, allKeys, "MAContainerDescription in a dumped form should not have duplicated '_key' values at any depth")
+                if key == '-x-magritte-key':
+                    self.assertNotIn(val, allKeys, "MAContainerDescription in a dumped form should not have duplicated '-x-magritte-key' values at any depth")
                     allKeys.add(val)
                 if isinstance(val, dict):
                     traverseDict(val)
@@ -129,7 +129,7 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         hostDumped = self.serializer.dumpHumanReadable(self.host, self.hostDescription)
         self.assertIsInstance(hostDumped, dict, f"MAContainerDescription in a dumped form should result in a dict, got {hostDumped}")
         traverseDict(hostDumped)
-        self.assertGreater(len(allKeys), 1, f"MAContainerDescription with child containers in a dumped form should have '_key' properties at several depths")
+        self.assertGreater(len(allKeys), 1, f"MAContainerDescription with child containers in a dumped form should have '-x-magritte-key' properties at several depths")
 
 
 

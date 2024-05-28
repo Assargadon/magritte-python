@@ -49,7 +49,7 @@ class MAModelFastapiAdapter:
 
             async def wrapper_decorator_with_request_argument(request_body: Request) -> JsonValue:
                 request_dump = await request_body.json()
-                request = MAModelFastapiAdapter.deserializer.instaniateHumanReadable(
+                request = MAModelFastapiAdapter.deserializer.instantiateHumanReadable(
                     request_dump,
                     request_descriptor,
                     dto_factory=dto_factory

@@ -9,13 +9,14 @@ from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 if __name__ == "__main__":
 
     from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host
+    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, User, Account
     import uvicorn
 
 
     provider = TestEnvironmentProvider()
     hostDescriptor = TestModelDescriptor.description_for("Host")
-
+    accountDescriptor = TestModelDescriptor.description_for("Account")
+    userDescriptor = TestModelDescriptor.description_for("User")
 
     app = FastAPI()
 
@@ -27,6 +28,34 @@ if __name__ == "__main__":
     async def get_host(host_index):
         host_id_int = int(host_index)
         return provider.hosts[host_id_int]
+
+    @app.get("/account/{account_index}")
+    @MAModelFastapiAdapter.describe(response_descriptor=accountDescriptor)
+    async def get_account(account_index):
+        account_id_int = int(account_index)
+        return provider.accounts[account_id_int]
+
+    @app.get("/user/{user_index}")
+    @MAModelFastapiAdapter.describe(response_descriptor=userDescriptor)
+    async def get_user(user_index):
+        user_id_int = int(user_index)
+        return provider.users[user_id_int]
+
+    @app.post("/test_user")
+    @MAModelFastapiAdapter.describe(request_descriptor=userDescriptor)
+    async def post_user(user: User):
+        user1 = provider.users[1]
+        s = f'User date of birth: {user.dateofbirth} // User 1 date of birth: {user1.dateofbirth}'
+        print(s)
+        return s
+
+    @app.post("/test_account")
+    @MAModelFastapiAdapter.describe(request_descriptor=accountDescriptor)
+    async def post_account(account: Account):
+        account1 = provider.accounts[1]
+        s = f'Account registration timestamp: {account.reg_timestamp} // Account 1 timestamp: {account1.reg_timestamp}'
+        print(s)
+        return s
 
     @app.get("/hosts")
     @MAModelFastapiAdapter.describe(response_descriptor=MAToManyRelationDescription(reference=hostDescriptor, accessor=MAIdentityAccessor()))

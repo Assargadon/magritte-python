@@ -94,15 +94,15 @@ class MAContainerTest(TestCase):
         self.assertEqual(self.inst1[2] if 2 < len(self.inst1) else 'index > len', 3)
         self.assertEqual(self.inst1[7] if 7 < len(self.inst1) else 'index > len', 'index > len')
 
-    def test_allSatisty(self):
+    def test_allSatisfy(self):
         self.inst1.setChildren([1, 2, 3, 4])
-        self.assertEqual(self.inst1.allSatisty(self.block1), True)
+        self.assertEqual(self.inst1.allSatisfy(self.block1), True)
         # self.inst2.setChildren([1, 2, [], 4])
-        # self.assertEqual(self.inst2.allSatisty(self.block), False)
+        # self.assertEqual(self.inst2.allSatisfy(self.block), False)
 
-    def test_anySatisty(self):
+    def test_anySatisfy(self):
         self.inst1.setChildren([1, 2, 3, 4])
-        self.assertEqual(self.inst1.anySatisty(self.block1), True)
+        self.assertEqual(self.inst1.anySatisfy(self.block1), True)
 
     def test_collect(self):
         self.inst1.setChildren([1, 2, 3, 4])

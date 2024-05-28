@@ -15,7 +15,7 @@ from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
-from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonWriter, MAObjectJsonWriter
+from Magritte.visitors.MAJson_visitors import MAValueJsonWriter, MAObjectJsonWriter
 
 
 class TestObject1:

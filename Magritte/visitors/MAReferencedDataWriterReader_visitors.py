@@ -9,13 +9,13 @@ from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescri
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.MAModel_class import MAModel
-from Magritte.visitors.MAJsonWriter_visitors import MAValueJsonReader, MAValueJsonWriter
+from Magritte.visitors.MAJson_visitors import MAValueJsonReader, MAValueJsonWriter
 from Magritte.errors.MAKindError import MAKindError
 
 
 class MADescriptorWalker:
 
-    class WalkerVisitor(MAVisitor):
+    class MADescriptorWalkerVisitor(MAVisitor):
 
         class _Context:
             parent_context = None
@@ -31,7 +31,7 @@ class MADescriptorWalker:
         def _clear(self):
             self._context = None
             self._contexts = []
-            self._contexts_by_source_id = {}
+            self._contexts_by_source_index = {}
             self._sources = []
             self._sources_by_source_index = {}
             self._source_indices_by_identifier = {}
@@ -89,7 +89,7 @@ class MADescriptorWalker:
             context = self._context
             subsource = self.processContainerContext(context)
             (subsource_index, was_added,) = self._addSourceOnce(subsource)
-            self._contexts_by_source_id[subsource_index] = context
+            self._contexts_by_source_index[subsource_index] = context
             context.subcontexts = []
             for subdescription in description:
                 subcontext = self._createEmptyContext()
@@ -108,10 +108,10 @@ class MADescriptorWalker:
                 subcontext.parent_context = context
                 subcontext.source = subsource
                 subcontext.description = description.reference
-                self._contexts_by_source_id[subsource_index] = subcontext
+                self._contexts_by_source_index[subsource_index] = subcontext
                 self._walkFromCurrent()
             else:
-                subcontext = self._contexts_by_source_id[subsource_index]
+                subcontext = self._contexts_by_source_index[subsource_index]
                 subcontext.ref_count += 1
             context.subcontexts = [subcontext]
 
@@ -126,10 +126,10 @@ class MADescriptorWalker:
                     subcontext.parent_context = context
                     subcontext.source = subsource
                     subcontext.description = description.reference
-                    self._contexts_by_source_id[subsource_index] = subcontext
+                    self._contexts_by_source_index[subsource_index] = subcontext
                     self._walkFromCurrent()
                 else:
-                    subcontext = self._contexts_by_source_id[subsource_index]
+                    subcontext = self._contexts_by_source_index[subsource_index]
                     subcontext.ref_count += 1
                 context.subcontexts.append(subcontext)
 
@@ -182,7 +182,7 @@ class MADescriptorWalker:
                 self._context = None
             self._walkFromCurrent()
 
-    class DumpModelWalkerVisitor(WalkerVisitor):
+    class MADumpModelWalkerVisitor(MADescriptorWalkerVisitor):
         def __init__(self):
             super().__init__()
 
@@ -245,7 +245,7 @@ class MADescriptorWalker:
         def dumpModel(self, aModel: Any, aDescription: MADescription):
             return self.walkDescription(aModel, aDescription)
 
-    class InstaniateModelWalkerVisitor(WalkerVisitor):  # Not used for now
+    class MAInstantiateModelWalkerVisitor(MADescriptorWalkerVisitor):  # Not used for now
         def __init__(self):
             super().__init__()
             self._contexts_dump = None
@@ -327,7 +327,7 @@ class MADescriptorWalker:
                     relations_list.append(submodel)
             return subcontext_dump_indices
 
-        def instaniateModel(self, contexts_dump, root_dump_index, description, dto_factory):
+        def instantiateModel(self, contexts_dump, root_dump_index, description, dto_factory):
             self._contexts_dump = contexts_dump
             self._dto_factory = dto_factory
             self.walkDescription(root_dump_index, description)
@@ -339,39 +339,42 @@ class MADescriptorWalker:
 
 class MAReferencedDataHumanReadableSerializer:
 
-    class _HumanReadableDumpModelWalkerVisitor(MADescriptorWalker.DumpModelWalkerVisitor):
+    class MAHumanReadableDumpModelWalkerVisitor(MADescriptorWalker.MADumpModelWalkerVisitor):
         def __init__(self):
             super().__init__()
-            self._jsonWriter = MAValueJsonWriter()
+            self._json_writer = MAValueJsonWriter()
 
         def _clear(self):
             super()._clear()
-            self._dumpResultPerContextIndex = {}
-            self._dumpEmittedPerContextIndex = set()
+            self._dump_result_by_context_index = {}
+            self._dump_is_already_emitted_by_context_index = set()
 
         def _emitDumpOnce(self, context):
             context_index = context.context_index
-            if context_index in self._dumpResultPerContextIndex and context_index not in self._dumpEmittedPerContextIndex:
-                self._dumpEmittedPerContextIndex.add(context_index)
-                return self._dumpResultPerContextIndex[context_index]
+            if context_index in self._dump_result_by_context_index and context_index not in self._dump_is_already_emitted_by_context_index:
+                self._dump_is_already_emitted_by_context_index.add(context_index)
+                return self._dump_result_by_context_index[context_index]
             else:
                 return context_index
 
         def visitElementDescription(self, aDescription):
             context = self._context
             super().visitElementDescription(aDescription)
-            dumpResult = self._jsonWriter.write_json(context.source, aDescription)
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            dumpResult = self._json_writer.write_json(context.source, aDescription)
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             #print(f'processElementDescriptionContext {aDescription.name} {dumpResult}')
 
         def visitContainer(self, aDescription):
             context = self._context
             super().visitContainer(aDescription)
-            dumpResult = {'_key': context.context_index}
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            dumpResult = {
+                '-x-magritte-key': context.context_index,
+                '-x-magritte-class': context.source.__class__.__name__,
+            }
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
                 if self._shouldProcessDescription(subcontext.description):
-                    dumpResult[subcontext.description.name] = self._dumpResultPerContextIndex[subcontext.context_index]
+                    dumpResult[subcontext.description.name] = self._dump_result_by_context_index[subcontext.context_index]
             #print(f'processContainerContext {aDescription.name} {dumpResult}')
 
         def visitToOneRelationDescription(self, aDescription):
@@ -379,14 +382,14 @@ class MAReferencedDataHumanReadableSerializer:
             super().visitToOneRelationDescription(aDescription)
             subcontext = context.subcontexts[0]
             dumpResult = self._emitDumpOnce(subcontext)
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             #print(f'processToOneRelationContext {aDescription.name} {dumpResult}')
 
         def visitToManyRelationDescription(self, aDescription):
             context = self._context
             super().visitToManyRelationDescription(aDescription)
             dumpResult = []
-            self._dumpResultPerContextIndex[context.context_index] = dumpResult
+            self._dump_result_by_context_index[context.context_index] = dumpResult
             for subcontext in context.subcontexts:
                 subResult = self._emitDumpOnce(subcontext)
                 dumpResult.append(subResult)
@@ -399,10 +402,10 @@ class MAReferencedDataHumanReadableSerializer:
 
         def dumpModelHumanReadable(self, aModel: Any, aDescription: MADescription):
             self.dumpModel(aModel, aDescription)
-            return self._dumpResultPerContextIndex[0] if 0 in self._dumpResultPerContextIndex else None
+            return self._dump_result_by_context_index[0] if 0 in self._dump_result_by_context_index else None
 
     def dumpHumanReadable(self, model: Any, description: MADescription) -> Any:
-        descriptorWalker = self.__class__._HumanReadableDumpModelWalkerVisitor()
+        descriptorWalker = self.__class__.MAHumanReadableDumpModelWalkerVisitor()
         return descriptorWalker.dumpModelHumanReadable(model, description)
 
     def serializeHumanReadable(self, model: Any, description: MADescription) -> str:
@@ -419,40 +422,40 @@ class MAReferencedDataDeserializer:
         c = description.kind
         return c()
 
-    def instaniate(self, dump_dict: dict, description: MADescription, dto_factory=default_dto_factory):
+    def instantiate(self, dump_dict: dict, description: MADescription, dto_factory=default_dto_factory):
         descriptorWalker = MADescriptorWalker()
         contexts = dump_dict['contexts']
         root_dump_index = dump_dict['root_context_index']
         if root_dump_index is None:
             model = None
         else:
-            model = descriptorWalker.instaniateModel(contexts, root_dump_index, description, dto_factory)
+            model = descriptorWalker.instantiateModel(contexts, root_dump_index, description, dto_factory)
         return model
 
     def deserialize(self, serialized_str: str, description: MADescription, dto_factory=default_dto_factory) -> str:
         dump_dict = json.loads(serialized_str)
-        return self.instaniate(dump_dict, description, dto_factory)
+        return self.instantiate(dump_dict, description, dto_factory)
 """
 
 class MAReferencedDataHumanReadableDeserializer:
 
-    class _HumanReadableInstaniateModelWalkerVisitor(MADescriptorWalker.WalkerVisitor):
+    class MAHumanReadableInstantiateModelWalkerVisitor(MADescriptorWalker.MADescriptorWalkerVisitor):
 
         def __init__(self):
             super().__init__()
-            self._jsonReader = MAValueJsonReader()
+            self._json_reader = MAValueJsonReader()
             self._dto_factory = None
-            self._fulfilledAllReferences = False
+            self._fulfilled_all_references = False
 
         def _clear(self):
             super()._clear()
             self._dtos_by_key = {}
             self._values_by_dump_id = {}
             self._dumps_by_key = {}
-            self._fulfilledAllReferences = True
+            self._fulfilled_all_references = True
 
         def _getOrCreateDTO(self, dump, dto_description):
-            key = dump['_key']
+            key = dump['-x-magritte-key']
             if key not in self._dtos_by_key:
                 dto = self._dto_factory(dto_description)
                 self._dtos_by_key[key] = dto
@@ -461,9 +464,9 @@ class MAReferencedDataHumanReadableDeserializer:
             return self._dtos_by_key[key]
 
         def _getOrCreateModel(self, dump, model_description):
-            if isinstance(dump, dict) and '_key' in dump:
+            if isinstance(dump, dict) and '-x-magritte-key' in dump:
                 return self._getOrCreateDTO(dump, model_description)
-            return self._jsonReader.read_json(None, dump, model_description)
+            return self._json_reader.read_json(None, dump, model_description)
 
         def _getParentModel(self, context):
             if context.parent_context is None:
@@ -500,7 +503,7 @@ class MAReferencedDataHumanReadableDeserializer:
             else:
                 found, subcontext_dump = self._findMatchingSubcontextDump(context)
                 if found:
-                    value = self._jsonReader.read_json(None, subcontext_dump, description)
+                    value = self._json_reader.read_json(None, subcontext_dump, description)
                 else:
                     value = description.undefinedValue
                 MAModel.writeUsingWrapper(model, description, value)
@@ -518,7 +521,7 @@ class MAReferencedDataHumanReadableDeserializer:
             if found:
                 found, subcontext_dump = self._getDTOdumpByKey(subcontext_dump_or_key)
                 if not found:
-                    self._fulfilledAllReferences = False
+                    self._fulfilled_all_references = False
                     return None
                 submodel = self._getOrCreateDTO(subcontext_dump, description.reference)
             else:
@@ -531,21 +534,22 @@ class MAReferencedDataHumanReadableDeserializer:
         def processToManyRelationContext(self, context):
             model = self._getParentModel(context)
             description = context.description
+            relations_list = []
             if model is None:  # The MAToManyRelationDescription serialized data is the root model without enclosing DTO - special handling
                 dump = context.source
-                relations_list = []
                 self._addValueForDump(dump, relations_list)
                 found = True
                 subcontext_dump = dump
             else:
-                relations_list = MAModel.readUsingWrapper(model, description)
+                MAModel.writeUsingWrapper(model, description, relations_list)
                 found, subcontext_dump = self._findMatchingSubcontextDump(context)
             if found:
                 subcontext_dumps = []
+                #relations_list.clear()
                 for relation_dump_or_key in subcontext_dump:
                     found, relation_dump = self._getDTOdumpByKey(relation_dump_or_key)
                     if not found:
-                        self._fulfilledAllReferences = False
+                        self._fulfilled_all_references = False
                         continue
                     submodel = self._getOrCreateDTO(relation_dump, description.reference)
                     subcontext_dumps.append(relation_dump)
@@ -553,7 +557,7 @@ class MAReferencedDataHumanReadableDeserializer:
                     relations_list.append(submodel)
             else:
                 subcontext_dumps = []
-                relations_list.clear()
+                #relations_list.clear()
                 if description.undefinedValue is not None:
                     relations_list.extend(description.undefinedValue)
             return subcontext_dumps
@@ -568,13 +572,13 @@ class MAReferencedDataHumanReadableDeserializer:
                     MAModel.writeUsingWrapper(model, context.description, submodel)
             return subcontext_dump
 
-        def instaniateModelHumanReadable(self, dump, description, dto_factory):
+        def instantiateModelHumanReadable(self, dump, description, dto_factory):
             if dump is None:
                 return None
             self._dto_factory = dto_factory
 
             self.walkDescription(dump, description)
-            if not self._fulfilledAllReferences:
+            if not self._fulfilled_all_references:
                 self.rewalkDescription()
 
             root_dump_id = id(dump)
@@ -590,16 +594,16 @@ class MAReferencedDataHumanReadableDeserializer:
             raise MAKindError(description, 'Kind is not defined to make an instance of the described entity')
         return c()
 
-    def instaniateHumanReadable(self, dump: Any, description: MADescription, dto_factory=None) -> Any:
+    def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory=None) -> Any:
         if dto_factory is None:
             dto_factory = self.default_dto_factory
-        descriptorWalker = self.__class__._HumanReadableInstaniateModelWalkerVisitor()
-        model = descriptorWalker.instaniateModelHumanReadable(dump, description, dto_factory)
+        descriptorWalker = self.__class__.MAHumanReadableInstantiateModelWalkerVisitor()
+        model = descriptorWalker.instantiateModelHumanReadable(dump, description, dto_factory)
         return model
 
     def deserializeHumanReadable(self, serialized_str: str, description: MADescription, dto_factory=None) -> Any:
         dump = json.loads(serialized_str)
-        return self.instaniateHumanReadable(dump, description, dto_factory)
+        return self.instantiateHumanReadable(dump, description, dto_factory)
 
 
 if __name__ == "__main__":
@@ -621,7 +625,7 @@ if __name__ == "__main__":
     portsDescriptor = hostDescriptor.children[1]
 
     deserializer = MAReferencedDataHumanReadableDeserializer()
-    serialized_str_user = '{"_key": 0, "regnum": "user76", "plan": {"_key": 3, "name": "Community", "price": 0, "description": "Free plan for non-commercial use"}}'
+    serialized_str_user = '{"-x-magritte-key": 0, "regnum": "user76", "plan": {"-x-magritte-key": 3, "name": "Community", "price": 0, "description": "Free plan for non-commercial use"}}'
     serializer = MAReferencedDataHumanReadableSerializer()
     serialized_str_user = serializer.serializeHumanReadable(user, userDescriptor)
     print(serialized_str_user)
@@ -632,7 +636,7 @@ if __name__ == "__main__":
 
     #host.ports = [host.ports[0]]
 
-    dumpVisitor = MADescriptorWalker.DumpModelWalkerVisitor()
+    dumpVisitor = MADescriptorWalker.MADumpModelWalkerVisitor()
     dumpVisitor.dumpModel(host, hostDescriptor)
     dumpVisitor._dbg_print()
 

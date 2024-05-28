@@ -109,10 +109,10 @@ class MAContainer(MADescription):
         return self
 
 
-    def allSatisty(self, aBlock):
+    def allSatisfy(self, aBlock):
         return all(aBlock(item) for _, item in enumerate(self.children))
 
-    def anySatisty(self, aBlock):
+    def anySatisfy(self, aBlock):
         return any(aBlock(item) for _, item in enumerate(self.children))
 
     def collect(self, aBlock):
