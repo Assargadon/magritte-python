@@ -11,7 +11,7 @@ from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelati
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests.Host import Host
 from Magritte.model_for_tests.Port import Port
-from MagritteSQLAlchemy.SQLAlchemyModelGenerator import SQLAlchemyModelGenerator
+from MagritteSQLAlchemy.declarative.SQLAlchemyModelGenerator import SQLAlchemyModelGenerator
 
 # Please set the connection string before run this test. Make sure to create the sqlalchemy_test database if not exists
 conn_str = "postgresql://postgres:secret@magritte-python-postgres/sqlalchemy_test"

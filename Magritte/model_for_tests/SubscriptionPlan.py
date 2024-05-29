@@ -18,9 +18,15 @@ class SubscriptionPlan(MAModel):
     def __str__(self):
         return f"{self.name} [{self.price==0 and 'Free' or f'${self.price}/month'}]"
 
-SubscriptionPlan.entries = [
-    SubscriptionPlan.subscriptionPlan("Community", 0, "Free plan for non-commercial use"),
-    SubscriptionPlan.subscriptionPlan("Basic", 10, "Basic plan - good entry point for small teams"),
-    SubscriptionPlan.subscriptionPlan("Pro", 25, "Pro plan"),
-    SubscriptionPlan.subscriptionPlan("Enterprise", 40, "Enterprise plan for most demanding users"),
-]
+
+    @classmethod
+    def entries(cls):
+        #lasy initialization
+        if not hasattr(cls, "_entries"):
+            cls._entries = [
+                SubscriptionPlan.subscriptionPlan("Community", 0, "Free plan for non-commercial use"),
+                SubscriptionPlan.subscriptionPlan("Basic", 10, "Basic plan - good entry point for small teams"),
+                SubscriptionPlan.subscriptionPlan("Pro", 25, "Pro plan"),
+                SubscriptionPlan.subscriptionPlan("Enterprise", 40, "Enterprise plan for most demanding users"),
+            ]
+        return cls._entries

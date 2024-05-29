@@ -7,6 +7,8 @@ from Magritte.model_for_tests.Account import Account
 
 class User(MAModel):
 
+    _taken_ids = set()
+
     def __init__(self):
         self._regnum = None
         self._fio = None
@@ -20,7 +22,11 @@ class User(MAModel):
 
     @staticmethod
     def generate_regnum():
-        return f'user{random.randint(1, 99)}'
+        id_ = random.randint(1, 9999)
+        while id_ in User._taken_ids:
+            id_ = random.randint(1, 9999)
+        User._taken_ids.add(id_)
+        return f'user{id_}'
 
     @staticmethod
     def generate_fio():
@@ -64,9 +70,9 @@ class User(MAModel):
     def generate_subscription_plan():
         from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
         if random.random() < 0.5:
-            return SubscriptionPlan.entries[0]
+            return SubscriptionPlan.entries()[0]
         else: #select a random non-free plan
-            return random.choice(SubscriptionPlan.entries[1:])
+            return random.choice(SubscriptionPlan.entries()[1:])
 
     @classmethod
     def random_user(cls, organization):

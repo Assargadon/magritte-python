@@ -3,7 +3,7 @@ from unittest import TestCase
 from sqlalchemy import create_engine
 
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
-from MagritteSQLAlchemy.SQLAlchemyModelGenerator import SQLAlchemyModelGenerator
+from MagritteSQLAlchemy.declarative.SQLAlchemyModelGenerator import SQLAlchemyModelGenerator
 
 # Please set the connection string before run this test. Make sure to create the sqlalchemy_test database if not exists
 conn_str = "postgresql://postgres:secret@magritte-python-postgres/sqlalchemy_test"

@@ -57,32 +57,65 @@ class MAElementDescription(MADescription):
         return None
 
     @property
-    def isPrimaryKey(self):
+    def sa_isPrimaryKey(self):
         try:
-            return self._isPrimaryKey
+            return self._sa_isPrimaryKey
         except AttributeError:
-            return self.defaultIsPrimaryKey()
+            return self.sa_defaultIsPrimaryKey()
 
-    @isPrimaryKey.setter
-    def isPrimaryKey(self, aBool):
-        self._isPrimaryKey = aBool
+    @sa_isPrimaryKey.setter
+    def sa_isPrimaryKey(self, aBool):
+        self._sa_isPrimaryKey = aBool
 
-    def defaultIsPrimaryKey(self):
+    def sa_defaultIsPrimaryKey(self):
         return False
 
     @property
-    def fieldName(self):
+    def sa_attrName(self):
+        """SQLAlchemy requires "physical" attribute for its models."""
+
         try:
-            return self._field_name
+            return self._sa_attr_name
         except AttributeError:
             return self._name
 
-    @fieldName.setter
-    def fieldName(self, aSymbol):
+    @sa_attrName.setter
+    def sa_attrName(self, aSymbol):
         if aSymbol is None:
-            self._field_name = None
+            self._sa_attr_name = None
         else:
-            self._field_name = intern(aSymbol)
+            self._sa_attr_name = intern(aSymbol)
+
+    @property
+    def sa_fieldName(self):
+        try:
+            return self._sa_field_name
+        except AttributeError:
+            return self.sa_defaultFieldName()
+
+    @sa_fieldName.setter
+    def sa_fieldName(self, aSymbol):
+        if aSymbol is None:
+            self._sa_field_name = None
+        else:
+            self._sa_field_name = intern(aSymbol)
+
+    def sa_defaultFieldName(self):
+        return self.name
+
+    @property
+    def sa_storable(self):
+        try:
+            return self._sa_storable
+        except AttributeError:
+            return self.sa_defaultStorable()
+
+    @sa_storable.setter
+    def sa_storable(self, aBool):
+        self._sa_storable = aBool
+
+    def sa_defaultStorable(self):
+        return not self.readOnly
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitElementDescription(self)
