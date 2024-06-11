@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from MAModelFastapiAdapter import MAModelFastapiAdapter
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
+from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 
 
@@ -78,6 +80,26 @@ if __name__ == "__main__":
     @MAModelFastapiAdapter.describe(response_descriptor=hostDescriptor.magritteDescription())
     async def host_desc():
         return hostDescriptor
+
+
+    test_get_params_descriptor = MAContainer()
+    test_get_params_descriptor.setChildren(
+        [
+            MAIntDescription(
+                name='int_val', label='int', required=True
+            ),
+            MAStringDescription(
+                name='str_val', label='str', required=False
+            ),
+        ]
+    )
+
+    @app.get("/test_described_search_query_params")
+    @MAModelFastapiAdapter.describe(search_query_descriptor=test_get_params_descriptor, response_descriptor=MAStringDescription())
+    async def test_described_search_query_params(params_dict):
+        return f"OK: {str(params_dict)}"
+
+
 
 # ============= /EXAMPLE ====================
 
