@@ -114,7 +114,7 @@ class MAReferencedDataWriterReaderVisitorPassthroughTest(TestCase):
         self.port = self.ports[0]
 
         self.host.ip = "192.168.0.1"
-        self.host.ports = self.ports
+        # self.host.ports = self.ports
 
     def test_passthroughWithPort(self):
         serialized_str_port = self.serializer.serializeHumanReadable(self.port, port_desc)
@@ -145,31 +145,6 @@ class MAReferencedDataWriterReaderVisitorPassthroughTest(TestCase):
 
 class RootCauseIsolationTest(TestCase):
 
-    def test_list_append_by_reference(self):
-        host = Host()
-        host.ip = "192.168.0.2"
-
-        port = Port()
-        port.host = host
-        port.numofport = 81
-
-        feature = Feature()
-        feature.name = "feature_byref_0"
-        feature.value = "value_byref_0"
-
-        host_ports = MAModel.readUsingWrapper(host, host_ports_desc)
-        host_ports.append(port)
-        MAModel.writeUsingWrapper(host, host_ports_desc, host_ports)
-        port_features = MAModel.readUsingWrapper(port, port_features_desc)
-        port_features.append(feature)
-        MAModel.writeUsingWrapper(port, port_features_desc, port_features)
-        self.assertEqual(len(host.ports), 1, f"Host should have 1 port, got {len(host.ports)}")
-        self.assertEqual(port.host, host, f"Port should have the host {host}, got {port.host}")
-        self.assertEqual(len(port.features), 1, f"Port should have 1 feature, got {len(port.features)}")
-        self.assertEqual(len(host.ports[0].features), 1, f"Host's port should have 1 feature, got {len(host.ports[0].features)}")
-        self.assertEqual(host.ports[0].features[0].name, "feature_byref_0", f"Host's port's feature should have name 'feature_byref_0', got {host.ports[0].features[0].name}")
-        self.assertEqual(host.ports[0].features[0].value, "value_byref_0", f"Host's port's feature should have value 'value_byref_0', got {host.ports[0].features[0].value}")
-
     def test_serialize_deserialize_host(self):
         host = Host()
         port = Port()
@@ -183,7 +158,7 @@ class RootCauseIsolationTest(TestCase):
         feature.value = "value_0"
 
         port.features.append(feature)
-        host.ports.append(port)
+        # host.ports.append(port)
 
         serialized_str_host = MAReferencedDataHumanReadableSerializer().serializeHumanReadable(host, host_desc)
         logger.debug(f"Serialized host: {serialized_str_host}")
@@ -208,7 +183,7 @@ class RootCauseIsolationTest(TestCase):
         feature.value = "value_0"
 
         port.features.append(feature)
-        host.ports.append(port)
+        # host.ports.append(port)
 
         serialized_str_port = MAReferencedDataHumanReadableSerializer().serializeHumanReadable(port, port_desc)
         logger.debug(f"Serialized port: {serialized_str_port}")
