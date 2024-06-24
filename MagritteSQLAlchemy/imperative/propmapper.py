@@ -19,7 +19,7 @@ class PropMapper(MAVisitor):
     - for to-one relations: <description.name>_<target_table_PK_name>
     - for to-many relations: look for back reference
         - if found, use <backref's description.name>_<target_table_PK_name>
-        - if not found, use <root_description.name>_<target_table_PK_name>
+        - if not found, use <description.name>_<root_description.name>_<target_table_PK_name>
     """
     def __init__(self):
         self._root_desc = None
@@ -172,11 +172,14 @@ class PropMapper(MAVisitor):
         source_table = self._registered_tables[description.reference.sa_tableName]
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
-        fkey_name = backref.name if backref else self._root_desc.name
+        fkey_name = backref.name if backref else f"{description.name}_" + self._root_desc.name
+        foreign_keys = self._append_fkey(fkey_name, source_table, self._table)
         logger.debug(
             f"Mapping TO MANY attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
             f"with back_populates = '{back_populates}'"
+            f"and foreign_keys = '{foreign_keys}'"
             )
-        self._append_fkey(fkey_name, source_table, self._table)
-        self._properties_to_map[description.sa_attrName] = relationship(description.reference.kind, back_populates=back_populates)
+        self._properties_to_map[description.sa_attrName] = relationship(
+            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys
+            )
