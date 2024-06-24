@@ -77,3 +77,7 @@ if __name__ == '__main__':
     logger.debug(f"isinstance(dto_port, Port): {isinstance(dto_port, Port)}")
     logger.debug(f"port.host.ip: {port.host.ip}")
     logger.debug(f"dto_port.host.ip: {dto_port.host.ip}")
+    logger.debug(f"port.numofport: {port.numofport}")
+    logger.debug(f"dto_port.numofport: {dto_port.numofport}")
+    logger.debug(f"port.host.ports: {port.host.ports}")
+    logger.debug(f"dto_port.host.ports: {dto_port.host.ports}")
