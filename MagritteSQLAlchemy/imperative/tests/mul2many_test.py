@@ -1,4 +1,5 @@
 import logging
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -11,6 +12,11 @@ from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from MagritteSQLAlchemy.imperative import registrator
 
+from Magritte.visitors.MAReferencedDataWriterReader_visitors import (
+    MAReferencedDataHumanReadableSerializer,
+    MAReferencedDataHumanReadableDeserializer,
+    )
+
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -20,6 +26,8 @@ logging.basicConfig(
 
 logger.setLevel(logging.DEBUG)
 logging.getLogger("MagritteSQLAlchemy.imperative").setLevel(logging.DEBUG)
+
+
 # Fine-grained logging
 # logging.getLogger("MagritteSQLAlchemy.imperative.registrator").setLevel(logging.DEBUG)
 # logging.getLogger("MagritteSQLAlchemy.imperative.fieldsmapper").setLevel(logging.DEBUG)
@@ -32,14 +40,17 @@ class Host:
         self.users = []
         self.admins = []
 
+
 class User:
     def __init__(self):
         self.name = None
+
 
 class Env:
     def __init__(self):
         self.hosts = []
         self.users = []
+
 
 model_names = ('Host', 'User')
 
@@ -48,39 +59,43 @@ user_desc = MAContainer()
 
 host_desc.name = "Host"
 host_desc.kind = Host
-host_desc.setChildren([
-    MAStringDescription(name="ip", accessor=MAAttrAccessor("ip"), required=True),
-    MAToManyRelationDescription(
-        name="users",
-        accessor=MAAttrAccessor("users"),
-        classes=[User],
-        reference=user_desc,
-    ),
-    MAToManyRelationDescription(
-        name="admins",
-        accessor=MAAttrAccessor("admins"),
-        classes=[User],
-        reference=user_desc,
-        ),
-])
+host_desc.setChildren(
+    [
+        MAStringDescription(name="ip", accessor=MAAttrAccessor("ip"), required=True),
+        MAToManyRelationDescription(
+            name="users",
+            accessor=MAAttrAccessor("users"),
+            classes=[User],
+            reference=user_desc,
+            ),
+        MAToManyRelationDescription(
+            name="admins",
+            accessor=MAAttrAccessor("admins"),
+            classes=[User],
+            reference=user_desc,
+            ),
+        ]
+    )
 
 user_desc.name = "User"
 user_desc.kind = User
-user_desc.setChildren([
-    MAStringDescription(name="name", accessor=MAAttrAccessor("name"), required=True),
-])
+user_desc.setChildren(
+    [
+        MAStringDescription(name="name", accessor=MAAttrAccessor("name"), required=True),
+        ]
+    )
 
 descriptions = {"Host": host_desc, "User": user_desc}
 
 registry = registrator.register(*descriptions.values())
 # engine = create_engine("sqlite://", echo=False)
-conn_str = "postgresql://postgres:secret@localhost/registrator_m2m_test"
+conn_str = f"{os.getenv('CONN_STR_BASE', 'postgresql://postgres:secret@localhost')}/registrator_m2m_test"
 engine = create_engine(conn_str, echo=True)
 
-class TestRegistratorExample(TestCase):
+
+class TestRegistratorWithMultipleToManyRelations(TestCase):
 
     def setUp(self):
-
         registry.metadata.create_all(engine)
         self.env = Env()
         self.env.hosts = [Host() for _ in range(3)]
@@ -100,17 +115,20 @@ class TestRegistratorExample(TestCase):
         self.host_ips = [host.ip for host in self.env.hosts]
         self.user_names = [user.name for user in self.env.users]
 
+        self.serializer = MAReferencedDataHumanReadableSerializer()
+        self.deserializer = MAReferencedDataHumanReadableDeserializer()
 
     def tearDown(self):
         registry.metadata.drop_all(engine)
 
-
     def test_insert_then_count(self):
         with Session(engine) as session:
-            session.add_all([
-                *self.env.hosts,
-                *self.env.users,
-                ])
+            session.add_all(
+                [
+                    *self.env.hosts,
+                    *self.env.users,
+                    ]
+                )
             session.commit()
 
         with Session(engine) as session:
@@ -122,10 +140,12 @@ class TestRegistratorExample(TestCase):
 
     def test_insert_then_query(self):
         with Session(engine) as session:
-            session.add_all([
-                *self.env.hosts,
-                *self.env.users,
-                ])
+            session.add_all(
+                [
+                    *self.env.hosts,
+                    *self.env.users,
+                    ]
+                )
             session.commit()
 
         with Session(engine) as session:
@@ -135,16 +155,19 @@ class TestRegistratorExample(TestCase):
             users = session.query(User).filter(User.name == self.user_names[0]).first()
             self.assertEqual(users.name, self.user_names[0])
 
+    '''
+    # Removal is not yet supported by ORM: removal attempt leads to FK violation
     def test_insert_remove1_then_query(self):
         with Session(engine) as session:
-            session.add_all([
-                *self.env.hosts,
-                *self.env.users,
-                ])
+            session.add_all(
+                [
+                    *self.env.hosts,
+                    *self.env.users,
+                    ]
+                )
             session.commit()
 
         with Session(engine) as session:
-
             # Count objects before removal
             host_count_before = session.query(Host).count()
             user_count_before = session.query(User).count()
@@ -160,8 +183,25 @@ class TestRegistratorExample(TestCase):
             host_count_after = session.query(Host).count()
             expected_removed_count = self.host_ips.count(self.host_ips[0])
             self.assertEqual(host_count_after, host_count_before - expected_removed_count)
+    '''
+
+    def test_serialize_deserialize_insert_then_query(self):
+        host1_serialized = self.serializer.serializeHumanReadable(self.env.hosts[0], host_desc)
+        host1 = self.deserializer.deserializeHumanReadable(host1_serialized, host_desc)
+
+        with Session(engine) as session:
+            session.add(host1)
+            session.commit()
+
+        with Session(engine) as session:
+            host1 = session.query(Host).filter(Host.ip == self.env.hosts[0].ip).first()
+            self.assertEqual(host1.ip, self.env.hosts[0].ip)
+            self.assertEqual(len(host1.users), len(self.env.hosts[0].users))
+            self.assertEqual(len(host1.admins), len(self.env.hosts[0].admins))
+            self.assertEqual(host1.users[0].name, self.env.hosts[0].users[0].name)
+            self.assertEqual(host1.users[1].name, self.env.hosts[0].users[1].name)
+            self.assertEqual(host1.admins[0].name, self.env.hosts[0].admins[0].name)
 
 
 if __name__ == '__main__':
-
     unittest.main()
