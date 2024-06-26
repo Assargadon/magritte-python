@@ -40,20 +40,25 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         logger.debug(f' ================= > Created table for {descriptor.name} ...')
 
     prop_mapper = PropMapper()
+    table_props = {}
     for descriptor in descriptors:
-        logger.debug(f' ================= > Mapping tables with properties for {descriptor.name} ...')
+        logger.debug(f' ================= > Mapping properties for {descriptor.name} ...')
 
         logger.debug(f' ----------------- > Constructing properties and foreign keys...')
         properties_to_map = prop_mapper.map(descriptor, registry.metadata.tables)
         logger.debug(f' Properties to map: {properties_to_map}')
+        table_props[descriptor.sa_tableName] = properties_to_map
 
-        logger.debug(f' ----------------- > Invoke imperative mapping...')
+        logger.debug(f' ================= > Mapped properties for {descriptor.name} ...')
+
+    for descriptor in descriptors:
+        logger.debug(f' ================= > Mapping tables for {descriptor.name} ...')
         registry.map_imperatively(
             descriptor.kind,
             registry.metadata.tables[descriptor.sa_tableName],
-            properties=properties_to_map,
+            properties=table_props[descriptor.sa_tableName],
             )
 
-        logger.debug(f' ================= > Mapped tables with properties for {descriptor.name} ...')
+        logger.debug(f' ================= > Mapped tables for {descriptor.name} ...')
 
     return registry

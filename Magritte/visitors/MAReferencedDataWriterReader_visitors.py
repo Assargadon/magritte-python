@@ -541,7 +541,6 @@ class MAReferencedDataHumanReadableDeserializer:
                 found = True
                 subcontext_dump = dump
             else:
-                MAModel.writeUsingWrapper(model, description, relations_list)
                 found, subcontext_dump = self._findMatchingSubcontextDump(context)
             if found:
                 subcontext_dumps = []
@@ -560,6 +559,8 @@ class MAReferencedDataHumanReadableDeserializer:
                 #relations_list.clear()
                 if description.undefinedValue is not None:
                     relations_list.extend(description.undefinedValue)
+            if model is not None:
+                MAModel.writeUsingWrapper(model, description, relations_list)
             return subcontext_dumps
 
         def processSingleOptionContext(self, context, isContainer):
