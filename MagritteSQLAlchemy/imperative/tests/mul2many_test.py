@@ -85,7 +85,8 @@ user_desc.setChildren(
         ]
     )
 
-descriptions = {"Host": host_desc, "User": user_desc}
+descriptions = {"User": user_desc, "Host": host_desc}
+# descriptions = {"Host": host_desc, "User": user_desc}
 
 registry = registrator.register(*descriptions.values())
 # engine = create_engine("sqlite://", echo=False)
