@@ -4,23 +4,24 @@ from json import dumps, loads
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, Port, Account, User, Organization, SubscriptionPlan
+from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider, Host, Port, Account, User, Organization, SubscriptionPlan
 
 
 class MAReferencedDataWriterVisitorTestBase(TestCase):
     def setUp(self):
         provider = TestEnvironmentProvider()
+        self.descriptors = TestModelDescriptorProvider()
         self.host = provider.hosts[0]
-        self.hostDescription = TestModelDescriptor.description_for(Host.__name__)
+        self.hostDescription = self.descriptors.description_for(Host.__name__)
         self.port = self.host.ports[5]
-        self.portDescription = TestModelDescriptor.description_for(Port.__name__)
+        self.portDescription = self.descriptors.description_for(Port.__name__)
         self.account = provider.accounts[1]
-        self.accountDescription = TestModelDescriptor.description_for(Account.__name__)
+        self.accountDescription = self.descriptors.description_for(Account.__name__)
         self.user = provider.users[1];
-        self.userDescription = TestModelDescriptor.description_for(User.__name__)
+        self.userDescription = self.descriptors.description_for(User.__name__)
 
     def findDescription(self, class_name, name):
-        container = TestModelDescriptor.description_for(class_name)
+        container = self.descriptors.description_for(class_name)
         self.assertIsNotNone(container)
         descriptor = next(filter(lambda description: description.name == name, container.children), None)
         self.assertIsNotNone(descriptor)

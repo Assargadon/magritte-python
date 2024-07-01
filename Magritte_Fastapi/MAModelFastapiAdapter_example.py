@@ -11,14 +11,15 @@ from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 if __name__ == "__main__":
 
     from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, User, Account
+    from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider, Host, User, Account
     import uvicorn
 
 
     provider = TestEnvironmentProvider()
-    hostDescriptor = TestModelDescriptor.description_for("Host")
-    accountDescriptor = TestModelDescriptor.description_for("Account")
-    userDescriptor = TestModelDescriptor.description_for("User")
+    descriptors = TestModelDescriptorProvider()
+    hostDescriptor = descriptors.description_for("Host")
+    accountDescriptor = descriptors.description_for("Account")
+    userDescriptor = descriptors.description_for("User")
 
     app = FastAPI()
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import unittest
 from unittest import TestCase
 
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
+from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, SoftwarePackage, )
 from MagritteSQLAlchemy.imperative import registrator
@@ -26,7 +26,8 @@ logging.getLogger("MagritteSQLAlchemy.imperative").setLevel(logging.DEBUG)
 
 
 model_names = ('Organization', 'Host', 'Port', 'User', 'Account', 'SubscriptionPlan', 'SoftwarePackage')
-descriptions = {k: v for k, v in ((x, TestModelDescriptor.description_for(x)) for x in model_names)}
+descriptors = TestModelDescriptorProvider()
+descriptions = {k: v for k, v in ((x, descriptors.description_for(x)) for x in model_names)}
 
 registry = registrator.register(*descriptions.values())
 engine = create_engine("sqlite://", echo=False)
