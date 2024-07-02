@@ -24,7 +24,7 @@ from Magritte.model_for_tests.SoftwarePackage import SoftwarePackage
 
 class TestModelDescriptorProvider(MADescriptionProvider):
 
-    def __init__(self):
+    def instatiate_descriptions(self):
         subscription_plan_desc_container = MAContainer()
         user_desc_container = MAContainer()
         org_desc_container = MAContainer()
@@ -235,45 +235,15 @@ class TestModelDescriptorProvider(MADescriptionProvider):
             ]
         )
 
-        self.subscription_plan_desc_container = subscription_plan_desc_container
-        self.user_desc_container = user_desc_container
-        self.org_desc_container = org_desc_container
-        self.acc_desc_container = acc_desc_container
-        self.host_desc_container = host_desc_container
-        self.port_desc_container = port_desc_container
-        self.soft_desc_container = soft_desc_container
-        self.all_descriptions = [
-            subscription_plan_desc_container,
-            user_desc_container,
-            org_desc_container,
-            acc_desc_container,
-            host_desc_container,
-            port_desc_container,
-            soft_desc_container,
-        ]
+        self.register_description(subscription_plan_desc_container)
+        self.register_description(subscription_plan_desc_container)
+        self.register_description(user_desc_container)
+        self.register_description(org_desc_container)
+        self.register_description(acc_desc_container)
+        self.register_description(host_desc_container)
+        self.register_description(port_desc_container)
+        self.register_description(soft_desc_container)
 
-    def descriptions(self) -> list[MADescription]:
-        return self.all_descriptions
-
-    def description_for(self, model_type: str) -> MAContainer:
-        """Returns a fact description for the given fact type."""
-
-        if model_type == 'User':
-            return self.user_desc_container
-        elif model_type == 'Organization':
-            return self.org_desc_container
-        elif model_type == 'Account':
-            return self.acc_desc_container
-        elif model_type == 'Host':
-            return self.host_desc_container
-        elif  model_type == 'Port':
-            return self.port_desc_container
-        elif model_type == 'SubscriptionPlan':
-            return self.subscription_plan_desc_container
-        elif model_type == 'SoftwarePackage':
-            return self.soft_desc_container
-        else:
-            raise ValueError(f"Unknown model type: {model_type}")
 
 
 if __name__ == "__main__":
