@@ -80,13 +80,20 @@ class MADescriptionTranspiler_JS:
 
 
     @classmethod
-    def transpileDescriptionProvider(cls, descriptors: MADescriptionProvider, description_names_whitelist=None) -> str:
+    def transpileDescriptionProvider(
+        cls,
+        descriptors: MADescriptionProvider,
+        description_names_whitelist=None,
+        generated_js_class_name='TranspiledDescriptors',
+        magritte_js_import_prefix='magritte-js/Magritte/',
+    ) -> str:
         descriptor_instantiate_lines = []
         descriptor_initialize_lines = []
+        descriptor_export_lines = []
         transpiler = MADescriptionTranspiler_JS._MADescriptorTranspiler_JS_Visitor()
 
         # Maintain a list of descriptions that are available and which are to be transpiled
-        all_descriptions = descriptors.descriptions()
+        all_descriptions = descriptors.all_descriptions
         description_names_processed = set()
         if description_names_whitelist is None:
             description_names_to_process = set([description.name for description in descriptors.descriptions()])
@@ -127,6 +134,9 @@ class MADescriptionTranspiler_JS:
                     new_description_names_to_process.update(reference_description_names)
                 descriptor_initialize_lines.append(f');')
 
+                descriptor_export_lines.append(f'this.descriptions_by_model_type.set({json.dumps(container.name)}, {js_variable_name});')
+                descriptor_export_lines.append(f'this.all_descriptions.push({js_variable_name});')
+
                 # Save in processed list
                 description_names_processed.add(description_name)
 
@@ -138,28 +148,34 @@ class MADescriptionTranspiler_JS:
             descriptor_instantiate_lines[i] = f'{pad_str}{descriptor_instantiate_lines[i]}'
         for i in range(len(descriptor_initialize_lines)):
             descriptor_initialize_lines[i] = f'{pad_str}{descriptor_initialize_lines[i]}'
+        for i in range(len(descriptor_export_lines)):
+            descriptor_export_lines[i] = f'{pad_str}{descriptor_export_lines[i]}'
 
         # Add header
         js_lines = []
-        js_lines.append("import { MAContainer } from 'magritte-js/Magritte/descriptions/MAContainer.js';")
-        js_lines.append("import { MAToOneRelationDescription } from 'magritte-js/Magritte/descriptions/MAToOneRelationDescription.js';")
-        js_lines.append("import { MAToManyRelationDescription } from 'magritte-js/Magritte/descriptions/MAToManyRelationDescription.js';")
-        js_lines.append("import { MAStringDescription } from 'magritte-js/Magritte/descriptions/MAStringDescription.js';")
-        js_lines.append("import { MAIntDescription } from 'magritte-js/Magritte/descriptions/MAIntDescription.js';")
-        js_lines.append("import { MAElementDescription } from 'magritte-js/Magritte/descriptions/MAElementDescription.js';")
-        js_lines.append("import { MABooleanDescription } from 'magritte-js/Magritte/descriptions/MABooleanDescription.js';")
-        js_lines.append("import { MAPriorityContainer } from 'magritte-js/Magritte/descriptions/MAPriorityContainer.js';")
+        js_lines.append(f"import {{ MAContainer }} from '{magritte_js_import_prefix}descriptions/MAContainer.js';")
+        js_lines.append(f"import {{ MAToOneRelationDescription }} from '{magritte_js_import_prefix}descriptions/MAToOneRelationDescription.js';")
+        js_lines.append(f"import {{ MAToManyRelationDescription }} from '{magritte_js_import_prefix}descriptions/MAToManyRelationDescription.js';")
+        js_lines.append(f"import {{ MAStringDescription }} from '{magritte_js_import_prefix}descriptions/MAStringDescription.js';")
+        js_lines.append(f"import {{ MAIntDescription }} from '{magritte_js_import_prefix}descriptions/MAIntDescription.js';")
+        js_lines.append(f"import {{ MAElementDescription }} from '{magritte_js_import_prefix}descriptions/MAElementDescription.js';")
+        js_lines.append(f"import {{ MABooleanDescription }} from '{magritte_js_import_prefix}descriptions/MABooleanDescription.js';")
+        js_lines.append(f"import {{ MAPriorityContainer }} from '{magritte_js_import_prefix}descriptions/MAPriorityContainer.js';")
         js_lines.append("")
-        js_lines.append("class TranspiledDescriptors {")
+        js_lines.append(f"class {generated_js_class_name} {{")
         js_lines.append("    constructor () {")
+        js_lines.append("        this.descriptions_by_model_type = new Map();")
+        js_lines.append("        this.all_descriptions = [];")
 
         # Add generated code
         js_lines.extend(descriptor_instantiate_lines)
         js_lines.extend(descriptor_initialize_lines)
+        js_lines.extend(descriptor_export_lines)
 
         # Add footer
         js_lines.append("    }")
         js_lines.append("}")
+        js_lines.append("")
 
         # Put it all together
         return '\n'.join(js_lines)
@@ -170,6 +186,13 @@ if __name__ == "__main__":
     from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
     descriptors = TestModelDescriptorProvider()
     t = MADescriptionTranspiler_JS()
-    s = t.transpileDescriptionProvider(descriptors)
+    s = t.transpileDescriptionProvider(
+        descriptors,
+        description_names_whitelist=['Host'],
+        generated_js_class_name=type(descriptors).__name__,
+        magritte_js_import_prefix='./Magritte/'
+    )
     print(s)
+    with open("output.mjs", "w") as js_file:
+        js_file.write(s)
 
