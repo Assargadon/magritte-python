@@ -1,24 +1,42 @@
 
 from Magritte.descriptions.MADescription_class import MADescription
 
-class MADescriptionProvider:
-    _instance = None
-    def __new__(class_, *args, **kwargs):
-        if not isinstance(class_._instance, class_):
-            class_._instance = object.__new__(class_, *args, **kwargs)
-        return class_._instance
+
+class MADescriptionProviderMetaSingleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        singleton_key = 'singleton'
+        if singleton_key in kwargs:
+            singleton = kwargs[singleton_key]
+            kwargs.pop(singleton_key)
+            singleton = bool(singleton)
+        else:
+            singleton = True  # The default
+        if singleton:
+            if cls not in cls._instances:
+                cls._instances[cls] = super(MADescriptionProviderMetaSingleton, cls).__call__(*args, **kwargs)
+            return cls._instances[cls]
+        else:
+            return super(MADescriptionProviderMetaSingleton, cls).__call__(*args, **kwargs)
+
+class MADescriptionProvider(metaclass=MADescriptionProviderMetaSingleton):
 
     def __init__(self):
         self._all_descriptions = list()
-        self._descriptions_by_model_type = dict()
+        self._descriptions_by_model_name = dict()
         self.instatiate_descriptions()
 
     def register_description(self, aDescription: MADescription):
-        """Should be called inside register_description only."""
-        model_type = aDescription.name
-        if model_type in self._descriptions_by_model_type:
+        """
+            Should be called inside register_description only.
+            Should be called only after a name is assigned to a description.
+        """
+        model_name = aDescription.name
+        if model_name is None:
+            raise TypeError('register_description should be called only after a name is assigned to a description')
+        if model_name in self._descriptions_by_model_name:
             return
-        self._descriptions_by_model_type[model_type] = aDescription
+        self._descriptions_by_model_name[model_name] = aDescription
         self._all_descriptions.append(aDescription)
 
     def instatiate_descriptions(self):
@@ -30,8 +48,8 @@ class MADescriptionProvider:
         """Returns all descriptions."""
         return self._all_descriptions
 
-    def description_for(self, model_type: str) -> MADescription:
+    def description_for(self, model_name: str) -> MADescription:
         """Returns a model description for the given model type."""
-        if model_type in self._descriptions_by_model_type:
-            return self._descriptions_by_model_type[model_type]
-        raise ValueError(f'Unknown model type: {model_type}')
+        if model_name in self._descriptions_by_model_name:
+            return self._descriptions_by_model_name[model_name]
+        raise ValueError(f'Unknown model type: {model_name}')
