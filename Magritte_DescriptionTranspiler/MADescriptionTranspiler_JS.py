@@ -1,6 +1,8 @@
 
 from typing import Any
 import json
+import re
+from unicodedata import normalize
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
@@ -11,8 +13,24 @@ class MADescriptionTranspiler_JS:
 
     class _MADescriptorTranspiler_JS_Visitor(MAVisitor):
         @staticmethod
-        def variableNameByDescriptionName(description_name: str) -> str:
-            return f'{description_name.lower()}Desc'
+        def variableNameByDescriptionName(description_name: str, existing_mapping: dict) -> str:
+            # Look for existing identifier
+            if description_name in existing_mapping:
+                return existing_mapping[description_name]
+            # Normalize the string to form a valid Unicode identifier
+            normalized_string = normalize('NFKD', description_name).encode('ascii', 'ignore').decode('ascii')
+            # Replace non-alphanumeric characters and spaces with underscores
+            valid_identifier = re.sub(r'\W|^(?=\d)', '_', normalized_string)
+            # Remove leading and trailing underscores
+            valid_identifier = valid_identifier.strip('_')
+            # Add an underscore if the identifier starts with a digit
+            if valid_identifier[0].isdigit():
+                valid_identifier = '_' + valid_identifier
+            # Add "Desc" suffix
+            valid_identifier = f'{valid_identifier}Desc'
+            # Return the valid identifier
+            existing_mapping[description_name] = valid_identifier
+            return valid_identifier
 
         @staticmethod
         def valueToJsonString(value: Any) -> str:
@@ -30,11 +48,13 @@ class MADescriptionTranspiler_JS:
             return json_lines
 
         def __init__(self):
+            self._existing_mapping = None
             self._transpiled_lines = None
             self._reference_description_names = None
             self._options_dict = None
 
-        def transpile(self, anObject: MADescription, padding: int) -> tuple[list[str], set[str]]:
+        def transpile(self, anObject: MADescription, padding: int, existing_mapping: dict) -> tuple[list[str], set[str]]:
+            self._existing_mapping = existing_mapping
             self._transpiled_lines = []
             self._reference_description_names = set()
             self._options_dict = {}
@@ -57,16 +77,19 @@ class MADescriptionTranspiler_JS:
                 'name': self.valueToJsonString(anObject.name),
                 'group': self.valueToJsonString(anObject.group),
                 'label': self.valueToJsonString(anObject.label),
+                'comment': self.valueToJsonString(anObject.comment),
                 'required': self.valueToJsonString(anObject.required),
                 'priority': self.valueToJsonString(anObject.priority),
                 'visible': self.valueToJsonString(anObject.visible),
+                'readOnly': self.valueToJsonString(anObject.readOnly),
+                'undefinedValue': self.valueToJsonString(anObject.undefinedValue),
             })
 
         def visitToOneRelationDescription(self, anObject: MAReferenceDescription):
             super().visitReferenceDescription(anObject)
             reference_name = anObject.reference.name
             self._options_dict.update({
-                'reference': self.variableNameByDescriptionName(reference_name),
+                'reference': self.variableNameByDescriptionName(reference_name, self._existing_mapping),
             })
             self._reference_description_names.add(reference_name)
 
@@ -74,7 +97,7 @@ class MADescriptionTranspiler_JS:
             super().visitReferenceDescription(anObject)
             reference_name = anObject.reference.name
             self._options_dict.update({
-                'reference': self.variableNameByDescriptionName(reference_name),
+                'reference': self.variableNameByDescriptionName(reference_name, self._existing_mapping),
             })
             self._reference_description_names.add(reference_name)
 
@@ -95,6 +118,7 @@ class MADescriptionTranspiler_JS:
         # Maintain a list of descriptions that are available and which are to be transpiled
         all_descriptions = descriptors.all_descriptions
         description_names_processed = set()
+        description_names_mapping_to_js = dict()
         if description_names_whitelist is None:
             description_names_to_process = set([description.name for description in descriptors.all_descriptions])
         else:
@@ -120,8 +144,10 @@ class MADescriptionTranspiler_JS:
                 else:
                     raise TypeError(f'{cls.__name__} can transpile only MAContainer descriptions')
 
+                # Get unique name for variable
+                js_variable_name = MADescriptionTranspiler_JS._MADescriptorTranspiler_JS_Visitor.variableNameByDescriptionName(description.name, description_names_mapping_to_js)
+
                 # Transpile to JS
-                js_variable_name = MADescriptionTranspiler_JS._MADescriptorTranspiler_JS_Visitor.variableNameByDescriptionName(description.name)
                 descriptor_instantiate_lines.append(f'const {js_variable_name} = new MAContainer();')
                 descriptor_initialize_lines.append('')
                 descriptor_initialize_lines.append(f'{js_variable_name}.name = {json.dumps(container.name)};')
@@ -129,7 +155,7 @@ class MADescriptionTranspiler_JS:
                 descriptor_initialize_lines.append(f'{js_variable_name}.group = {json.dumps(container.group)};')
                 descriptor_initialize_lines.append(f'{js_variable_name}.setChildren(')
                 for child_description in container.children:
-                    transpiled_lines, reference_description_names = transpiler.transpile(child_description, 4)
+                    transpiled_lines, reference_description_names = transpiler.transpile(child_description, 4, description_names_mapping_to_js)
                     transpiled_lines[-1] = f'{transpiled_lines[-1]},'
                     descriptor_initialize_lines.extend(transpiled_lines)
                     new_description_names_to_process.update(reference_description_names)
