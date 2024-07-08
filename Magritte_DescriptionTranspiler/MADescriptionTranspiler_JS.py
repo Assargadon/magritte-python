@@ -96,7 +96,7 @@ class MADescriptionTranspiler_JS:
         all_descriptions = descriptors.all_descriptions
         description_names_processed = set()
         if description_names_whitelist is None:
-            description_names_to_process = set([description.name for description in descriptors.descriptions()])
+            description_names_to_process = set([description.name for description in descriptors.all_descriptions])
         else:
             description_names_to_process = set(description_names_whitelist)
 
@@ -126,6 +126,7 @@ class MADescriptionTranspiler_JS:
                 descriptor_initialize_lines.append('')
                 descriptor_initialize_lines.append(f'{js_variable_name}.name = {json.dumps(container.name)};')
                 descriptor_initialize_lines.append(f'{js_variable_name}.label = {json.dumps(container.label)};')
+                descriptor_initialize_lines.append(f'{js_variable_name}.group = {json.dumps(container.group)};')
                 descriptor_initialize_lines.append(f'{js_variable_name}.setChildren(')
                 for child_description in container.children:
                     transpiled_lines, reference_description_names = transpiler.transpile(child_description, 4)
@@ -162,7 +163,7 @@ class MADescriptionTranspiler_JS:
         js_lines.append(f"import {{ MABooleanDescription }} from '{magritte_js_import_prefix}descriptions/MABooleanDescription.js';")
         js_lines.append(f"import {{ MAPriorityContainer }} from '{magritte_js_import_prefix}descriptions/MAPriorityContainer.js';")
         js_lines.append("")
-        js_lines.append(f"class {generated_js_class_name} {{")
+        js_lines.append(f"export default class {generated_js_class_name} {{")
         js_lines.append("    constructor () {")
         js_lines.append("        this.descriptions_by_model_type = new Map();")
         js_lines.append("        this.all_descriptions = [];")
