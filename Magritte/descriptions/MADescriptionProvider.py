@@ -1,4 +1,5 @@
 
+from abc import abstractmethod
 from Magritte.descriptions.MADescription_class import MADescription
 
 
@@ -26,7 +27,7 @@ class MADescriptionProvider(metaclass=MAMetaSingleton):
 
     def register_description(self, aDescription: MADescription):
         """
-            Should be called inside register_description only.
+            Should be called inside instatiate_descriptions only.
             Should be called only after a name is assigned to a description.
         """
         model_name = aDescription.name
@@ -37,9 +38,10 @@ class MADescriptionProvider(metaclass=MAMetaSingleton):
         self._descriptions_by_model_name[model_name] = aDescription
         self._all_descriptions.append(aDescription)
 
+    @abstractmethod
     def instatiate_descriptions(self):
         """Method to generate the descriptions."""
-        raise TypeError('Abstract method, must be overridden')
+        pass
 
     @property
     def all_descriptions(self) -> list[MADescription]:
