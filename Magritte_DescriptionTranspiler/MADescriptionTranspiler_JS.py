@@ -172,7 +172,7 @@ class MADescriptionTranspiler_JS:
                 )
 
                 # Transpile to JS
-                container_class_name = 'MAContainer'
+                container_class_name = description.type
                 description_classes_to_import.add(container_class_name)
                 descriptor_instantiate_lines.append(f'const {js_variable_name} = new {container_class_name}();')
                 descriptor_initialize_lines.append('')
