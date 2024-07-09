@@ -2,24 +2,22 @@
 from Magritte.descriptions.MADescription_class import MADescription
 
 
-class MADescriptionProviderMetaSingleton(type):
+class MAMetaSingleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
         singleton_key = 'singleton'
         if singleton_key in kwargs:
-            singleton = kwargs[singleton_key]
-            kwargs.pop(singleton_key)
-            singleton = bool(singleton)
+            singleton = bool(kwargs.pop(singleton_key))
         else:
             singleton = True  # The default
         if singleton:
             if cls not in cls._instances:
-                cls._instances[cls] = super(MADescriptionProviderMetaSingleton, cls).__call__(*args, **kwargs)
+                cls._instances[cls] = super(MAMetaSingleton, cls).__call__(*args, **kwargs)
             return cls._instances[cls]
         else:
-            return super(MADescriptionProviderMetaSingleton, cls).__call__(*args, **kwargs)
+            return super(MAMetaSingleton, cls).__call__(*args, **kwargs)
 
-class MADescriptionProvider(metaclass=MADescriptionProviderMetaSingleton):
+class MADescriptionProvider(metaclass=MAMetaSingleton):
 
     def __init__(self):
         self._all_descriptions = list()
