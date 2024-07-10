@@ -26,23 +26,38 @@ class FieldsMapper(MAVisitor):
 
     def visitIntDescription(self, description):
         logger.debug(f'visitIntDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, Integer, primary_key=description.sa_isPrimaryKey))
+        self.table.append_column(Column(
+            description.sa_fieldName, Integer,
+            primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
+            ))
 
     def visitStringDescription(self, description):
         logger.debug(f'visitStringDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, String(250), primary_key=description.sa_isPrimaryKey))
+        self.table.append_column(Column(
+            description.sa_fieldName, String(250),
+            primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
+            ))
 
     def visitDateDescription(self, description):
         logger.debug(f'visitDateDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, Date, primary_key=description.sa_isPrimaryKey))
+        self.table.append_column(Column(
+            description.sa_fieldName, Date,
+            primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
+            ))
 
     def visitDateAndTimeDescription(self, description):
         logger.debug(f'visitDateAndTimeDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, DateTime, primary_key=description.sa_isPrimaryKey))
+        self.table.append_column(Column(
+            description.sa_fieldName, DateTime,
+            primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
+            ))
 
     def visitBooleanDescription(self, description):
         logger.debug(f'visitBooleanDescription {description.name}')
-        self.table.append_column(Column(description.sa_fieldName, Boolean, primary_key=description.sa_isPrimaryKey))
+        self.table.append_column(Column(
+            description.sa_fieldName, Boolean,
+            primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
+            ))
         
     def visitSingleOptionDescription(self, description):
         logger.debug(f'visitSingleOptionDescription {description.name}')
