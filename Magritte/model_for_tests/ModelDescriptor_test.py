@@ -175,7 +175,7 @@ class TestModelDescriptor:
                     ),
                 MAIntDescription(
                     name='days', label='Days valid', required=True, accessor=MAAttrAccessor('days'),
-                    sa_attrName='_days',
+                    sa_attrName='_time',
                     ),
                 MAToOneRelationDescription(
                     name='port', label='Port', required=True,
