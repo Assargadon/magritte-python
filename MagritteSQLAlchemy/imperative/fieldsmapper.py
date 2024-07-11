@@ -61,13 +61,29 @@ class FieldsMapper(MAVisitor):
         
     def visitSingleOptionDescription(self, description):
         logger.debug(f'visitSingleOptionDescription {description.name}')
-        reference = description.reference.__copy__()
-        reference.name = description.name
-        reference.sa_fieldName = description.sa_fieldName
-        reference.sa_attrName = description.sa_attrName
-        reference.sa_storable = description.sa_storable
-        reference.sa_isPrimaryKey = description.sa_isPrimaryKey
-        # if reference is scalar type, i.e. not subclass of MAContainer, then it's just a scalar field
-        if not isinstance(reference, MAContainer):
+        if not isinstance(description.reference, MAContainer):
             logger.debug('!!!! reference is scalar !!!')
+            reference = description.reference.__copy__()
+            reference.name = description.name
+            reference.sa_fieldName = description.sa_fieldName
+            reference.sa_attrName = description.sa_attrName
+            reference.sa_storable = description.sa_storable
+            reference.sa_isPrimaryKey = description.sa_isPrimaryKey
             self.visit(reference)
+        else:
+            logger.debug('!!!! reference is object !!!')
+            for child_desc in description.reference.children:
+                if child_desc.sa_isPrimaryKey:
+                    child_copy = child_desc.__copy__()
+                    child_copy.sa_fieldName = f'{description.sa_fieldName}_{child_desc.sa_fieldName}'
+                    child_copy.sa_isPrimaryKey = description.sa_isPrimaryKey
+                    self.visit(child_copy)
+
+    def visitToOneRelationDescription(self, description):
+        logger.debug(f'visitToOneRelationDescription {description.name}')
+        for child_desc in description.reference.children:
+            if child_desc.sa_isPrimaryKey:
+                child_copy = child_desc.__copy__()
+                child_copy.sa_fieldName = f'{description.sa_fieldName}_{child_desc.sa_fieldName}'
+                child_copy.sa_isPrimaryKey = description.sa_isPrimaryKey
+                self.visit(child_copy)

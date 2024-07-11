@@ -72,9 +72,11 @@ class PropMapper(MAVisitor):
         fkey_columns = []
         for column in primary_keys_of_target:
             fkey_column_name = f'{property_name}_{column.name}'
-            fkey_column = Column(fkey_column_name, column.type)
-
-            source_table.append_column(fkey_column)
+            if fkey_column_name in source_table.columns:
+                fkey_column = source_table.columns[fkey_column_name]
+            else:
+                fkey_column = Column(fkey_column_name, column.type)
+                source_table.append_column(fkey_column)
             fkey_columns.append(fkey_column)
 
         logger.debug(
