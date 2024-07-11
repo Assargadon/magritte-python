@@ -55,7 +55,6 @@ class PropMapper(MAVisitor):
         return False
 
     def _append_fkey(self, property_name: str, source_table: Table, target_table: Table) -> List[Column] | None:
-        property_name = property_name.lower()
         logger.debug(
             f'Adding foreign key from {source_table.name} for property name {property_name} to {target_table.name}'
             )
@@ -174,7 +173,7 @@ class PropMapper(MAVisitor):
         source_table = self._registered_tables[description.reference.sa_tableName]
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
-        fkey_name = backref.name if backref else f"{description.name}_" + self._root_desc.name
+        fkey_name = backref.name if backref else f"{description.name}_" + self._root_desc.name.lower()
         foreign_keys = self._append_fkey(fkey_name, source_table, self._table)
         logger.debug(
             f"Mapping TO MANY attribute '{description.sa_attrName}' "
