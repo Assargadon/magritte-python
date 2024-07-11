@@ -25,11 +25,14 @@ class Port(MAModel):
         self._status = None
 
     @staticmethod
-    def generate_numofport():
-        if random.random() < 0.7:
-            return random.choice(Port.COMMON_PORTS)
-        else:
-            return random.randint(1025, 65535)
+    def generate_numofport(taken_ports=()):
+        while True:
+            if random.random() < 0.7 and len(taken_ports) < len(Port.COMMON_PORTS):
+                numofport = random.choice(Port.COMMON_PORTS)
+            else:
+                numofport = random.randint(1025, 65535)
+            if numofport not in taken_ports:
+                return numofport
 
     def generate_status(self):
         if self._numofport in Port.COMMON_PORTS:
@@ -44,7 +47,7 @@ class Port(MAModel):
     def randomPortForHost(cls, host):
         new_port = cls()
         new_port._host = host
-        new_port._numofport = cls.generate_numofport()
+        new_port._numofport = cls.generate_numofport(taken_ports=tuple(p.numofport for p in host.ports))
         new_port._status = new_port.generate_status()
         return new_port
 
