@@ -216,12 +216,12 @@ class TestModelDescriptor:
             [
                 MAIntDescription(
                     name='numofport', label='Number of Port', required=True, accessor=MAAttrAccessor('numofport'),
-                    sa_attrName='_numofport',
+                    sa_attrName='_numofport', sa_isPrimaryKey=True,
                     ),
                 MAToOneRelationDescription(
                     name='host', label='Host', required=True,
                     accessor=MAAttrAccessor('host'), classes=[Host], reference=host_desc_container,
-                    sa_attrName='_host',
+                    sa_attrName='_host', sa_isPrimaryKey=True,
                     ),
                 MASingleOptionDescription(
                     name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),
