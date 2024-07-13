@@ -69,6 +69,7 @@ class FieldsMapper(MAVisitor):
             reference.sa_attrName = description.sa_attrName
             reference.sa_storable = description.sa_storable
             reference.sa_isPrimaryKey = description.sa_isPrimaryKey
+            reference.required = description.required
             self.visit(reference)
         else:
             logger.debug('!!!! reference is object !!!')
@@ -77,6 +78,7 @@ class FieldsMapper(MAVisitor):
                     child_copy = child_desc.__copy__()
                     child_copy.sa_fieldName = f'{description.sa_fieldName}_{child_desc.sa_fieldName}'
                     child_copy.sa_isPrimaryKey = description.sa_isPrimaryKey
+                    child_copy.required = description.required
                     self.visit(child_copy)
 
     def visitToOneRelationDescription(self, description):
@@ -86,4 +88,5 @@ class FieldsMapper(MAVisitor):
                 child_copy = child_desc.__copy__()
                 child_copy.sa_fieldName = f'{description.sa_fieldName}_{child_desc.sa_fieldName}'
                 child_copy.sa_isPrimaryKey = description.sa_isPrimaryKey
+                child_copy.required = description.required
                 self.visit(child_copy)
