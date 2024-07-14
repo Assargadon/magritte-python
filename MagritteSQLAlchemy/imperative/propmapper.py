@@ -156,14 +156,17 @@ class PropMapper(MAVisitor):
         foreign_keys = self._append_fkey(description.name, self._table, target_table)
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
+        cascade = "save-update"
         logger.debug(
             f"Mapping TO ONE attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
-            f"with back_populates = '{back_populates}'"
-            f"and foreign_keys = '{foreign_keys}'"
+            f"with back_populates = '{back_populates}' "
+            f"foreign_keys = '{foreign_keys}' "
+            f"and cascade = {cascade}"
             )
         self._properties_to_map[description.sa_attrName] = relationship(
-            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys
+            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys,
+            cascade=cascade
             )
 
     def visitToManyRelationDescription(self, description):
@@ -173,14 +176,18 @@ class PropMapper(MAVisitor):
         source_table = self._registered_tables[description.reference.sa_tableName]
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
+        # cascade = "save-update, merge, delete-orphan" if backref and backref.required else "save-update, merge"
+        cascade = "save-update, delete-orphan" if backref and backref.required else "save-update"
         fkey_name = backref.name if backref else f"{description.name}_" + self._root_desc.name.lower()
         foreign_keys = self._append_fkey(fkey_name, source_table, self._table)
         logger.debug(
             f"Mapping TO MANY attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
-            f"with back_populates = '{back_populates}'"
-            f"and foreign_keys = '{foreign_keys}'"
+            f"with back_populates = '{back_populates}' "
+            f"foreign_keys = '{foreign_keys}' "
+            f"and cascade = {cascade}"
             )
         self._properties_to_map[description.sa_attrName] = relationship(
-            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys
+            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys,
+            cascade=cascade
             )
