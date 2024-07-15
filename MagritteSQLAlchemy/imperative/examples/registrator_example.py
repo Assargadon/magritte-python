@@ -1,4 +1,6 @@
 import logging
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -31,11 +33,9 @@ if __name__ == '__main__':
 
     registry = registrator.register(*descriptions)
 
-    engine = create_engine("sqlite://", echo=True)
-    # conn_str = "postgresql://postgres:postgres@localhost/registrator_example"
-    # engine = create_engine(conn_str, echo=True)
-
-
+    # engine = create_engine("sqlite://", echo=True)
+    conn_str = f"{os.getenv('CONN_STR_BASE', 'postgresql://postgres:secret@localhost')}/registrator_example"
+    engine = create_engine(conn_str, echo=True)
 
     registry.metadata.create_all(engine)
 
@@ -82,3 +82,7 @@ if __name__ == '__main__':
         software_packages = session.query(SoftwarePackage).all()
         for software_package in software_packages:
             print(f'software_package = {software_package.name} ')
+
+    input("Press Enter to continue...")
+
+    registry.metadata.drop_all(engine)

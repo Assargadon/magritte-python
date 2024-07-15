@@ -19,7 +19,7 @@ class PropMapper(MAVisitor):
     - for to-one relations: <description.name>_<target_table_PK_name>
     - for to-many relations: look for back reference
         - if found, use <backref's description.name>_<target_table_PK_name>
-        - if not found, use <root_description.name>_<target_table_PK_name>
+        - if not found, use <description.name>_<root_description.name>_<target_table_PK_name>
     """
     def __init__(self):
         self._root_desc = None
@@ -55,7 +55,6 @@ class PropMapper(MAVisitor):
         return False
 
     def _append_fkey(self, property_name: str, source_table: Table, target_table: Table) -> List[Column] | None:
-        property_name = property_name.lower()
         logger.debug(
             f'Adding foreign key from {source_table.name} for property name {property_name} to {target_table.name}'
             )
@@ -72,9 +71,11 @@ class PropMapper(MAVisitor):
         fkey_columns = []
         for column in primary_keys_of_target:
             fkey_column_name = f'{property_name}_{column.name}'
-            fkey_column = Column(fkey_column_name, column.type)
-
-            source_table.append_column(fkey_column)
+            if fkey_column_name in source_table.columns:
+                fkey_column = source_table.columns[fkey_column_name]
+            else:
+                fkey_column = Column(fkey_column_name, column.type)
+                source_table.append_column(fkey_column)
             fkey_columns.append(fkey_column)
 
         logger.debug(
@@ -155,14 +156,17 @@ class PropMapper(MAVisitor):
         foreign_keys = self._append_fkey(description.name, self._table, target_table)
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
+        cascade = "save-update, merge"
         logger.debug(
             f"Mapping TO ONE attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
-            f"with back_populates = '{back_populates}'"
-            f"and foreign_keys = '{foreign_keys}'"
+            f"with back_populates = '{back_populates}' "
+            f"foreign_keys = '{foreign_keys}' "
+            f"and cascade = {cascade}"
             )
         self._properties_to_map[description.sa_attrName] = relationship(
-            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys
+            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys,
+            cascade=cascade
             )
 
     def visitToManyRelationDescription(self, description):
@@ -172,11 +176,18 @@ class PropMapper(MAVisitor):
         source_table = self._registered_tables[description.reference.sa_tableName]
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
-        fkey_name = backref.name if backref else self._root_desc.name
+        # cascade = "save-update, merge, delete-orphan" if backref and backref.required else "save-update, merge"
+        cascade = "save-update, delete-orphan" if backref and backref.required else "save-update"
+        fkey_name = backref.name if backref else f"{description.name}_" + self._root_desc.name.lower()
+        foreign_keys = self._append_fkey(fkey_name, source_table, self._table)
         logger.debug(
             f"Mapping TO MANY attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
-            f"with back_populates = '{back_populates}'"
+            f"with back_populates = '{back_populates}' "
+            f"foreign_keys = '{foreign_keys}' "
+            f"and cascade = {cascade}"
             )
-        self._append_fkey(fkey_name, source_table, self._table)
-        self._properties_to_map[description.sa_attrName] = relationship(description.reference.kind, back_populates=back_populates)
+        self._properties_to_map[description.sa_attrName] = relationship(
+            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys,
+            cascade=cascade
+            )

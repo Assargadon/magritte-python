@@ -1,4 +1,5 @@
 import logging
+import os
 from unittest import TestCase
 
 from sqlalchemy import create_engine
@@ -84,10 +85,10 @@ descriptions = [host_desc, port_desc, feature_desc]
 registry = registrator.register(*descriptions)
 
 # engine = create_engine("sqlite://", echo=True)
-# conn_str = "postgresql://postgres:postgres@localhost/registrator_example"
-# engine = create_engine(conn_str, echo=True)
+conn_str = f"{os.getenv('CONN_STR_BASE', 'postgresql://postgres:secret@localhost')}/serializer_orm_test"
+engine = create_engine(conn_str, echo=True)
 
-# registry.metadata.create_all(engine)
+registry.metadata.create_all(engine)
 
 
 class MAReferencedDataWriterReaderVisitorPassthroughTest(TestCase):
