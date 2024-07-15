@@ -1,6 +1,6 @@
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
+from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 from Magritte.visitors.MAVisitor_class import MAVisitor
 
 
@@ -39,7 +39,8 @@ class AcyclicTestVisitor(MAVisitor):
 
 def main():
     provider = TestEnvironmentProvider()
-    hostDescriptor = TestModelDescriptor.description_for("Host")
+    descriptors = TestModelDescriptorProvider()
+    hostDescriptor = descriptors.description_for("Host")
     #print(hostDescriptor)
     #print(hostDescriptor.acyclicDescription)
     acyclicTestVisitor = AcyclicTestVisitor()
