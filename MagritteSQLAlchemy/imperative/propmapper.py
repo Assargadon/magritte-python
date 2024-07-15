@@ -156,7 +156,7 @@ class PropMapper(MAVisitor):
         foreign_keys = self._append_fkey(description.name, self._table, target_table)
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
-        cascade = "save-update"
+        cascade = "save-update, merge"
         logger.debug(
             f"Mapping TO ONE attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
