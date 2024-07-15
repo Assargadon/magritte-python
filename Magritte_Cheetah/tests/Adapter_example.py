@@ -5,13 +5,14 @@ import Cheetah.Template
 # i.e. `export PYTHONPATH="path to folder with folder Magritte inside"`
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
+from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 
 from Magritte_Cheetah.MAModelCheetahTemplateAdapter import MAModelCheetahTemplateAdapter
 
 environment = TestEnvironmentProvider()
+descriptors = TestModelDescriptorProvider()
 hosts = environment.hosts #original, unadopted hosts
-hostDescriptor = TestModelDescriptor.description_for("Host")
+hostDescriptor = descriptors.description_for("Host")
  
 sTemplate = """
     We have ${len($hosts)} hosts totally:

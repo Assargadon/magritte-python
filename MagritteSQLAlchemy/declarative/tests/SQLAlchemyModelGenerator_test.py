@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from sqlalchemy import create_engine
 
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
+from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 from MagritteSQLAlchemy.declarative.SQLAlchemyModelGenerator import SQLAlchemyModelGenerator
 
 # Please set the connection string before run this test. Make sure to create the sqlalchemy_test database if not exists
@@ -13,11 +13,12 @@ class SQLAlchemyModelGeneratorTest(TestCase):
     _engine = None
 
     def setUp(self):
-        self.org_desc = TestModelDescriptor.description_for("Organization")
-        self.user_desc = TestModelDescriptor.description_for("User")
-        self.acc_desc = TestModelDescriptor.description_for("Account")
-        self.host_desc = TestModelDescriptor.description_for("Host")
-        self.port_desc = TestModelDescriptor.description_for("Port")
+        self.descriptors = TestModelDescriptorProvider()
+        self.org_desc = self.descriptors.description_for("Organization")
+        self.user_desc = self.descriptors.description_for("User")
+        self.acc_desc = self.descriptors.description_for("Account")
+        self.host_desc = self.descriptors.description_for("Host")
+        self.port_desc = self.descriptors.description_for("Port")
         self.modelGen = SQLAlchemyModelGenerator()
         self.create_engine(conn_str)
 

@@ -8,7 +8,7 @@ from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from MagritteSQLAlchemy.declarative.MAContainerCopier import MAContainerCopier
 
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor
+from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 
 
 class PersonSrc:
@@ -48,10 +48,11 @@ pprint(vars(dest_instance))
 
 env_src = TestEnvironmentProvider()
 env_dest = TestEnvironmentProvider()
+descriptors = TestModelDescriptorProvider()
 
 
 def copy_organization():
-    org_desc = TestModelDescriptor.description_for("Organization")
+    org_desc = descriptors.description_for("Organization")
 
     pprint("Src organization:")
     pprint(vars(env_src.organization))
@@ -82,10 +83,10 @@ def copy_list(src_list, dest_list, list_desc, model_name):
 
 
 copy_organization()
-copy_list(env_src.users, env_dest.users, TestModelDescriptor.description_for("User"), 'user')
-copy_list(env_src.accounts, env_dest.accounts, TestModelDescriptor.description_for("Account"), 'account')
-copy_list(env_src.ports, env_dest.ports, TestModelDescriptor.description_for("Port"), 'port')
-copy_list(env_src.hosts, env_dest.hosts, TestModelDescriptor.description_for("Host"), 'host')
+copy_list(env_src.users, env_dest.users, descriptors.description_for("User"), 'user')
+copy_list(env_src.accounts, env_dest.accounts, descriptors.description_for("Account"), 'account')
+copy_list(env_src.ports, env_dest.ports, descriptors.description_for("Port"), 'port')
+copy_list(env_src.hosts, env_dest.hosts, descriptors.description_for("Host"), 'host')
 
 
 ###

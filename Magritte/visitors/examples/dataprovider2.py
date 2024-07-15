@@ -12,7 +12,7 @@ from Magritte.visitors.MAReferencedDataWriterReader_visitors import (
     )
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptor, Host, Port
+from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider, Host, Port
 
 
 class Dictionary:
@@ -26,6 +26,7 @@ class MisconfigurationType(Dictionary):
         super().__init__(name, description)
         self.code = code
 
+descriptors = TestModelDescriptorProvider()
 
 misconfigurationType_desc = MAContainer(kind=MisconfigurationType, name="MisconfigurationType")
 misconfigurationType_desc += MAStringDescription(accessor=MAAttrAccessor("code"), required=True)
@@ -103,7 +104,7 @@ class Port:
 
 port_desc = MAContainer(kind=Port, name="Port")
 port_desc += MAToOneRelationDescription(
-    reference=TestModelDescriptor.description_for("Host"),
+    reference=descriptors.description_for("Host"),
     accessor=MAAttrAccessor("host"),
     required=True
     )

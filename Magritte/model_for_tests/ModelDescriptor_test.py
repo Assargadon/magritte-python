@@ -5,11 +5,13 @@ from Magritte.descriptions.MABooleanDescription_class import MABooleanDescriptio
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MADateAndTimeDescription_class import MADateAndTimeDescription
 from Magritte.descriptions.MADateDescription_class import MADateDescription
+from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.descriptions.MAToOneRelationDescription_class import MAToOneRelationDescription
 from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
+from Magritte.descriptions.MADescriptionProvider import MADescriptionProvider
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.model_for_tests.Organization import Organization
 from Magritte.model_for_tests.Account import Account
@@ -20,11 +22,9 @@ from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
 from Magritte.model_for_tests.SoftwarePackage import SoftwarePackage
 
 
-class TestModelDescriptor:
-    @classmethod
-    def description_for(cls, model_type: str) -> MAContainer:
-        """Returns a fact description for the given fact type."""
+class TestModelDescriptorProvider(MADescriptionProvider):
 
+    def instatiate_descriptions(self):
         subscription_plan_desc_container = MAContainer()
         user_desc_container = MAContainer()
         org_desc_container = MAContainer()
@@ -40,12 +40,12 @@ class TestModelDescriptor:
             [
                 MAStringDescription(
                     name='name', label='Name', required=True, accessor=MAAttrAccessor('name')
-                    ),
+                ),
                 MAStringDescription(
                     name='version', label='Version', required=True, accessor=MAAttrAccessor('version')
-                    ),
-                ]
-            )
+                ),
+            ]
+        )
 
         subscription_plan_desc_container.kind = SubscriptionPlan
         subscription_plan_desc_container.name = 'SubscriptionPlan'
@@ -58,7 +58,7 @@ class TestModelDescriptor:
                 ),
                 MAIntDescription(
                     name='price', label='Price (per month)', required=True, accessor=MAAttrAccessor('price'),
-                    
+
                 ),
                 MAStringDescription(
                     name='description', label='Description of the plan features', required=False,
@@ -75,49 +75,49 @@ class TestModelDescriptor:
                 MAStringDescription(
                     name='regnum', label='RegNum', required=True, accessor=MAAttrAccessor('regnum'),
                     sa_isPrimaryKey=True, sa_attrName='_regnum',
-                    ),
+                ),
                 MAStringDescription(
                     name='fio', label='FIO', required=True, accessor=MAAttrAccessor('fio'), sa_attrName='_fio',
-                    ),
+                ),
                 MADateDescription(
                     name='dateofbirth', label='DateOfBirth',
                     required=True, accessor=MAAttrAccessor('dateofbirth'),
                     sa_attrName='_dateofbirth',
-                    ),
+                ),
                 MAStringDescription(
                     name='gender', label='Gender', required=True, accessor=MAAttrAccessor('gender'),
                     sa_attrName='_gender',
-                    ),
+                ),
                 MAToOneRelationDescription(
                     name='organization', label='Organization', required=True,
                     accessor=MAAttrAccessor('organization'), classes=[Organization],
                     reference=org_desc_container,
-                    ),
+                ),
                 MADateDescription(
                     name='dateofadmission', label='DateOfAdmission',
                     required=True, accessor=MAAttrAccessor('dateofadmission'), sa_attrName='_dateofadmission',
-                    ),
+                ),
                 MADateDescription(
                     name='dateofdeparture', label='DateOfDeparture',
                     required=False, accessor=MAAttrAccessor('dateofdeparture'), sa_attrName='_dateofdeparture',
-                    ),
+                ),
                 MAToManyRelationDescription(
                     name='setofaccounts', label='SetOfAccounts', required=True,
                     accessor=MAAttrAccessor('setofaccounts'), classes=[Account],
                     reference=acc_desc_container,
-                    ),
+                ),
                 MASingleOptionDescription(
                     name='plan', label='Subscription Plan', required=False, accessor=MAAttrAccessor('plan'),
-                    options=SubscriptionPlan.entries,
+                    options=SubscriptionPlan.entries(),
                     reference=subscription_plan_desc_container
-                    ),
-                #MAToOneRelationDescription(
+                ),
+                # MAToOneRelationDescription(
                 #    name='plan', label='Subscription Plan', required=False,
                 #    accessor=MAAttrAccessor('plan'), classes=[SubscriptionPlan],
                 #    reference=subscription_plan_desc_container,
                 #    ),
-                ]
-            )
+            ]
+        )
 
         org_desc_container.kind = Organization
         org_desc_container.name = 'Organization'
@@ -127,27 +127,27 @@ class TestModelDescriptor:
                 MAStringDescription(
                     name='name', label='Name', required=True, accessor=MAAttrAccessor('name'),
                     sa_isPrimaryKey=True, sa_attrName='_name',
-                    ),
+                ),
                 MAStringDescription(
                     name='address', label='Address', required=True, accessor=MAAttrAccessor('address'),
                     sa_attrName='_address',
-                    ),
+                ),
                 MABooleanDescription(
                     name='active', label='Active', required=True, accessor=MAAttrAccessor('active'),
                     sa_attrName='_active',
-                    ),
+                ),
                 MAToManyRelationDescription(
                     name='listusers', label='List of Users', required=True,
                     accessor=MAAttrAccessor('listusers'), classes=[User],
                     reference=user_desc_container,
-                    ),
+                ),
                 MAToManyRelationDescription(
                     name='listcomp', label='List of Computers', required=True,
                     accessor=MAAttrAccessor('listcomp'), classes=[Host],
                     reference=host_desc_container,
-                    ),
-                ]
-            )
+                ),
+            ]
+        )
 
         acc_desc_container.kind = Account
         acc_desc_container.name = 'Account'
@@ -157,33 +157,33 @@ class TestModelDescriptor:
                 MAStringDescription(
                     name='login', label='Login', required=True, accessor=MAAttrAccessor('login'),
                     sa_isPrimaryKey=True, sa_attrName='_login',
-                    ),
-                #!TODO Change to MAPasswordDescription when it is implemented
+                ),
+                # !TODO Change to MAPasswordDescription when it is implemented
                 MAStringDescription(
                     name='password', label='Password', required=True, accessor=MAAttrAccessor('password'),
                     sa_attrName='_password',
-                    ),
+                ),
                 # !TODO Change to MAPasswordDescription when it is implemented
                 MAStringDescription(
                     name='ntlm', label='NTLM', accessor=MAAttrAccessor('ntlm'),
                     sa_attrName='_ntlm',
-                    ),
+                ),
                 MADateAndTimeDescription(
                     name='reg_timestamp', label='Timestamp Of Registration',
                     required=True, accessor=MAAttrAccessor('reg_timestamp'),
                     sa_attrName='_reg_timestamp',
-                    ),
+                ),
                 MAIntDescription(
                     name='days', label='Days valid', required=True, accessor=MAAttrAccessor('days'),
                     sa_attrName='_days',
-                    ),
+                ),
                 MAToOneRelationDescription(
                     name='port', label='Port', required=True,
                     accessor=MAAttrAccessor('port'), classes=[Port],
                     reference=port_desc_container,
-                    ),
-                ]
-            )
+                ),
+            ]
+        )
 
         host_desc_container.kind = Host
         host_desc_container.name = 'Host'
@@ -193,21 +193,21 @@ class TestModelDescriptor:
                 MAStringDescription(
                     name='ip', label='IP Address', required=True, accessor=MAAttrAccessor('ip'),
                     sa_isPrimaryKey=True, sa_attrName='_ip',
-                    ),
+                ),
                 MAToManyRelationDescription(
                     name='ports', label='Ports', required=True,
                     accessor=MAAttrAccessor('ports'), classes=[Port],
                     reference=port_desc_container,
                     sa_attrName='_ports',
-                    ),
+                ),
                 MAToManyRelationDescription(
                     name='software', label='Software', required=True,
                     accessor=MAAttrAccessor('software'), classes=[SoftwarePackage],
                     reference=soft_desc_container,
                     sa_attrName='_software',
-                    ),
-                ]
-            )
+                ),
+            ]
+        )
 
         port_desc_container.kind = Port
         port_desc_container.name = 'Port'
@@ -217,52 +217,47 @@ class TestModelDescriptor:
                 MAIntDescription(
                     name='numofport', label='Number of Port', required=True, accessor=MAAttrAccessor('numofport'),
                     sa_attrName='_numofport',
-                    ),
+                ),
                 MAToOneRelationDescription(
                     name='host', label='Host', required=True,
                     accessor=MAAttrAccessor('host'), classes=[Host], reference=host_desc_container,
                     sa_attrName='_host',
-                    ),
+                ),
                 MASingleOptionDescription(
                     name='status', label='Status', required=False, accessor=MAAttrAccessor('status'),
                     options=Port.STATUSES,
                     reference=MAStringDescription(),
                     sa_attrName='_status'
-                    ),
+                ),
                 MAStringDescription(
-                    accessor = MAAttrAccessor('label'), readOnly = True
-                    ),
-                ]
-            )
+                    accessor=MAAttrAccessor('label'), readOnly=True
+                ),
+            ]
+        )
 
-        if model_type == 'User':
-            return user_desc_container
-        elif model_type == 'Organization':
-            return org_desc_container
-        elif model_type == 'Account':
-            return acc_desc_container
-        elif model_type == 'Host':
-            return host_desc_container
-        elif  model_type == 'Port':
-            return port_desc_container
-        elif model_type == 'SubscriptionPlan':
-            return subscription_plan_desc_container
-        elif model_type == 'SoftwarePackage':
-            return soft_desc_container
-        else:
-            raise ValueError(f"Unknown model type: {model_type}")
+        self.register_description(subscription_plan_desc_container)
+        self.register_description(subscription_plan_desc_container)
+        self.register_description(user_desc_container)
+        self.register_description(org_desc_container)
+        self.register_description(acc_desc_container)
+        self.register_description(host_desc_container)
+        self.register_description(port_desc_container)
+        self.register_description(soft_desc_container)
+
 
 
 if __name__ == "__main__":
 
     from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 
-    org_desc = TestModelDescriptor.description_for("Organization")
-    user_desc = TestModelDescriptor.description_for("User")
-    acc_desc = TestModelDescriptor.description_for("Account")
-    host_desc = TestModelDescriptor.description_for("Host")
-    port_desc = TestModelDescriptor.description_for("Port")
-    soft_desc = TestModelDescriptor.description_for("SoftwarePackage")
+    descriptors = TestModelDescriptorProvider()
+
+    org_desc = descriptors.description_for("Organization")
+    user_desc = descriptors.description_for("User")
+    acc_desc = descriptors.description_for("Account")
+    host_desc = descriptors.description_for("Host")
+    port_desc = descriptors.description_for("Port")
+    soft_desc = descriptors.description_for("SoftwarePackage")
 
     test_env_provider = TestEnvironmentProvider()
     org = test_env_provider.organization
