@@ -1,4 +1,4 @@
-
+import copy
 from typing import Any, Iterable
 import json
 import re
@@ -7,6 +7,7 @@ from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.descriptions.MADescriptionProvider import MADescriptionProvider
+from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
 
 class MADescriptionTranspiler_JS:
@@ -110,6 +111,17 @@ class MADescriptionTranspiler_JS:
                 'reference': self.variableNameByDescriptionName(reference_name, self._description_names_mapping_to_js),
             })
             self._reference_description_names.add(reference_name)
+
+        def visitSingleOptionDescription(self, anObject: MASingleOptionDescription):
+            if isinstance(anObject.reference, MAContainer):
+                self.visitToOneRelationDescription(anObject)
+            else:
+                ref_desc = copy.copy(anObject.reference)
+                for fieldName in self._descriptionFields:
+                    value = getattr(anObject, fieldName)
+                    setattr(ref_desc, fieldName, value)
+            self.visit(ref_desc)
+            self._options_dict.update({'options': anObject.options, })
 
 
     @classmethod
