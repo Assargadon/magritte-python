@@ -5,8 +5,8 @@ from inspect import signature
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import \
     MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
-from pydantic import JsonValue, BaseModel, create_model
-from fastapi import Request, Depends
+from pydantic import JsonValue, Field, create_model
+from fastapi import Request, Depends, Query
 
 
 class MAModelFastapiAdapter:
@@ -52,10 +52,14 @@ class MAModelFastapiAdapter:
                 search_query_params = dict()
                 for description in search_query_descriptor.children:
                     param_name = description.name
+                    param_name_escaped = param_name.replace('.', '_')
+                    # The below Field(Query(.)) is a way to describe a FastAPI transport field name, that is different
+                    # from the model name and also has special characters (we use dot "." as one of them)
+                    # https://stackoverflow.com/questions/76136469/how-to-allow-hyphen-in-query-parameter-name-using-fastapi
                     if description.isRequired():
-                        search_query_params[param_name] = (str, ...)
+                        search_query_params[param_name_escaped] = (str, Field(Query(alias=param_name)))
                     else:
-                        search_query_params[param_name] = (str | None, None)
+                        search_query_params[param_name_escaped] = (str | None, Field(Query(None, alias=param_name)))
                 SearchQueryParams = create_model("SearchQueryParams", **search_query_params)
             else:
                 SearchQueryParams = None
@@ -84,11 +88,6 @@ class MAModelFastapiAdapter:
                 )
                 response = await callback(request)
                 return send_response(response)
-
-            class SearchQueryParams_(BaseModel):
-                #body: Optional[str] = ""
-                str_val: str = "A"
-                int_val: str = "1"
 
             async def wrapper_decorator_with_search_query_encoded_argument(query_params: SearchQueryParams = Depends()) -> JsonValue:
                 request = dict()
