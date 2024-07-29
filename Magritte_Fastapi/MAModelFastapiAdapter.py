@@ -57,7 +57,7 @@ class MAModelFastapiAdapter:
                     # The below Field(Query(.)) is a way to describe a FastAPI transport field name, that is different
                     # from the model name and also has special characters (we use dot "." as one of them)
                     # https://stackoverflow.com/questions/76136469/how-to-allow-hyphen-in-query-parameter-name-using-fastapi
-                    search_quer y_description_by_param_name[param_name_escaped] = description
+                    search_query_description_by_param_name[param_name_escaped] = description
                     if description.isRequired():
                         search_query_params[param_name_escaped] = (str, Field(Query(alias=param_name)))
                     else:
