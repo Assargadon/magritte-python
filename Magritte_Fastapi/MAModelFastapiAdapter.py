@@ -5,7 +5,7 @@ from inspect import signature
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import \
     MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
-from pydantic import JsonValue, Field, create_model
+from pydantic import JsonValue, BaseModel, Field, create_model
 from fastapi import Request, Depends, Query
 
 
@@ -49,6 +49,7 @@ class MAModelFastapiAdapter:
                 decorator_without_argument = True
 
             if decorator_with_search_query_encoded_argument:
+                search_query_description_by_param_name = dict()
                 search_query_params = dict()
                 for description in search_query_descriptor.children:
                     param_name = description.name
@@ -56,11 +57,13 @@ class MAModelFastapiAdapter:
                     # The below Field(Query(.)) is a way to describe a FastAPI transport field name, that is different
                     # from the model name and also has special characters (we use dot "." as one of them)
                     # https://stackoverflow.com/questions/76136469/how-to-allow-hyphen-in-query-parameter-name-using-fastapi
+                    search_quer y_description_by_param_name[param_name_escaped] = description
                     if description.isRequired():
                         search_query_params[param_name_escaped] = (str, Field(Query(alias=param_name)))
                     else:
                         search_query_params[param_name_escaped] = (str | None, Field(Query(None, alias=param_name)))
                 SearchQueryParams = create_model("SearchQueryParams", **search_query_params)
+
             else:
                 SearchQueryParams = None
 
@@ -91,8 +94,9 @@ class MAModelFastapiAdapter:
 
             async def wrapper_decorator_with_search_query_encoded_argument(query_params: SearchQueryParams = Depends()) -> JsonValue:
                 request = dict()
-                for description in search_query_descriptor.children:
-                    param_name = description.name
+                for param_name, field_info in query_params.model_fields.items():
+                    description = search_query_description_by_param_name[param_name]
+
                     value_str = getattr(query_params, param_name)
 
                     if value_str is not None:
