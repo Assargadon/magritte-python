@@ -18,6 +18,7 @@ class MADescriptorWalker:
     class MADescriptorWalkerVisitor(MAVisitor):
 
         class _Context:
+            parent_description = None
             parent_context = None
             context_index: int = None
             source: Any = None                          # Arbitrary object reference related to the context. Used to get targets from somewhere to break cyclic references and extract subsources for subcontexts.
@@ -74,9 +75,15 @@ class MADescriptorWalker:
             return not self._shouldProcessDescription(description)
 
         def _walkFromCurrent(self):
-            description = self._context.description
+            context = self._context
+            description = context.description
             if self._shouldSkipDescription(description):
                 return
+            if context.source is None:
+                if context.parent_description is not None and context.parent_description.required:
+                    raise ValueError(f'The required value {context.parent_description.name} is None for {context.parent_context.parent_description.name}')
+                else:
+                    return
             description.acceptMagritte(self)
 
         def visitElementDescription(self, description: MADescription):
@@ -93,6 +100,7 @@ class MADescriptorWalker:
             context.subcontexts = []
             for subdescription in description:
                 subcontext = self._createEmptyContext()
+                subcontext.parent_description = description
                 subcontext.parent_context = context
                 context.subcontexts.append(subcontext)
                 subcontext.source = subsource
@@ -106,6 +114,7 @@ class MADescriptorWalker:
             if was_added:
                 subcontext = self._createEmptyContext()
                 subcontext.parent_context = context
+                subcontext.parent_description = description
                 subcontext.source = subsource
                 subcontext.description = description.reference
                 self._contexts_by_source_index[subsource_index] = subcontext
@@ -124,6 +133,7 @@ class MADescriptorWalker:
                 if was_added:
                     subcontext = self._createEmptyContext()
                     subcontext.parent_context = context
+                    subcontext.parent_description = description
                     subcontext.source = subsource
                     subcontext.description = description.reference
                     self._contexts_by_source_index[subsource_index] = subcontext
@@ -354,6 +364,8 @@ class MAReferencedDataHumanReadableSerializer:
             if context_index in self._dump_result_by_context_index and context_index not in self._dump_is_already_emitted_by_context_index:
                 self._dump_is_already_emitted_by_context_index.add(context_index)
                 return self._dump_result_by_context_index[context_index]
+            elif context.source is None:
+                return None
             else:
                 return context_index
 
