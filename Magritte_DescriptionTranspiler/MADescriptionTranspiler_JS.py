@@ -191,7 +191,7 @@ class MADescriptionTranspiler_JS:
                 descriptor_initialize_lines.append(f'{js_variable_name}.name = {json.dumps(container.name)};')
                 descriptor_initialize_lines.append(f'{js_variable_name}.label = {json.dumps(container.label)};')
                 descriptor_initialize_lines.append(f'{js_variable_name}.group = {json.dumps(container.group)};')
-                descriptor_initialize_lines.append(f'{js_variable_name}.setChildren(')
+                descriptor_initialize_lines.append(f'{js_variable_name}.setChildren([')
                 for child_description in container.children:
                     transpiled_lines, reference_description_names = transpiler.transpile(
                         child_description,
@@ -203,7 +203,7 @@ class MADescriptionTranspiler_JS:
                     transpiled_lines[-1] = f'{transpiled_lines[-1]},'
                     descriptor_initialize_lines.extend(transpiled_lines)
                     new_description_names_to_process.update(reference_description_names)
-                descriptor_initialize_lines.append(f');')
+                descriptor_initialize_lines.append(f']);')
 
                 descriptor_export_lines.append(f'this.descriptions_by_model_type.set({json.dumps(container.name)}, {js_variable_name});')
                 descriptor_export_lines.append(f'this.all_descriptions.push({js_variable_name});')
