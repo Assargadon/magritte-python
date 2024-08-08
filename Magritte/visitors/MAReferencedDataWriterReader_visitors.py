@@ -467,6 +467,11 @@ class MAReferencedDataHumanReadableDeserializer:
             self._fulfilled_all_references = True
 
         def _getOrCreateDTO(self, dump, dto_description):
+            if dump is None:
+                if dto_description.required:
+                    raise ValueError(f'The required value {dto_description.name} is None')
+                else:
+                    return None
             key = dump['-x-magritte-key']
             if key not in self._dtos_by_key:
                 dto = self._dto_factory(dto_description)
