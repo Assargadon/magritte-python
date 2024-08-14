@@ -120,7 +120,7 @@ class MADescriptionTranspiler_JS:
                 for fieldName in self._descriptionFields:
                     value = getattr(anObject, fieldName)
                     setattr(ref_desc, fieldName, value)
-            self.visit(ref_desc)
+                self.visit(ref_desc)
             self._options_dict.update({'options': anObject.options, })
 
 
