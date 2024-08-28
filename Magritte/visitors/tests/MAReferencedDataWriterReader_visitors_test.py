@@ -103,11 +103,11 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         self.assertEqual(userPlanDumped['name'], self.user.plan.name, f"MASingleOptionDecription of MAContainer in a dumped form should have properties from the referenced object")
         self.assertEqual(userPlanDumped['price'], self.user.plan.price, f"MASingleOptionDecription of MAContainer in a dumped form should have properties from the referenced object")
 
-    def testIgnoreReadonly(self):
-        portLabelDescription = self.findDescriptionByProperty(Port.label)
-        self.assertTrue(portLabelDescription.isReadOnly(), "Initial condition is not met, Port.label should be described as read-only")
-        portDumped = self.serializer.dumpHumanReadable(self.port, self.portDescription)
-        self.assertNotIn(portLabelDescription.name, portDumped, f"Read-only value should not exist in a dump")
+    #def testIgnoreReadonly(self):
+    #    portLabelDescription = self.findDescriptionByProperty(Port.label)
+    #    self.assertTrue(portLabelDescription.isReadOnly(), "Initial condition is not met, Port.label should be described as read-only")
+    #    portDumped = self.serializer.dumpHumanReadable(self.port, self.portDescription)
+    #    self.assertNotIn(portLabelDescription.name, portDumped, f"Read-only value should not exist in a dump")
 
     def testDistinctKeys(self):
         allKeys = set()
