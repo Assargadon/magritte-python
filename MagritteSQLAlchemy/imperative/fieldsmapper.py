@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime
+from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime, Text
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.visitors.MAVisitor_class import MAVisitor
@@ -34,7 +34,7 @@ class FieldsMapper(MAVisitor):
     def visitStringDescription(self, description):
         logger.debug(f'visitStringDescription {description.name}')
         self.table.append_column(Column(
-            description.sa_fieldName, String(250),
+            description.sa_fieldName, Text,
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
             ))
 
