@@ -3,6 +3,7 @@ from typing import Any, Union
 from copy import copy
 import json
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.accessors.MAPluggableAccessor_class import MAPluggableAccessor
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
@@ -69,7 +70,7 @@ class MADescriptorWalker:
             return description_clone
 
         def _shouldProcessDescription(self, description: MADescription):
-            return description.isVisible() and not description.isReadOnly()
+            return True
 
         def _shouldSkipDescription(self, description: MADescription):
             return not self._shouldProcessDescription(description)
@@ -228,6 +229,14 @@ class MADescriptorWalker:
 
             printContext('', self._contexts[0])
 
+        def _shouldProcessDescription(self, description: MADescription):
+            if not description.isVisible():
+                return False
+            if (isinstance(description.accessor, MAPluggableAccessor)
+                    and not description.accessor.canRead(None)):  # MAPluggableAccessor carRead does not depend on model
+                return False
+            return True
+
         def processElementDescriptionContext(self, context):
             model = context.source
             description = context.description
@@ -284,6 +293,14 @@ class MADescriptorWalker:
                     subcontext_dump_index_matching_name = subcontext_dump_index
                     break
             return subcontext_dump_index_matching_name
+
+        def _shouldProcessDescription(self, description: MADescription):
+            if not description.isVisible() or description.isReadOnly():
+                return False
+            if (isinstance(description.accessor, MAPluggableAccessor)
+                    and not description.accessor.canWrite(None)):  # MAPluggableAccessor carWrite does not depend on model
+                return False
+            return True
 
         def processElementDescriptionContext(self, context):
             model = self._getOrCreateDTO(context.source, context.parent_context.description)
@@ -509,6 +526,14 @@ class MAReferencedDataHumanReadableDeserializer:
             if name in dump:
                 return (True, dump[name],)
             return (False, None,)
+
+        def _shouldProcessDescription(self, description: MADescription):
+            if not description.isVisible() or description.isReadOnly():
+                return False
+            if (isinstance(description.accessor, MAPluggableAccessor)
+                    and not description.accessor.canWrite(None)):  # MAPluggableAccessor carWrite does not depend on model
+                return False
+            return True
 
         def processElementDescriptionContext(self, context):
             model = self._getParentModel(context)
