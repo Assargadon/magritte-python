@@ -197,6 +197,12 @@ class MAContainer(MADescription):
             removedElements = []
         self.ancestor = ancestor
         update_dict = {elem.name: elem for elem in updatedElements}
-        children = [copy(elem) for elem in ancestor.children if elem.name not in removedElements]
-        children = [update_dict[elem.name] if elem.name in update_dict else elem for elem in children]
+        children = []
+        for elem in ancestor.children:
+            if elem.name not in removedElements:
+                if elem.name in update_dict:
+                    children.append(update_dict.pop(elem.name))
+                else:
+                    children.append(copy(elem))
+        children.extend(update_dict.values())
         self.setChildren(children)
