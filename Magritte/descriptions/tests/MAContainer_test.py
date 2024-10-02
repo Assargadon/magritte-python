@@ -3,6 +3,7 @@ from copy import copy
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 
 
 class MAContainerTest(TestCase):
@@ -29,15 +30,16 @@ class MAContainerTest(TestCase):
         self.assertEqual(len(self.inst1), 4)
 
     def test_getitem(self):
-        class SmthWName:
-            def __init__(self, name):
-                self.name = name
-        elements = [SmthWName('exm1'), SmthWName('exm2'), SmthWName('exm3'), SmthWName('exm4')]
-        self.inst1 += elements[0]
-        self.inst1 += elements[1]
-        self.inst1 += elements[2]
-        self.inst1 += elements[3]
-        self.assertEqual(self.inst1['exm2'], elements[1])
+        desc = MAContainer()
+        desc += MAStringDescription(name="first", label="First Field")
+        desc += MAStringDescription(label="nameless #2")
+        desc += MAStringDescription(name="second", label="Second Field")
+        desc += MAStringDescription(label="nameless #1")
+
+        self.assertEqual(desc["first"].label, "First Field")
+        self.assertEqual(desc["second"].label, "Second Field")
+        with self.assertRaises(KeyError):
+            desc["third"]
 
     def test_copy(self):
         exm = copy(self.inst1)
