@@ -93,6 +93,16 @@ class MAContainer(MADescription):
     def sa_defaultTableName(self):
         return self.name
 
+    @property
+    def ancestor(self):
+        try:
+            return self._ancestor
+        except AttributeError:
+            return None
+
+    @ancestor.setter
+    def ancestor(self, aDescription):
+        self._ancestor = aDescription
 
     @classmethod
     def withDescription(cls, aDescription):
@@ -179,4 +189,14 @@ class MAContainer(MADescription):
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitContainer(self)
-        
+
+    def inheritFrom(self, ancestor, updatedElements=None, removedElements=None):
+        if updatedElements is None:
+            updatedElements = []
+        if removedElements is None:
+            removedElements = []
+        self.ancestor = ancestor
+        update_dict = {elem.name: elem for elem in updatedElements}
+        children = [copy(elem) for elem in ancestor.children if elem.name not in removedElements]
+        children = [update_dict[elem.name] if elem.name in update_dict else elem for elem in children]
+        self.setChildren(children)

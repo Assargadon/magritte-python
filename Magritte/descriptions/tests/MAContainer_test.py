@@ -160,3 +160,77 @@ class MAContainerTest(TestCase):
     def test_keysAndValuesDo(self):
         self.inst1.setChildren([1, 2, 3, 4])
         self.assertEqual(self.inst1.keysAndValuesDo(self.block2), None)
+
+    def test_inheritFrom_copy(self):
+        container1 = MAContainer(name='Ancestor')
+        container1 += MAStringDescription(name='string1', label='String 1')
+        container1 += MAStringDescription(label='String 2')
+        container1 += MAStringDescription(name='string3', label='String 3')
+        container1 += MAStringDescription(label='String 4')
+        container2 = MAContainer(name='Descendant')
+        container2.inheritFrom(container1)
+        self.assertEqual(len(container2.children), len(container1.children))
+        for i in range(len(container1.children)):
+            self.assertEqual(container1.children[i].name, container2.children[i].name)
+            self.assertEqual(container1.children[i].label, container2.children[i].label)
+
+    def test_inheritFrom_update(self):
+        container1 = MAContainer(name='Ancestor')
+        container1 += MAStringDescription(name='string1', label='String 1')
+        container1 += MAStringDescription(label='String 2')
+        container1 += MAStringDescription(name='string3', label='String 3')
+        container1 += MAStringDescription(label='String 4')
+        container2 = MAContainer(name='Descendant')
+        container2.inheritFrom(container1, updatedElements=[MAStringDescription(name='string1', label='Updated String 1')])
+        self.assertEqual(len(container2.children), len(container1.children))
+        for i in range(len(container1.children)):
+            if container1.children[i].name == 'string1':
+                self.assertEqual(container2.children[i].label, 'Updated String 1')
+            else:
+                self.assertEqual(container1.children[i].name, container2.children[i].name)
+                self.assertEqual(container1.children[i].label, container2.children[i].label)
+
+    def test_inheritFrom_remove(self):
+        container1 = MAContainer(name='Ancestor')
+        container1 += MAStringDescription(name='string1', label='String 1')
+        container1 += MAStringDescription(label='String 2')
+        container1 += MAStringDescription(name='string3', label='String 3')
+        container1 += MAStringDescription(label='String 4')
+        container2 = MAContainer(name='Descendant')
+        removed_elements = ['string1']
+        container2.inheritFrom(container1, removedElements=removed_elements)
+        self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements))
+        # parallel iteration over two lists skipping removed item
+        a_child_iter = iter(container1.children)
+        d_child_iter = iter(container2.children)
+        for a_child in a_child_iter:
+            if a_child.name in removed_elements:
+                continue
+            d_child = next(d_child_iter)
+            self.assertEqual(a_child.name, d_child.name)
+            self.assertEqual(a_child.label, d_child.label)
+
+    def test_inheritFrom_update_remove(self):
+        container1 = MAContainer(name='Ancestor')
+        container1 += MAStringDescription(name='string1', label='String 1')
+        container1 += MAStringDescription(label='String 2')
+        container1 += MAStringDescription(name='string3', label='String 3')
+        container1 += MAStringDescription(label='String 4')
+        container1 += MAStringDescription(name='string5', label='String 5')
+        container2 = MAContainer(name='Descendant')
+        removed_elements = ['string1', 'string3']
+        container2.inheritFrom(container1, updatedElements=[MAStringDescription(name='string5', label='Updated String 5')],
+                               removedElements=removed_elements)
+        self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements))
+        # parallel iteration over two lists skipping removed item
+        a_child_iter = iter(container1.children)
+        d_child_iter = iter(container2.children)
+        for a_child in a_child_iter:
+            if a_child.name in removed_elements:
+                continue
+            d_child = next(d_child_iter)
+            self.assertEqual(a_child.name, d_child.name)
+            if a_child.name == 'string5':
+                self.assertEqual(d_child.label, 'Updated String 5')
+            else:
+                self.assertEqual(a_child.label, d_child.label)
