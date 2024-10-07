@@ -1,5 +1,6 @@
 from sys import intern
-from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+
+from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
 from Magritte.descriptions.MAElementDescription_class import MAElementDescription
 
@@ -13,7 +14,7 @@ def magritteDescription(self, parentDescription):
         default=self.defaultCollection(),
         classes=[MAElementDescription],
         reference = MAElementDescription().magritteDescription(),
-        accessor = MAIdentityAccessor()
+        accessor = MAAttrAccessor('children')
     )
     
     return desc

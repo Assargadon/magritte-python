@@ -48,7 +48,7 @@ class TestVisualizerVisitor(MAVisitor):
     def visitContainer(self, description):
         if not self.json:
             self.json = {}
-            self.visitAll(description)
+            self.visitAll(description.children)
         else:
             raise Exception("Shouldn't reach visitContainer with nonempty self.json")
 
@@ -146,7 +146,7 @@ class MagritteSelfDescriptionTest(AbstractTestForAllDescriptions):
             with self.subTest(desc):
                 description = desc()
                 metadescription = description.magritteDescription()
-                for desc_field_desc in metadescription:
+                for desc_field_desc in metadescription.children:
                     val = description.readUsing(desc_field_desc)
                     #print(f"{desc.__name__}.{desc_field_desc.name} = `{val}`")
                     if(desc_field_desc.isRequired()):
