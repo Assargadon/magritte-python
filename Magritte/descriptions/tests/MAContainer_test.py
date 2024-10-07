@@ -169,6 +169,7 @@ class MAContainerTest(TestCase):
         container1 += MAStringDescription(label='String 4')
         container2 = MAContainer(name='Descendant')
         container2.inheritFrom(container1)
+        self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children))
         for i in range(len(container1.children)):
             self.assertEqual(container1.children[i].name, container2.children[i].name)
@@ -182,6 +183,7 @@ class MAContainerTest(TestCase):
         container1 += MAStringDescription(label='String 4')
         container2 = MAContainer(name='Descendant')
         container2.inheritFrom(container1, updatedElements=[MAStringDescription(name='string1', label='Updated String 1')])
+        self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children))
         for i in range(len(container1.children)):
             if container1.children[i].name == 'string1':
@@ -199,6 +201,7 @@ class MAContainerTest(TestCase):
         container2 = MAContainer(name='Descendant')
         removed_elements = ['string1']
         container2.inheritFrom(container1, removedElements=removed_elements)
+        self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements))
         # parallel iteration over two lists skipping removed item
         a_child_iter = iter(container1.children)
@@ -218,6 +221,7 @@ class MAContainerTest(TestCase):
         container1 += MAStringDescription(label='String 4')
         container2 = MAContainer(name='Descendant')
         container2.inheritFrom(container1, updatedElements=[MAStringDescription(name='string5', label='String 5')])
+        self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) + 1)
         # parallel iteration over two lists skipping removed item
         a_child_iter = iter(container1.children)
@@ -239,8 +243,12 @@ class MAContainerTest(TestCase):
         container1 += MAStringDescription(name='string5', label='String 5')
         container2 = MAContainer(name='Descendant')
         removed_elements = ['string1', 'string3']
-        container2.inheritFrom(container1, updatedElements=[MAStringDescription(name='string5', label='Updated String 5')],
-                               removedElements=removed_elements)
+        container2.inheritFrom(
+            container1,
+            updatedElements=[MAStringDescription(name='string5', label='Updated String 5')],
+            removedElements=removed_elements
+            )
+        self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements))
         # parallel iteration over two lists skipping removed item
         a_child_iter = iter(container1.children)
@@ -272,6 +280,7 @@ class MAContainerTest(TestCase):
                 ],
             removedElements=removed_elements
             )
+        self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements) + 1)
         # parallel iteration over two lists skipping removed item
         a_child_iter = iter(container1.children)
