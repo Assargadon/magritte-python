@@ -37,6 +37,9 @@ class MAContainer(MADescription):
         except StopIteration:
             raise KeyError(name)
 
+    def __iter__(self):
+        return iter(self.children)
+
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
