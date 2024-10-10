@@ -108,6 +108,8 @@ class MAValueJsonReader(MAVisitor):
         if self._json_value is None:
             self._decoded_value = description.undefinedValue
         else:
+            if self._json_value[-1] in ('Z', 'z'):
+                self._json_value = self._json_value[:-1] + '+00:00'
             self._decoded_value = datetime.fromisoformat(self._json_value)
         self._write_to_model(description)
 
