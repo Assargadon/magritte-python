@@ -126,7 +126,9 @@ class MAStringReaderVisitor(MAStringVisitor):
 
     def visitDateAndTimeDescription(self, description: MADateAndTimeDescription):
         datetime_str = description.accessor.read(self._model)
-        self._val = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+        if datetime_str[-1] in ('Z', 'z'):
+            datetime_str = datetime_str[:-1] + '+00:00'
+        self._val = datetime.fromisoformat(datetime_str)
 
     def visitDateDescription(self, description: MADateDescription):
         datetime_str = description.accessor.read(self._model)
