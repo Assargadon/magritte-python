@@ -38,7 +38,10 @@ engine = create_engine(conn_str, echo=True)
 class TestRegistratorExample(TestCase):
 
     def setUp(self):
-
+        try:
+            delattr(SubscriptionPlan, '_entries')
+        except AttributeError:
+            pass
         registry.metadata.create_all(engine)
         self.env = TestEnvironmentProvider()
 
@@ -48,6 +51,7 @@ class TestRegistratorExample(TestCase):
         self.user_regnums = [user.regnum for user in self.env.users]
         self.account_logins = [account.login for account in self.env.accounts]
         self.software_names = [software.name for software in self.env.software]
+        self.subscription_plan_names = [sp.name for sp in self.env.subscription_plans]
 
     def tearDown(self):
         registry.metadata.drop_all(engine)
@@ -63,7 +67,7 @@ class TestRegistratorExample(TestCase):
                 *self.env.users,
                 *self.env.accounts,
                 *self.env.software,
-                # *self.env.subscription_plans,
+                *self.env.subscription_plans,
                 ])
             session.commit()
 
@@ -81,8 +85,8 @@ class TestRegistratorExample(TestCase):
             self.assertEqual(account_count, len(self.env.accounts))
             software_count = session.query(SoftwarePackage).count()
             self.assertEqual(software_count, len(self.env.software))
-            # subscr_plans_count = session.query(SubscriptionPlan).count()
-            # self.assertEqual(subscr_plans_count, len(self.env.subscription_plans))
+            subscr_plans_count = session.query(SubscriptionPlan).count()
+            self.assertEqual(subscr_plans_count, len(self.env.subscription_plans))
 
     def test_insert_then_query(self):
         with Session(engine) as session:
@@ -93,7 +97,7 @@ class TestRegistratorExample(TestCase):
                 *self.env.users,
                 *self.env.accounts,
                 *self.env.software,
-                # *self.env.subscription_plans,
+                 *self.env.subscription_plans,
                 ])
             session.commit()
 
@@ -111,6 +115,8 @@ class TestRegistratorExample(TestCase):
             self.assertEqual(accounts.login, self.account_logins[0])
             software = session.query(SoftwarePackage).filter(SoftwarePackage.name == self.software_names[0]).first()
             self.assertEqual(software.name, self.software_names[0])
+            subscription_plans = session.query(SubscriptionPlan).filter(SubscriptionPlan.name == self.subscription_plan_names[0]).first()
+            self.assertEqual(subscription_plans.name, self.subscription_plan_names[0])
 
     '''
     # Removal is not yet supported by ORM: removal attempt leads to FK violation

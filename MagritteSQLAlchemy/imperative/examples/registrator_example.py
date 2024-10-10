@@ -37,6 +37,11 @@ if __name__ == '__main__':
     conn_str = f"{os.getenv('CONN_STR_BASE', 'postgresql://postgres:secret@localhost')}/registrator_example"
     engine = create_engine(conn_str, echo=True)
 
+    try:
+        delattr(SubscriptionPlan, '_entries')
+    except AttributeError:
+        pass
+
     registry.metadata.create_all(engine)
 
     env = TestEnvironmentProvider()
