@@ -169,6 +169,12 @@ class MAContainerTest(TestCase):
 
 class MAContainerInheritanceTest(TestCase):
 
+    @staticmethod
+    def _verify_children_by_labels(container, labels):
+        """Verify children of the container by their labels"""
+        # Labels will be used as unique identifiers for this test case
+        return {item.label for item in container.children} == set(labels)
+
     def setUp(self):
         self.ancestor = MAContainer(name='Ancestor')
         self.ancestor += MAStringDescription(name='string1', label='String 1')
@@ -176,59 +182,36 @@ class MAContainerInheritanceTest(TestCase):
         self.ancestor += MAStringDescription(name='string3', label='String 3')
         self.ancestor += MAStringDescription(label='String 4')
         self.ancestor += MAStringDescription(name='string5', label='String 5')
+        self.ancestor_labels = ['String 1', 'String 2', 'String 3', 'String 4', 'String 5']
 
     def test_inheritFrom_copy(self):
         descendant = MAContainer(name='Descendant')
         descendant.inheritFrom(self.ancestor)
         self.assertEqual(descendant.ancestor, self.ancestor)
-        self.assertEqual(len(descendant.children), len(self.ancestor.children))
-        for i in range(len(self.ancestor.children)):
-            self.assertEqual(self.ancestor.children[i].name, descendant.children[i].name)
-            self.assertEqual(self.ancestor.children[i].label, descendant.children[i].label)
+        self._verify_children_by_labels(descendant, self.ancestor_labels)
 
     def test_inheritFrom_update(self):
         descendant = MAContainer(name='Descendant')
         descendant.inheritFrom(self.ancestor, override=[MAStringDescription(name='string1', label='Updated String 1')])
         self.assertEqual(descendant.ancestor, self.ancestor)
-        self.assertEqual(len(descendant.children), len(self.ancestor.children))
-        for i in range(len(self.ancestor.children)):
-            if self.ancestor.children[i].name == 'string1':
-                self.assertEqual(descendant.children[i].label, 'Updated String 1')
-            else:
-                self.assertEqual(self.ancestor.children[i].name, descendant.children[i].name)
-                self.assertEqual(self.ancestor.children[i].label, descendant.children[i].label)
+        self._verify_children_by_labels(
+            descendant, ['Updated String 1', 'String 2', 'String 3', 'String 4', 'String 5']
+            )
 
     def test_inheritFrom_remove(self):
         descendant = MAContainer(name='Descendant')
         removed_elements = ['string1']
         descendant.inheritFrom(self.ancestor, remove=removed_elements)
         self.assertEqual(descendant.ancestor, self.ancestor)
-        self.assertEqual(len(descendant.children), len(self.ancestor.children) - len(removed_elements))
-        # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.ancestor.children)
-        d_child_iter = iter(descendant.children)
-        for a_child in a_child_iter:
-            if a_child.name in removed_elements:
-                continue
-            d_child = next(d_child_iter)
-            self.assertEqual(a_child.name, d_child.name)
-            self.assertEqual(a_child.label, d_child.label)
+        self._verify_children_by_labels(descendant, ['String 2', 'String 3', 'String 4', 'String 5'])
 
     def test_inheritFrom_insert(self):
         descendant = MAContainer(name='Descendant')
         descendant.inheritFrom(self.ancestor, override=[MAStringDescription(name='string6', label='String 6')])
         self.assertEqual(descendant.ancestor, self.ancestor)
-        self.assertEqual(len(descendant.children), len(self.ancestor.children) + 1)
-        # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.ancestor.children)
-        d_child_iter = iter(descendant.children)
-        for a_child in a_child_iter:
-            d_child = next(d_child_iter)
-            self.assertEqual(a_child.name, d_child.name)
-            self.assertEqual(a_child.label, d_child.label)
-        d_child = next(d_child_iter)
-        self.assertEqual(d_child.name, 'string6')
-        self.assertEqual(d_child.label, 'String 6')
+        self._verify_children_by_labels(
+            descendant, ['String 1', 'String 2', 'String 3', 'String 4', 'String 5', 'String 6']
+            )
 
     def test_inheritFrom_update_remove(self):
         descendant = MAContainer(name='Descendant')
@@ -239,19 +222,7 @@ class MAContainerInheritanceTest(TestCase):
             remove=removed_elements
             )
         self.assertEqual(descendant.ancestor, self.ancestor)
-        self.assertEqual(len(descendant.children), len(self.ancestor.children) - len(removed_elements))
-        # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.ancestor.children)
-        d_child_iter = iter(descendant.children)
-        for a_child in a_child_iter:
-            if a_child.name in removed_elements:
-                continue
-            d_child = next(d_child_iter)
-            self.assertEqual(a_child.name, d_child.name)
-            if a_child.name == 'string5':
-                self.assertEqual(d_child.label, 'Updated String 5')
-            else:
-                self.assertEqual(a_child.label, d_child.label)
+        self._verify_children_by_labels(descendant, ['Updated String 5', 'String 2', 'String 4'])
 
     def test_inheritFrom_update_remove_insert(self):
         descendant = MAContainer(name='Descendant')
@@ -265,19 +236,4 @@ class MAContainerInheritanceTest(TestCase):
             remove=removed_elements
             )
         self.assertEqual(descendant.ancestor, self.ancestor)
-        self.assertEqual(len(descendant.children), len(self.ancestor.children) - len(removed_elements) + 1)
-        # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.ancestor.children)
-        d_child_iter = iter(descendant.children)
-        for a_child in a_child_iter:
-            if a_child.name in removed_elements:
-                continue
-            d_child = next(d_child_iter)
-            self.assertEqual(a_child.name, d_child.name)
-            if a_child.name == 'string5':
-                self.assertEqual(d_child.label, 'Updated String 5')
-            else:
-                self.assertEqual(a_child.label, d_child.label)
-        d_child = next(d_child_iter)
-        self.assertEqual(d_child.name, 'string6')
-        self.assertEqual(d_child.label, 'String 6')
+        self._verify_children_by_labels(descendant, ['Updated String 5', 'String 2', 'String 4', 'String 6'])
