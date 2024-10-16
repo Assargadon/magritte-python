@@ -188,7 +188,7 @@ class MAContainerTest(TestCase):
         container1 += MAStringDescription(name='string3', label='String 3')
         container1 += MAStringDescription(label='String 4')
         container2 = MAContainer(name='Descendant')
-        container2.inheritFrom(container1, updatedElements=[MAStringDescription(name='string1', label='Updated String 1')])
+        container2.inheritFrom(container1, override=[MAStringDescription(name='string1', label='Updated String 1')])
         self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children))
         for i in range(len(container1.children)):
@@ -206,7 +206,7 @@ class MAContainerTest(TestCase):
         container1 += MAStringDescription(label='String 4')
         container2 = MAContainer(name='Descendant')
         removed_elements = ['string1']
-        container2.inheritFrom(container1, removedElements=removed_elements)
+        container2.inheritFrom(container1, remove=removed_elements)
         self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements))
         # parallel iteration over two lists skipping removed item
@@ -226,7 +226,7 @@ class MAContainerTest(TestCase):
         container1 += MAStringDescription(name='string3', label='String 3')
         container1 += MAStringDescription(label='String 4')
         container2 = MAContainer(name='Descendant')
-        container2.inheritFrom(container1, updatedElements=[MAStringDescription(name='string5', label='String 5')])
+        container2.inheritFrom(container1, override=[MAStringDescription(name='string5', label='String 5')])
         self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) + 1)
         # parallel iteration over two lists skipping removed item
@@ -251,8 +251,8 @@ class MAContainerTest(TestCase):
         removed_elements = ['string1', 'string3']
         container2.inheritFrom(
             container1,
-            updatedElements=[MAStringDescription(name='string5', label='Updated String 5')],
-            removedElements=removed_elements
+            override=[MAStringDescription(name='string5', label='Updated String 5')],
+            remove=removed_elements
             )
         self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements))
@@ -280,11 +280,11 @@ class MAContainerTest(TestCase):
         removed_elements = ['string1', 'string3']
         container2.inheritFrom(
             container1,
-            updatedElements=[
+            override=[
                 MAStringDescription(name='string5', label='Updated String 5'),
                 MAStringDescription(name='string6', label='String 6')
                 ],
-            removedElements=removed_elements
+            remove=removed_elements
             )
         self.assertEqual(container2.ancestor, container1)
         self.assertEqual(len(container2.children), len(container1.children) - len(removed_elements) + 1)

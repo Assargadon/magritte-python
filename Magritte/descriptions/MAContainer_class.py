@@ -192,19 +192,19 @@ class MAContainer(MADescription):
     def acceptMagritte(self, aVisitor):
         aVisitor.visitContainer(self)
 
-    def inheritFrom(self, ancestor, updatedElements=None, removedElements=None):
-        if updatedElements is None:
-            updatedElements = []
-        if removedElements is None:
-            removedElements = []
+    def inheritFrom(self, ancestor, override=None, remove=None):
+        if override is None:
+            override = []
+        if remove is None:
+            remove = []
         self.ancestor = ancestor
-        update_dict = {elem.name: elem for elem in updatedElements}
+        override_dict = {elem.name: elem for elem in override}
         children = []
         for elem in ancestor.children:
-            if elem.name not in removedElements:
-                if elem.name in update_dict:
-                    children.append(update_dict.pop(elem.name))
+            if elem.name not in remove:
+                if elem.name in override_dict:
+                    children.append(override_dict.pop(elem.name))
                 else:
                     children.append(copy(elem))
-        children.extend(update_dict.values())
+        children.extend(override_dict.values())
         self.setChildren(children)
