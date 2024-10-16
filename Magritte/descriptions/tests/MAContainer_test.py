@@ -38,8 +38,10 @@ class MAContainerTest(TestCase):
 
         self.assertEqual(desc["first"].label, "First Field")
         self.assertEqual(desc["second"].label, "Second Field")
+        with self.assertRaises(TypeError):
+            _ = desc[0]
         with self.assertRaises(KeyError):
-            desc["third"]
+            _ = desc["third"]
 
     def test_copy(self):
         exm = copy(self.inst1)

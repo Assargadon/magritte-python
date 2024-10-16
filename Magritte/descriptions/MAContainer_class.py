@@ -32,6 +32,8 @@ class MAContainer(MADescription):
         return len(self._children)
 
     def __getitem__(self, name):
+        if not isinstance(name, str):
+            raise TypeError("Element name must be a string.")
         try:
             return self.detect(lambda item: item.name == name)
         except StopIteration:
