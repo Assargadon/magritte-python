@@ -170,43 +170,43 @@ class MAContainerTest(TestCase):
 class MAContainerInheritanceTest(TestCase):
 
     def setUp(self):
-        self.container1 = MAContainer(name='Ancestor')
-        self.container1 += MAStringDescription(name='string1', label='String 1')
-        self.container1 += MAStringDescription(label='String 2')
-        self.container1 += MAStringDescription(name='string3', label='String 3')
-        self.container1 += MAStringDescription(label='String 4')
-        self.container1 += MAStringDescription(name='string5', label='String 5')
+        self.ancestor = MAContainer(name='Ancestor')
+        self.ancestor += MAStringDescription(name='string1', label='String 1')
+        self.ancestor += MAStringDescription(label='String 2')
+        self.ancestor += MAStringDescription(name='string3', label='String 3')
+        self.ancestor += MAStringDescription(label='String 4')
+        self.ancestor += MAStringDescription(name='string5', label='String 5')
 
     def test_inheritFrom_copy(self):
-        container2 = MAContainer(name='Descendant')
-        container2.inheritFrom(self.container1)
-        self.assertEqual(container2.ancestor, self.container1)
-        self.assertEqual(len(container2.children), len(self.container1.children))
-        for i in range(len(self.container1.children)):
-            self.assertEqual(self.container1.children[i].name, container2.children[i].name)
-            self.assertEqual(self.container1.children[i].label, container2.children[i].label)
+        descendant = MAContainer(name='Descendant')
+        descendant.inheritFrom(self.ancestor)
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self.assertEqual(len(descendant.children), len(self.ancestor.children))
+        for i in range(len(self.ancestor.children)):
+            self.assertEqual(self.ancestor.children[i].name, descendant.children[i].name)
+            self.assertEqual(self.ancestor.children[i].label, descendant.children[i].label)
 
     def test_inheritFrom_update(self):
-        container2 = MAContainer(name='Descendant')
-        container2.inheritFrom(self.container1, override=[MAStringDescription(name='string1', label='Updated String 1')])
-        self.assertEqual(container2.ancestor, self.container1)
-        self.assertEqual(len(container2.children), len(self.container1.children))
-        for i in range(len(self.container1.children)):
-            if self.container1.children[i].name == 'string1':
-                self.assertEqual(container2.children[i].label, 'Updated String 1')
+        descendant = MAContainer(name='Descendant')
+        descendant.inheritFrom(self.ancestor, override=[MAStringDescription(name='string1', label='Updated String 1')])
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self.assertEqual(len(descendant.children), len(self.ancestor.children))
+        for i in range(len(self.ancestor.children)):
+            if self.ancestor.children[i].name == 'string1':
+                self.assertEqual(descendant.children[i].label, 'Updated String 1')
             else:
-                self.assertEqual(self.container1.children[i].name, container2.children[i].name)
-                self.assertEqual(self.container1.children[i].label, container2.children[i].label)
+                self.assertEqual(self.ancestor.children[i].name, descendant.children[i].name)
+                self.assertEqual(self.ancestor.children[i].label, descendant.children[i].label)
 
     def test_inheritFrom_remove(self):
-        container2 = MAContainer(name='Descendant')
+        descendant = MAContainer(name='Descendant')
         removed_elements = ['string1']
-        container2.inheritFrom(self.container1, remove=removed_elements)
-        self.assertEqual(container2.ancestor, self.container1)
-        self.assertEqual(len(container2.children), len(self.container1.children) - len(removed_elements))
+        descendant.inheritFrom(self.ancestor, remove=removed_elements)
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self.assertEqual(len(descendant.children), len(self.ancestor.children) - len(removed_elements))
         # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.container1.children)
-        d_child_iter = iter(container2.children)
+        a_child_iter = iter(self.ancestor.children)
+        d_child_iter = iter(descendant.children)
         for a_child in a_child_iter:
             if a_child.name in removed_elements:
                 continue
@@ -215,13 +215,13 @@ class MAContainerInheritanceTest(TestCase):
             self.assertEqual(a_child.label, d_child.label)
 
     def test_inheritFrom_insert(self):
-        container2 = MAContainer(name='Descendant')
-        container2.inheritFrom(self.container1, override=[MAStringDescription(name='string6', label='String 6')])
-        self.assertEqual(container2.ancestor, self.container1)
-        self.assertEqual(len(container2.children), len(self.container1.children) + 1)
+        descendant = MAContainer(name='Descendant')
+        descendant.inheritFrom(self.ancestor, override=[MAStringDescription(name='string6', label='String 6')])
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self.assertEqual(len(descendant.children), len(self.ancestor.children) + 1)
         # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.container1.children)
-        d_child_iter = iter(container2.children)
+        a_child_iter = iter(self.ancestor.children)
+        d_child_iter = iter(descendant.children)
         for a_child in a_child_iter:
             d_child = next(d_child_iter)
             self.assertEqual(a_child.name, d_child.name)
@@ -231,18 +231,18 @@ class MAContainerInheritanceTest(TestCase):
         self.assertEqual(d_child.label, 'String 6')
 
     def test_inheritFrom_update_remove(self):
-        container2 = MAContainer(name='Descendant')
+        descendant = MAContainer(name='Descendant')
         removed_elements = ['string1', 'string3']
-        container2.inheritFrom(
-            self.container1,
+        descendant.inheritFrom(
+            self.ancestor,
             override=[MAStringDescription(name='string5', label='Updated String 5')],
             remove=removed_elements
             )
-        self.assertEqual(container2.ancestor, self.container1)
-        self.assertEqual(len(container2.children), len(self.container1.children) - len(removed_elements))
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self.assertEqual(len(descendant.children), len(self.ancestor.children) - len(removed_elements))
         # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.container1.children)
-        d_child_iter = iter(container2.children)
+        a_child_iter = iter(self.ancestor.children)
+        d_child_iter = iter(descendant.children)
         for a_child in a_child_iter:
             if a_child.name in removed_elements:
                 continue
@@ -254,21 +254,21 @@ class MAContainerInheritanceTest(TestCase):
                 self.assertEqual(a_child.label, d_child.label)
 
     def test_inheritFrom_update_remove_insert(self):
-        container2 = MAContainer(name='Descendant')
+        descendant = MAContainer(name='Descendant')
         removed_elements = ['string1', 'string3']
-        container2.inheritFrom(
-            self.container1,
+        descendant.inheritFrom(
+            self.ancestor,
             override=[
                 MAStringDescription(name='string5', label='Updated String 5'),
                 MAStringDescription(name='string6', label='String 6')
                 ],
             remove=removed_elements
             )
-        self.assertEqual(container2.ancestor, self.container1)
-        self.assertEqual(len(container2.children), len(self.container1.children) - len(removed_elements) + 1)
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self.assertEqual(len(descendant.children), len(self.ancestor.children) - len(removed_elements) + 1)
         # parallel iteration over two lists skipping removed item
-        a_child_iter = iter(self.container1.children)
-        d_child_iter = iter(container2.children)
+        a_child_iter = iter(self.ancestor.children)
+        d_child_iter = iter(descendant.children)
         for a_child in a_child_iter:
             if a_child.name in removed_elements:
                 continue
