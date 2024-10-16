@@ -161,6 +161,10 @@ class MAContainerTest(TestCase):
         self.inst1.setChildren([1, 2, 3, 4])
         self.assertEqual(self.inst1.keysAndValuesDo(self.block2), None)
 
+    def test_iter(self):
+        self.inst1.setChildren([1, 2, 3, 4])
+        self.assertEqual([item for item in self.inst1], [1, 2, 3, 4])
+
     def test_inheritFrom_copy(self):
         container1 = MAContainer(name='Ancestor')
         container1 += MAStringDescription(name='string1', label='String 1')
