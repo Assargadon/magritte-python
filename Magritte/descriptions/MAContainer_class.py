@@ -31,15 +31,22 @@ class MAContainer(MADescription):
     def __len__(self):
         return len(self._children)
 
-    def __getitem__(self, item):
-        return self._children[item]
+    def __getitem__(self, name):
+        if not isinstance(name, str):
+            raise TypeError("Element name must be a string.")
+        try:
+            return self.detect(lambda item: item.name == name)
+        except StopIteration:
+            raise KeyError(name)
+
+    def __iter__(self):
+        return iter(self.children)
 
     def __copy__(self):
         clone = self.__class__()
         clone.__dict__.update(self.__dict__)
         clone.setChildren(copy(self.children))
         return clone
-
 
     @classmethod
     def defaultAccessor(cls):
@@ -88,6 +95,16 @@ class MAContainer(MADescription):
     def sa_defaultTableName(self):
         return self.name
 
+    @property
+    def ancestor(self):
+        try:
+            return self._ancestor
+        except AttributeError:
+            return None
+
+    @ancestor.setter
+    def ancestor(self, aDescription):
+        self._ancestor = aDescription
 
     @classmethod
     def withDescription(cls, aDescription):
@@ -174,4 +191,20 @@ class MAContainer(MADescription):
 
     def acceptMagritte(self, aVisitor):
         aVisitor.visitContainer(self)
-        
+
+    def inheritFrom(self, ancestor, override=None, remove=None):
+        if override is None:
+            override = []
+        if remove is None:
+            remove = []
+        self.ancestor = ancestor
+        override_dict = {elem.name: elem for elem in override}
+        children = []
+        for elem in ancestor.children:
+            if elem.name not in remove:
+                if elem.name in override_dict:
+                    children.append(override_dict.pop(elem.name))
+                else:
+                    children.append(copy(elem))
+        children.extend(override_dict.values())
+        self.setChildren(children)

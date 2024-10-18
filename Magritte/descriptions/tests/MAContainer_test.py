@@ -3,6 +3,7 @@ from copy import copy
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 
 
 class MAContainerTest(TestCase):
@@ -29,11 +30,18 @@ class MAContainerTest(TestCase):
         self.assertEqual(len(self.inst1), 4)
 
     def test_getitem(self):
-        self.inst1 += 'exm1'
-        self.inst1 += 'exm2'
-        self.inst1 += 'exm3'
-        self.inst1 += 'exm4'
-        self.assertEqual(self.inst1[0], 'exm1')
+        desc = MAContainer()
+        desc += MAStringDescription(name="first", label="First Field")
+        desc += MAStringDescription(label="nameless #2")
+        desc += MAStringDescription(name="second", label="Second Field")
+        desc += MAStringDescription(label="nameless #1")
+
+        self.assertEqual(desc["first"].label, "First Field")
+        self.assertEqual(desc["second"].label, "Second Field")
+        with self.assertRaises(TypeError):
+            _ = desc[0]
+        with self.assertRaises(KeyError):
+            _ = desc["third"]
 
     def test_copy(self):
         exm = copy(self.inst1)
@@ -91,8 +99,8 @@ class MAContainerTest(TestCase):
 
     def test_get(self):
         self.inst1.setChildren([1, 2, 3, 4])
-        self.assertEqual(self.inst1[2] if 2 < len(self.inst1) else 'index > len', 3)
-        self.assertEqual(self.inst1[7] if 7 < len(self.inst1) else 'index > len', 'index > len')
+        self.assertEqual(self.inst1.children[2] if 2 < len(self.inst1) else 'index > len', 3)
+        self.assertEqual(self.inst1.children[7] if 7 < len(self.inst1) else 'index > len', 'index > len')
 
     def test_allSatisfy(self):
         self.inst1.setChildren([1, 2, 3, 4])
@@ -154,3 +162,78 @@ class MAContainerTest(TestCase):
     def test_keysAndValuesDo(self):
         self.inst1.setChildren([1, 2, 3, 4])
         self.assertEqual(self.inst1.keysAndValuesDo(self.block2), None)
+
+    def test_iter(self):
+        self.inst1.setChildren([1, 2, 3, 4])
+        self.assertEqual([item for item in self.inst1], [1, 2, 3, 4])
+
+class MAContainerInheritanceTest(TestCase):
+
+    @staticmethod
+    def _verify_children_by_labels(container, labels):
+        """Verify children of the container by their labels"""
+        # Labels will be used as unique identifiers for this test case
+        return {item.label for item in container.children} == set(labels)
+
+    def setUp(self):
+        self.ancestor = MAContainer(name='Ancestor')
+        self.ancestor += MAStringDescription(name='string1', label='String 1')
+        self.ancestor += MAStringDescription(label='String 2')
+        self.ancestor += MAStringDescription(name='string3', label='String 3')
+        self.ancestor += MAStringDescription(label='String 4')
+        self.ancestor += MAStringDescription(name='string5', label='String 5')
+        self.ancestor_labels = ['String 1', 'String 2', 'String 3', 'String 4', 'String 5']
+
+    def test_inheritFrom_copy(self):
+        descendant = MAContainer(name='Descendant')
+        descendant.inheritFrom(self.ancestor)
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self._verify_children_by_labels(descendant, self.ancestor_labels)
+
+    def test_inheritFrom_update(self):
+        descendant = MAContainer(name='Descendant')
+        descendant.inheritFrom(self.ancestor, override=[MAStringDescription(name='string1', label='Updated String 1')])
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self._verify_children_by_labels(
+            descendant, ['Updated String 1', 'String 2', 'String 3', 'String 4', 'String 5']
+            )
+
+    def test_inheritFrom_remove(self):
+        descendant = MAContainer(name='Descendant')
+        removed_elements = ['string1']
+        descendant.inheritFrom(self.ancestor, remove=removed_elements)
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self._verify_children_by_labels(descendant, ['String 2', 'String 3', 'String 4', 'String 5'])
+
+    def test_inheritFrom_insert(self):
+        descendant = MAContainer(name='Descendant')
+        descendant.inheritFrom(self.ancestor, override=[MAStringDescription(name='string6', label='String 6')])
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self._verify_children_by_labels(
+            descendant, ['String 1', 'String 2', 'String 3', 'String 4', 'String 5', 'String 6']
+            )
+
+    def test_inheritFrom_update_remove(self):
+        descendant = MAContainer(name='Descendant')
+        removed_elements = ['string1', 'string3']
+        descendant.inheritFrom(
+            self.ancestor,
+            override=[MAStringDescription(name='string5', label='Updated String 5')],
+            remove=removed_elements
+            )
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self._verify_children_by_labels(descendant, ['Updated String 5', 'String 2', 'String 4'])
+
+    def test_inheritFrom_update_remove_insert(self):
+        descendant = MAContainer(name='Descendant')
+        removed_elements = ['string1', 'string3']
+        descendant.inheritFrom(
+            self.ancestor,
+            override=[
+                MAStringDescription(name='string5', label='Updated String 5'),
+                MAStringDescription(name='string6', label='String 6')
+                ],
+            remove=removed_elements
+            )
+        self.assertEqual(descendant.ancestor, self.ancestor)
+        self._verify_children_by_labels(descendant, ['Updated String 5', 'String 2', 'String 4', 'String 6'])
