@@ -1,5 +1,5 @@
 import copy
-from typing import Any, Iterable
+from typing import Any, Iterable, Callable
 import json
 import re
 from unicodedata import normalize
@@ -93,7 +93,9 @@ class MADescriptionTranspiler_JS:
         def visitDescription(self, anObject: MADescription):
             super().visitDescription(anObject)
             for fieldName in self._descriptionFields:
-                value = getattr(anObject, fieldName)
+                value = getattr(anObject, fieldName, lambda: None)
+                if isinstance(value, Callable):
+                    value = value()
                 self._options_dict[fieldName] = self.valueToJsonString(value)
 
         def visitToOneRelationDescription(self, anObject: MAReferenceDescription):
@@ -118,8 +120,9 @@ class MADescriptionTranspiler_JS:
             else:
                 ref_desc = copy.copy(anObject.reference)
                 for fieldName in self._descriptionFields:
-                    value = getattr(anObject, fieldName)
-                    setattr(ref_desc, fieldName, value)
+                    if hasattr(anObject, fieldName):
+                        value = getattr(anObject, fieldName)
+                        setattr(ref_desc, fieldName, value)
                 self.visit(ref_desc)
             self._options_dict.update({'options': anObject.options, })
 
@@ -141,6 +144,7 @@ class MADescriptionTranspiler_JS:
             'visible',
             'readOnly',
             'undefinedValue',
+            'descriptive_label'
         )
     ) -> str:
         descriptor_instantiate_lines = []
