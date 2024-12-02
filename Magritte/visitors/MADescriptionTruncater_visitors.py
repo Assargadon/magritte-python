@@ -70,15 +70,35 @@ class MADescriptionTruncater(MAVisitor):
 
 
 if __name__ == '__main__':
+    from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
     from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
+    from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
+
     descriptors = TestModelDescriptorProvider()
+    environment = TestEnvironmentProvider()
     hostDescriptor = descriptors.description_for("Host")
     truncater = MADescriptionTruncater()
 
     hostDescriptor_truncated = truncater.truncate(
         hostDescriptor,
         [
-            '.ports.host',
+            '.ports',
         ]
     )
     print(hostDescriptor_truncated)
+
+    host = environment.hosts[0]
+
+    s = MAReferencedDataHumanReadableSerializer()
+    d = MAReferencedDataHumanReadableDeserializer()
+    host_serialized = s.serializeHumanReadable(host, hostDescriptor)
+
+    print(host_serialized)
+
+    host_deserialized = d.deserializeHumanReadable(host_serialized, hostDescriptor)
+
+    print(host_deserialized)
+
+
+
+
