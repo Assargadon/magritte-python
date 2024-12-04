@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from PIL.TiffImagePlugin import SOFTWARE
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
 from Magritte.visitors.MADescriptionTruncater_visitors import MADescriptionTruncater
 
@@ -53,10 +53,47 @@ class MADescriptionTruncaterTest(TestCase):
             self.assertEqual(software_passtrough.name, software.name, 'Passtrough model ports entries should have the same name')
             self.assertIsInstance(software_passtrough, SoftwarePackage, 'Passtrough model software entries should have kind SoftwarePackage')
 
+    def _testTruncate(self, description, pathes_whitelist):
+        description_truncated = self.truncater.truncate(
+            description,
+            pathes_whitelist,
+        )
+
+        names = []
+        names_allowed = []
+        description_by_name = {}
+        for child_description in description.children:
+            names.append(child_description.name)
+            description_by_name[child_description.name] = child_description
+            is_whitelisted = False
+            for path_whitelist in pathes_whitelist:
+                prefix = f'.{child_description.name}'
+                if path_whitelist == prefix or path_whitelist.startswith(f'{prefix}.'):
+                    is_whitelisted = True
+                    break
+            if not (isinstance(child_description, MAReferenceDescription) and not is_whitelisted):
+                names_allowed.append(child_description.name)
+        names_truncated = []
+        description_truncated_by_name = {}
+        for child_description in description_truncated.children:
+            names_truncated.append(child_description.name)
+            description_truncated_by_name[child_description.name] = child_description
+
+        for name_truncated in names_truncated:
+            child_description = description_truncated_by_name[name_truncated]
+            self.assertIn(name_truncated, names, 'Any child of truncated description should exist in the source description')
+            self.assertIn(child_description.name, names_allowed, 'Only allowed child descriptions should exist in the truncated description')
+
+        for name_allowed in names_allowed:
+            contains = any([name_allowed == child_description.name for child_description in description_truncated.children])
+            self.assertTrue(contains, 'Every allowed child description should exist in the truncated description')
+
+
     def testHostEmptyWhitelist(self):
         model = self.host
         description = self.hostDescription
         pathes_whitelist = []
+        self._testTruncate(description, pathes_whitelist)
         model_passtrough = self._performPasstrough(model, description, pathes_whitelist)
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self.assertEqual(len(model_passtrough.ports), 0, 'Passtrough model should have ports not set')
@@ -68,6 +105,7 @@ class MADescriptionTruncaterTest(TestCase):
         pathes_whitelist = [
             '.ports',
         ]
+        self._testTruncate(description, pathes_whitelist)
         model_passtrough = self._performPasstrough(model, description, pathes_whitelist)
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self._compareHostsPorts(model, model_passtrough)
@@ -81,6 +119,7 @@ class MADescriptionTruncaterTest(TestCase):
         pathes_whitelist = [
             '.ports.host',
         ]
+        self._testTruncate(description, pathes_whitelist)
         model_passtrough = self._performPasstrough(model, description, pathes_whitelist)
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self._compareHostsPorts(model, model_passtrough)
@@ -97,6 +136,7 @@ class MADescriptionTruncaterTest(TestCase):
             '.ports',
             '.software',
         ]
+        self._testTruncate(description, pathes_whitelist)
         model_passtrough = self._performPasstrough(model, description, pathes_whitelist)
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self._compareHostsPorts(model, model_passtrough)

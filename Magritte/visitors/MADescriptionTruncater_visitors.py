@@ -17,7 +17,10 @@ class MADescriptionTruncater(MAVisitor):
     def _get_nested_pathes_whitelist(self, current_name: str):
         prefix = f'.{current_name}'
         l = len(prefix)
-        nested_pathes_whitelist = [path[l:] for path in self._pathes_whitelist if path.startswith(prefix)]
+        nested_pathes_whitelist = []
+        for path in self._pathes_whitelist:
+            if path == prefix or path.startswith(f'{prefix}.'):
+                nested_pathes_whitelist.append(path[l:])
         return nested_pathes_whitelist
 
     def _next_level(self, name: str, description: MADescription):
