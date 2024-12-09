@@ -257,7 +257,7 @@ if __name__ == "__main__":
     t = MADescriptionTranspiler_JS()
     s = t.transpileDescriptionProvider(
         descriptors,
-        description_names_whitelist=['Host'],
+        description_names_whitelist=['Host', 'Port', 'SoftwarePackage'],
         generated_js_class_name=type(descriptors).__name__,
         magritte_js_import_prefix='./Magritte/'
     )
