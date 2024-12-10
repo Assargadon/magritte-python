@@ -65,7 +65,7 @@ class MADescriptionTruncater(MAVisitor):
         if isContainer:
             self.visitRelationDescription(description)
         else:
-            self._truncated_description = description
+            self.visitElementDescription(description)
 
     def visitElementDescription(self, description):
         self._truncated_description = description
