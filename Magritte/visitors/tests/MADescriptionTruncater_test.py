@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 
-from Magritte.visitors.MADescriptionTruncater_visitors import MADescriptionTruncater
+from Magritte.visitors.MADescriptionTruncater_visitor import MADescriptionTruncater
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
