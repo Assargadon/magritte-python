@@ -32,6 +32,9 @@ class MADescriptionTruncater(MAVisitor):
         self.visit(description)
         return self._truncated_description
 
+    def visitElementDescription(self, description):
+        self._truncated_description = description
+
     def visitContainer(self, description: MAContainer):
         container = MAContainer()
         for description in description.children:
@@ -41,35 +44,28 @@ class MADescriptionTruncater(MAVisitor):
                 container.children.append(self._truncated_description)
         self._truncated_description = container
 
-    def visitRelationDescription(self, description: MAReferenceDescription):
-        nested_pathes_whitelist = self._get_nested_pathes_whitelist(description.name)
-        if len(nested_pathes_whitelist) > 0:
-            # push stack
-            pathes_whitelist = self._pathes_whitelist
-            self._pathes_whitelist = nested_pathes_whitelist
-
-            # process
-            self._truncated_description = None
-            self.visit(description.reference)
-
-            if self._truncated_description is not None:
-                description_clone = copy(description)
-                description_clone.reference = self._truncated_description
-                self._truncated_description = description_clone
-
-            # pop stack
-            self._pathes_whitelist = pathes_whitelist
-
-    def visitSingleOptionDescription(self, description: MAReferenceDescription):
+    def visitReferenceDescription(self, description: MAReferenceDescription):
         isContainer = isinstance(description.reference, MAContainer)
         if isContainer:
-            self.visitRelationDescription(description)
+            nested_pathes_whitelist = self._get_nested_pathes_whitelist(description.name)
+            if len(nested_pathes_whitelist) > 0:
+                # push stack
+                pathes_whitelist = self._pathes_whitelist
+                self._pathes_whitelist = nested_pathes_whitelist
+
+                # process
+                self._truncated_description = None
+                self.visit(description.reference)
+
+                if self._truncated_description is not None:
+                    description_clone = copy(description)
+                    description_clone.reference = self._truncated_description
+                    self._truncated_description = description_clone
+
+                # pop stack
+                self._pathes_whitelist = pathes_whitelist
         else:
             self.visitElementDescription(description)
-
-    def visitElementDescription(self, description):
-        self._truncated_description = description
-
 
 
 if __name__ == '__main__':
