@@ -17,7 +17,7 @@ class MAReferencedDataWriterVisitorTestBase(TestCase):
         self.portDescription = self.descriptors.description_for(Port.__name__)
         self.account = provider.accounts[1]
         self.accountDescription = self.descriptors.description_for(Account.__name__)
-        self.user = provider.users[1];
+        self.user = provider.users[1]
         self.userDescription = self.descriptors.description_for(User.__name__)
 
     def findDescription(self, class_name, name):
