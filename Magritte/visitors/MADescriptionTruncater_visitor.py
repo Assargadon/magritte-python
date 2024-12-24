@@ -12,6 +12,7 @@ class MADescriptionTruncater(MAVisitor):
     def __init__(self):
         super().__init__()
         self._pathes_whitelist = None
+        self._keep_element_descriptions = None
         self._truncated_description = None
 
     def _get_nested_pathes_whitelist(self, current_name: str):
@@ -26,14 +27,17 @@ class MADescriptionTruncater(MAVisitor):
     def _next_level(self, name: str, description: MADescription):
         pass
 
-    def truncate(self, description: MADescription, pathes_whitelist: list[str]) -> MAContainer:
+    def truncate(self, description: MADescription, pathes_whitelist: list[str], keep_element_descriptions=True) -> MAContainer:
         self._pathes_whitelist = pathes_whitelist
+        self._keep_element_descriptions = keep_element_descriptions
         self._truncated_description = None
         self.visit(description)
         return self._truncated_description
 
+
     def visitElementDescription(self, description):
-        self._truncated_description = description
+        if self._keep_element_descriptions or len(self._get_nested_pathes_whitelist(description.name)) > 0:
+            self._truncated_description = description
 
     def visitContainer(self, description: MAContainer):
         container = MAContainer()
