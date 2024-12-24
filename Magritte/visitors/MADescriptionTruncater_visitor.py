@@ -4,7 +4,10 @@ from copy import copy
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.MAModel_class import MAModel
 from Magritte.visitors.MAVisitor_class import MAVisitor
+from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, \
+    MAReferencedDataHumanReadableDeserializer
 
 
 class MADescriptionTruncater(MAVisitor):
@@ -34,6 +37,17 @@ class MADescriptionTruncater(MAVisitor):
         self.visit(description)
         return self._truncated_description
 
+    def truncateModel(self, model: MAModel, description: MADescription, pathes_whitelist: list[str]):
+        description_truncated = self.truncate(
+            description,
+            pathes_whitelist,
+            keep_element_descriptions=False,
+        )
+        serializer = MAReferencedDataHumanReadableSerializer()
+        deserializer = MAReferencedDataHumanReadableDeserializer()
+        serialized = serializer.serializeHumanReadable(model, description_truncated)
+        model_passtrough = deserializer.deserializeHumanReadable(serialized, description)
+        return model_passtrough
 
     def visitElementDescription(self, description):
         if self._keep_element_descriptions or len(self._get_nested_pathes_whitelist(description.name)) > 0:
