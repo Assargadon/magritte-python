@@ -5,7 +5,6 @@ from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescri
 from Magritte.visitors.MADescriptionTruncater_visitor import MADescriptionTruncater
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
-from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, \
     MAReferencedDataHumanReadableDeserializer
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider, Host, Port, Account, User, \
@@ -28,10 +27,11 @@ class MADescriptionTruncaterTest(TestCase):
         self.user = environment.users[1]
         self.userDescription = descriptors.description_for(User.__name__)
 
-    def _performSerializationRoundtrip(self, model, description, pathes_whitelist):
+    def _performSerializationRoundtrip(self, model, description, pathes_whitelist, keep_element_descriptions):
         description_truncated = self.truncater.truncate(
             description,
             pathes_whitelist,
+            keep_element_descriptions,
         )
         serialized = self.serializer.serializeHumanReadable(model, description_truncated)
         model_passtrough = self.deserializer.deserializeHumanReadable(serialized, description)
@@ -53,10 +53,11 @@ class MADescriptionTruncaterTest(TestCase):
             self.assertEqual(software_passtrough.name, software.name, 'Passtrough model ports entries should have the same name')
             self.assertIsInstance(software_passtrough, SoftwarePackage, 'Passtrough model software entries should have kind SoftwarePackage')
 
-    def _testTruncate(self, description, pathes_whitelist):
+    def _testTruncate(self, description, pathes_whitelist, keep_element_descriptions):
         description_truncated = self.truncater.truncate(
             description,
             pathes_whitelist,
+            keep_element_descriptions,
         )
 
         names = []
@@ -71,7 +72,11 @@ class MADescriptionTruncaterTest(TestCase):
                 if path_whitelist == prefix or path_whitelist.startswith(f'{prefix}.'):
                     is_whitelisted = True
                     break
-            if not (isinstance(child_description, MAReferenceDescription) and not is_whitelisted):
+            if isinstance(child_description, MAReferenceDescription):
+                is_allowed = is_whitelisted
+            else:
+                is_allowed = is_whitelisted or keep_element_descriptions
+            if is_allowed:
                 names_allowed.append(child_description.name)
         names_truncated = []
         description_truncated_by_name = {}
@@ -93,8 +98,10 @@ class MADescriptionTruncaterTest(TestCase):
         model = self.host
         description = self.hostDescription
         pathes_whitelist = []
-        self._testTruncate(description, pathes_whitelist)
-        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist)
+        keep_element_descriptions = True
+        self._testTruncate(description, pathes_whitelist, keep_element_descriptions)
+        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist, keep_element_descriptions)
+        self.assertEqual(model.ip, model_passtrough.ip, 'Passtrough model should have the same ip with empty pathes whitelist')
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self.assertEqual(len(model_passtrough.ports), 0, 'Passtrough model should have ports not set')
         self.assertEqual(len(model_passtrough.software), 0, 'Passtrough model should have software not set')
@@ -105,8 +112,9 @@ class MADescriptionTruncaterTest(TestCase):
         pathes_whitelist = [
             '.ports',
         ]
-        self._testTruncate(description, pathes_whitelist)
-        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist)
+        keep_element_descriptions = True
+        self._testTruncate(description, pathes_whitelist, keep_element_descriptions)
+        model_passtrough = self._performSerializationRoundtrip(model, description, keep_element_descriptions)
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self._compareHostsPorts(model, model_passtrough)
         for port_passtrough in model_passtrough.ports:
@@ -119,8 +127,9 @@ class MADescriptionTruncaterTest(TestCase):
         pathes_whitelist = [
             '.ports.host',
         ]
-        self._testTruncate(description, pathes_whitelist)
-        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist)
+        keep_element_descriptions = True
+        self._testTruncate(description, pathes_whitelist, keep_element_descriptions)
+        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist, keep_element_descriptions)
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self._compareHostsPorts(model, model_passtrough)
         for port_passtrough in model_passtrough.ports:
@@ -136,10 +145,35 @@ class MADescriptionTruncaterTest(TestCase):
             '.ports',
             '.software',
         ]
-        self._testTruncate(description, pathes_whitelist)
-        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist)
+        keep_element_descriptions = True
+        self._testTruncate(description, pathes_whitelist, keep_element_descriptions, keep_element_descriptions)
+        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist, keep_element_descriptions)
         self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
         self._compareHostsPorts(model, model_passtrough)
         for port_passtrough in model_passtrough.ports:
             self.assertIsNone(port_passtrough.host, 'Passtrough host.ports entries should have host not set')
         self._compareHostsSoftware(model, model_passtrough)
+
+    def testHostEmptyWhitelistWithoutElementDescriptions(self):
+        model = self.host
+        description = self.hostDescription
+        pathes_whitelist = []
+        keep_element_descriptions = False
+        self._testTruncate(description, pathes_whitelist, keep_element_descriptions)
+        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist, keep_element_descriptions)
+        self.assertIsNone(model_passtrough.ip, 'Passtrough model should have ip not set with keep_element_descriptions disabled')
+        self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
+        self.assertEqual(len(model_passtrough.ports), 0, 'Passtrough model should have ports not set')
+        self.assertEqual(len(model_passtrough.software), 0, 'Passtrough model should have software not set')
+
+    def testHostIpWhitelistedWithoutElementDescriptions(self):
+        model = self.host
+        description = self.hostDescription
+        pathes_whitelist = ['.ip']
+        keep_element_descriptions = False
+        self._testTruncate(description, pathes_whitelist, keep_element_descriptions)
+        model_passtrough = self._performSerializationRoundtrip(model, description, pathes_whitelist, keep_element_descriptions)
+        self.assertEqual(model.ip, model_passtrough.ip, 'Passtrough model should have the same ip with ip whitelisted')
+        self.assertIsInstance(model_passtrough, model.__class__, f'Passtrough model should be of the same kind {model.__class__}')
+        self.assertEqual(len(model_passtrough.ports), 0, 'Passtrough model should have ports not set')
+        self.assertEqual(len(model_passtrough.software), 0, 'Passtrough model should have software not set')
