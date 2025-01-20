@@ -145,7 +145,9 @@ class PropMapper(MAVisitor):
                 f"and foreign_keys = '{foreign_keys}'"
                 )
             self._properties_to_map[description.sa_attrName] = relationship(
-                reference.kind, back_populates=back_populates, foreign_keys=foreign_keys
+                reference.kind,
+                back_populates=back_populates,
+                foreign_keys=foreign_keys
                 )
 
     def visitToOneRelationDescription(self, description):
@@ -165,7 +167,9 @@ class PropMapper(MAVisitor):
             f"and cascade = {cascade}"
             )
         self._properties_to_map[description.sa_attrName] = relationship(
-            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys,
+            description.reference.kind,
+            back_populates=back_populates,
+            foreign_keys=foreign_keys,
             cascade=cascade
             )
 
@@ -183,11 +187,13 @@ class PropMapper(MAVisitor):
         logger.debug(
             f"Mapping TO MANY attribute '{description.sa_attrName}' "
             f"as relationship to '{description.reference.kind}' "
-            f"with back_populates = '{back_populates}' "
+            # f"with back_populates = '{back_populates}' "
             f"foreign_keys = '{foreign_keys}' "
             f"and cascade = {cascade}"
             )
         self._properties_to_map[description.sa_attrName] = relationship(
-            description.reference.kind, back_populates=back_populates, foreign_keys=foreign_keys,
+            description.reference.kind,
+            # back_populates=back_populates,
+            foreign_keys=foreign_keys,
             cascade=cascade
             )
