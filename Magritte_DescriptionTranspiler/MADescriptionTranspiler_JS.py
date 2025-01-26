@@ -123,6 +123,15 @@ class MADescriptionTranspiler_JS:
                 self.visit(ref_desc)
             self._options_dict.update({'options': anObject.options, })
 
+    @classmethod
+    def listWithoutRepeats(cls, items: list) -> list:
+        existing_items = set()
+        result_list = list()
+        for item in items:
+            if item not in existing_items:
+                existing_items.add(item)
+                result_list.append(item)
+        return result_list
 
     @classmethod
     def transpileDescriptionProvider(
@@ -154,9 +163,9 @@ class MADescriptionTranspiler_JS:
         description_classes_to_import = set()
         description_names_mapping_to_js = dict()
         if description_names_whitelist is None:
-            description_names_to_process = set([description.name for description in descriptors.all_descriptions])
+            description_names_to_process = cls.listWithoutRepeats([description.name for description in descriptors.all_descriptions])
         else:
-            description_names_to_process = set(description_names_whitelist)
+            description_names_to_process = cls.listWithoutRepeats(description_names_whitelist)
 
         # Walk the descriptions
         while len(description_names_to_process) > 0:
