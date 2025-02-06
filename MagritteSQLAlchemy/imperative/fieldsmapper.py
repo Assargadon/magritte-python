@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime, Text
+from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime, Text, Float
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.visitors.MAVisitor_class import MAVisitor
@@ -35,6 +35,13 @@ class FieldsMapper(MAVisitor):
         logger.debug(f'visitStringDescription {description.name}')
         self.table.append_column(Column(
             description.sa_fieldName, Text,
+            primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
+            ))
+
+    def visitFloatDescription(self, description):
+        logger.debug(f'visitFloatDescription {description.name}')
+        self.table.append_column(Column(
+            description.sa_fieldName, Float,
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
             ))
 
