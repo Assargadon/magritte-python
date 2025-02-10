@@ -161,7 +161,7 @@ class MADescriptionTranspiler_JS:
         # Walk the descriptions
         while len(description_names_to_process) > 0:
             new_description_names_to_process = set()
-            for description_name in description_names_to_process:
+            for description_name in sorted(description_names_to_process):
 
                 # Do not process it again
                 if description_name in description_names_processed:
