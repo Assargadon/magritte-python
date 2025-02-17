@@ -27,28 +27,27 @@ class CyclicReferenceError(Exception):
         super().__init__(message)
 
 
-class MADescriptionWalkerVisitor(MAVisitor):
+class ModelReaderWalkerVisitor(MAVisitor):
 
     class Context:
-        def __init__(self, model, description, model_key, elements=None, processed=False, result=None):
+        def __init__(self, model, description, model_key, elements=None, processed=False, view=None):
             self.model = model
             self.description = description
             self.model_key = model_key
             self.elements = elements or []
             self.processed = processed
-            self.result = result
+            self.view = view
 
         def __repr__(self):
             return (f"Context(model={self.model}, description={self.description}, model_key={self.model_key}, "
-                   f"elements={self.elements}, processed={self.processed}, result={self.result})")
+                   f"elements={self.elements}, processed={self.processed}, view={self.view})")
 
-    def __init__(self, skip_cycles=False):
+    def __init__(self):
         super().__init__()
         self.visited_contexts = {}
         self.context_stack = []
         self._model_key = 0
         self.current_context = None
-        self.skip_cycles = skip_cycles
 
     def reset(self):
         self.visited_contexts.clear()
@@ -60,6 +59,9 @@ class MADescriptionWalkerVisitor(MAVisitor):
         res = self._model_key
         self._model_key += 1
         return res
+
+    def _process_cyclic_reference(self, ctx):
+        raise CyclicReferenceError(ctx, f"Cyclic reference detected: {ctx}")
 
     def walkDescription(self, model, description):
         logger.info(f"{self.__class__.__name__}.walkDescription() called: "
@@ -81,19 +83,16 @@ class MADescriptionWalkerVisitor(MAVisitor):
             else:
                 ctx = self.visited_contexts[model_id]
                 if ctx.processed:
-                    # if model was previously visited and processed - return the result
+                    # if model was previously visited and processed - return the view
                     logger.info(f"{self.__class__.__name__}.walkDescription(): "
                                 f"model = {model.__class__.__name__} ({hex(id(model))}) was already visited "
                                 f"and processed")
-                    return ctx.result
+                    return ctx.view
                 else:
                     logger.info(f"{self.__class__.__name__}.walkDescription(): "
                                 f"model = {model.__class__.__name__} ({hex(id(model))}): cyclic reference detected")
                     # if model was previously visited and not processed - cyclic reference
-                    if not self.skip_cycles:
-                        raise CyclicReferenceError(ctx, f"Cyclic reference detected: {ctx}")
-                    else:
-                        return None
+                    return self._process_cyclic_reference(ctx)
 
         logger.info(f"{self.__class__.__name__}.walkDescription(): "
                     f"model = {model.__class__.__name__} ({hex(id(model))}) was not visited before. Creating context.")
@@ -107,8 +106,8 @@ class MADescriptionWalkerVisitor(MAVisitor):
         updated_context.processed = True
         self.current_context = self.context_stack[-1] if self.context_stack else None
         logger.info(f"{self.__class__.__name__}.walkDescription(): "
-                    f"model = {model.__class__.__name__} ({hex(id(model))}). Returning result: {updated_context.result}")
-        return updated_context.result
+                    f"model = {model.__class__.__name__} ({hex(id(model))}). Returning view: {updated_context.view}")
+        return updated_context.view
 
     def _shouldProcessDescription(self, description: MADescription):
         return True
@@ -127,7 +126,7 @@ class MADescriptionWalkerVisitor(MAVisitor):
                      f"description {description.name} ({description.__class__.__name__})")
         self.current_context.elements = []
         self.visitAll(description.children)
-        self.current_context.result = self.current_context.elements
+        self.current_context.view = self.current_context.elements
 
     def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription() called with "
@@ -136,11 +135,11 @@ class MADescriptionWalkerVisitor(MAVisitor):
         if related_obj == description.undefinedValue:
             return None
         if related_obj is not None:
-            ref_result = self.walkDescription(related_obj, description.reference)
+            ref_view = self.walkDescription(related_obj, description.reference)
         else:
-            ref_result = None
-        self.current_context.elements.append((description, ref_result))
-        self.current_context.result = ref_result  # return only the result, in case it is the root model
+            ref_view = None
+        self.current_context.elements.append((description, ref_view))
+        self.current_context.view = ref_view  # return only the view, in case it is the root model
 
     def visitToManyRelationDescription(self, description: MAToManyRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription() called with "
@@ -149,11 +148,11 @@ class MADescriptionWalkerVisitor(MAVisitor):
         if related_objs == description.undefinedValue:
             return None
         if related_objs is not None:
-            ref_results = []
+            ref_views = []
             for obj in related_objs:
-                ref_results.append(self.walkDescription(obj, description.reference))
-            self.current_context.elements.append((description, ref_results))
-            self.current_context.result = ref_results  # return only the results, in case it is the root model
+                ref_views.append(self.walkDescription(obj, description.reference))
+            self.current_context.elements.append((description, ref_views))
+            self.current_context.view = ref_views  # return only the views, in case it is the root model
 
     def visitSingleOptionDescription(self, description: MASingleOptionDescription):
         logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription() called with "
@@ -173,18 +172,20 @@ class MADescriptionWalkerVisitor(MAVisitor):
         if value == description.undefinedValue:
             return None
         self.current_context.elements.append((description, value))
-        self.current_context.result = value  # return only the result, in case it is the root model
+        self.current_context.view = value  # return only the view, in case it is the root model
 
 
-class MAReferencedDataPrinter(MADescriptionWalkerVisitor):
+class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
     def __init__(self):
-        super().__init__(skip_cycles=True)
-        # super().__init__()
+        super().__init__()
         self._indent = '= '
         self._level_prefix = ''
         self._elem_prefix = '- '
         self._c_prefix = ''
         self._e_prefix = ''
+
+    def _process_cyclic_reference(self, ctx):
+        return None
 
     def print(self, model, description):
         self.reset()
@@ -217,16 +218,13 @@ class MAReferencedDataPrinter(MADescriptionWalkerVisitor):
               f"{self.current_context.elements[-1][1]}")
 
 
-class MAReferencedDataHumanReadableSerializer(MADescriptionWalkerVisitor):
+class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
     def __init__(self):
         super().__init__()
         self._json_writer = MAValueJsonWriter()
 
-    def walkDescription(self, model, description):
-        try:
-            return super().walkDescription(model, description)
-        except CyclicReferenceError as e:
-            return e.ctx.model_key
+    def _process_cyclic_reference(self, ctx):
+        return ctx.model_key
 
     def _shouldProcessDescription(self, description: MADescription):
         if not description.isVisible():
@@ -243,7 +241,7 @@ class MAReferencedDataHumanReadableSerializer(MADescriptionWalkerVisitor):
             "-x-magritte-key": self.current_context.model_key,
         }
         obj_dict.update({desc.name: value for desc, value in self.current_context.elements})
-        self.current_context.result = obj_dict
+        self.current_context.view = obj_dict
 
     def visitElementDescription(self, description: MAElementDescription):
         logger.debug(f"{self.__class__.__name__}.visitElementDescription(): "
@@ -253,7 +251,7 @@ class MAReferencedDataHumanReadableSerializer(MADescriptionWalkerVisitor):
             return None
         json_value = self._json_writer.write_json(self.current_context.model, description)
         self.current_context.elements.append((description, json_value))
-        self.current_context.result = json_value
+        self.current_context.view = json_value
 
     def dumpHumanReadable(self, model, description):
         logger.debug(f"{self.__class__.__name__}.dumpHumanReadable(): "
@@ -345,7 +343,7 @@ if __name__ == "__main__":
     # print(serializer.dumpHumanReadable(host, host_desc))
     # print(serializer.serializeHumanReadable(host, host_desc))
     # print(serializer.dumpHumanReadable(host.ports[0], port_desc))
-    # print(serializer.serializeHumanReadable(host.ports[0], port_desc))
+    print(serializer.serializeHumanReadable(host.ports[0], port_desc))
     # print(serializer.dumpHumanReadable(host.ports, host_ports_desc))
     # print(serializer.serializeHumanReadable(host.ports, host_ports_desc))
     # print(serializer.dumpHumanReadable(host.ports[0].host, port_host_desc))
@@ -362,5 +360,5 @@ if __name__ == "__main__":
     # print(serializer.serializeHumanReadable(child2, child_desc))
     # print(serializer.dumpHumanReadable(child3, child_desc))
     # print(serializer.serializeHumanReadable(child3, child_desc, indent=2))
-    print(serializer.dumpHumanReadable(child.parent, child_parent_desc))
-    print(serializer.serializeHumanReadable(child.parent, child_parent_desc, indent=2))
+    # print(serializer.dumpHumanReadable(child.parent, child_parent_desc))
+    # print(serializer.serializeHumanReadable(child.parent, child_parent_desc, indent=2))
