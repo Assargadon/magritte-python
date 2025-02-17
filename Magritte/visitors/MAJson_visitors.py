@@ -63,6 +63,12 @@ class MAValueJsonWriter(MAVisitor):
         value_jsonable = value.strftime('%H:%M:%S')
         self._json = self._test_jsonable(value_jsonable)
 
+    def visitSingleOptionDescription(self, description: MADescription):
+        if isinstance(description.reference, MAContainer):
+            self.visitToOneRelationDescription(description)
+        else:
+            self.visitElementDescription(description)
+
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
             "MAValueJsonWriter cannot encode using reference description."

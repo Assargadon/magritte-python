@@ -2,11 +2,12 @@ import json
 from copy import copy
 import logging
 
-from typing_extensions import override
-
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.accessors.MAPluggableAccessor_class import MAPluggableAccessor
 from Magritte.descriptions.MADescription_class import MADescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
+from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.visitors.MAJson_visitors import MAValueJsonWriter
@@ -71,87 +72,106 @@ class MADescriptionWalkerVisitor(MAVisitor):
 
         model_id = id(model)
         if model_id in self.visited_contexts:
-            logger.info(f"{self.__class__.__name__}.walkDescription(): model = {model.__class__.__name__} ({hex(id(model))}) was already visited")
-            ctx = self.visited_contexts[model_id]
-            if ctx.processed:
-                # if model was previously visited and processed - return the result
-                logger.info(f"{self.__class__.__name__}.walkDescription(): model = {model.__class__.__name__} ({hex(id(model))}) was already visited and processed")
-                return ctx.result
+            logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                        f"model = {model.__class__.__name__} ({hex(id(model))}) was already visited")
+            if len(self.visited_contexts) == 1:
+                logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                            f"model = {model.__class__.__name__} ({hex(id(model))}) is the root model being visited "
+                            f"via a to-one or single-option reference. We are good to go.")
             else:
-                logger.info(f"{self.__class__.__name__}.walkDescription(): model = {model.__class__.__name__} ({hex(id(model))}): cyclic reference detected")
-                # if model was previously visited and not processed - cyclic reference
-                if not self.skip_cycles:
-                    raise CyclicReferenceError(ctx, f"Cyclic reference detected: {ctx}")
+                ctx = self.visited_contexts[model_id]
+                if ctx.processed:
+                    # if model was previously visited and processed - return the result
+                    logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                                f"model = {model.__class__.__name__} ({hex(id(model))}) was already visited "
+                                f"and processed")
+                    return ctx.result
                 else:
-                    return None
+                    logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                                f"model = {model.__class__.__name__} ({hex(id(model))}): cyclic reference detected")
+                    # if model was previously visited and not processed - cyclic reference
+                    if not self.skip_cycles:
+                        raise CyclicReferenceError(ctx, f"Cyclic reference detected: {ctx}")
+                    else:
+                        return None
 
+        logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                    f"model = {model.__class__.__name__} ({hex(id(model))}) was not visited before. Creating context.")
         context = self.Context(model, description, self.get_model_key())
         self.visited_contexts[model_id] = context
-        logger.info(f"{self.__class__.__name__}.walkDescription(): model = {model.__class__.__name__} ({hex(id(model))}) was not visited before. Adding to context_stack: {context}")
+        logger.info(f"{self.__class__.__name__}.walkDescription(): Adding new context to context_stack: {context}")
         self.context_stack.append(context)
         self.current_context = self.context_stack[-1]
         self.visit(description)
-        logger.info(f"{self.__class__.__name__}.walkDescription(): model = {model.__class__.__name__} ({hex(id(model))}) has just been visited. self.current_context: {self.current_context}")
         updated_context = self.context_stack.pop()
-        self.current_context = self.context_stack[-1] if self.context_stack else None
-        logger.info(f"{self.__class__.__name__}.walkDescription(): model = {model.__class__.__name__} ({hex(id(model))}) has been visited. Updated context: {updated_context}")
         updated_context.processed = True
-        logger.info(f"{self.__class__.__name__}.walkDescription(): model = {model.__class__.__name__} ({hex(id(model))}). Returning result: {updated_context.result}")
+        self.current_context = self.context_stack[-1] if self.context_stack else None
+        logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                    f"model = {model.__class__.__name__} ({hex(id(model))}). Returning result: {updated_context.result}")
         return updated_context.result
 
+    def _shouldProcessDescription(self, description: MADescription):
+        return True
+
     def visit(self, description: MADescription):
-        logger.debug(f"{self.__class__.__name__}.visit() called with description = {description.name} ({description.__class__.__name__})")
+        logger.debug(f"{self.__class__.__name__}.visit() called with "
+                     f"description = {description.name} ({description.__class__.__name__})")
         logger.debug(f"{self.__class__.__name__}.visit(): self.current_context: {self.current_context}")
-        super().visit(description)
-        logger.debug(f"{self.__class__.__name__}.visit returning results for description = {description.name} ({description.__class__.__name__}): {self.current_context}")
+        if self._shouldProcessDescription(description):
+            super().visit(description)
+        logger.debug(f"{self.__class__.__name__}.visit returning results for description "
+                     f"= {description.name} ({description.__class__.__name__}): {self.current_context}")
 
     def visitContainer(self, description: MAContainer):
-        logger.debug(f"{self.__class__.__name__}.visitContainer() called for description {description.name} ({description.__class__.__name__})")
-        logger.debug(f"{self.__class__.__name__}.visitContainer(): self.current_context: {self.current_context}")
+        logger.debug(f"{self.__class__.__name__}.visitContainer() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
         self.current_context.elements = []
         self.visitAll(description.children)
         self.current_context.result = self.current_context.elements
-        logger.debug(f"{self.__class__.__name__}.visitContainer returning result: {self.current_context.result}")
 
     def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
-        logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription() called for description {description.name} ({description.__class__.__name__})")
-        logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription(): self.current_context: {self.current_context}")
+        logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
         related_obj = MAModel.readUsingWrapper(self.current_context.model, description)
+        if related_obj == description.undefinedValue:
+            return None
         if related_obj is not None:
             ref_result = self.walkDescription(related_obj, description.reference)
         else:
             ref_result = None
         self.current_context.elements.append((description, ref_result))
         self.current_context.result = ref_result  # return only the result, in case it is the root model
-        logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription returning result: {ref_result}")
 
     def visitToManyRelationDescription(self, description: MAToManyRelationDescription):
-        logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription() called for description {description.name} ({description.__class__.__name__})")
-        logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription(): self.current_context: {self.current_context}")
+        logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
         related_objs = MAModel.readUsingWrapper(self.current_context.model, description)
+        if related_objs == description.undefinedValue:
+            return None
         if related_objs is not None:
             ref_results = []
             for obj in related_objs:
                 ref_results.append(self.walkDescription(obj, description.reference))
             self.current_context.elements.append((description, ref_results))
             self.current_context.result = ref_results  # return only the results, in case it is the root model
-            logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription returning result: {ref_results}")
 
     def visitSingleOptionDescription(self, description: MASingleOptionDescription):
-        logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription() called for description {description.name} ({description.__class__.__name__})")
-        logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription(): self.current_context: {self.current_context}")
+        logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
         reference = description.reference
         if isinstance(reference, MAContainer):
             self.visitToOneRelationDescription(description)
-        elif isinstance(reference, MAElementDescription) and not isinstance(reference, MAToOneRelationDescription):
+        elif isinstance(reference, MAElementDescription) and not isinstance(reference, MAReferenceDescription):
             self.visitElementDescription(description)
         else:
             raise TypeError(f"Unsupported reference type in SingleOptionDescription: {type(reference)}")
 
     def visitElementDescription(self, description: MAElementDescription):
-        logger.debug(f"{self.__class__.__name__}.visitElementDescription() called for description {description.name} ({description.__class__.__name__})")
-        logger.debug(f"{self.__class__.__name__}.visitElementDescription(): self.current_context: {self.current_context}")
+        logger.debug(f"{self.__class__.__name__}.visitElementDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
         value = MAModel.readUsingWrapper(self.current_context.model, description)
+        if value == description.undefinedValue:
+            return None
         self.current_context.elements.append((description, value))
         self.current_context.result = value  # return only the result, in case it is the root model
 
@@ -179,7 +199,8 @@ class MAReferencedDataPrinter(MADescriptionWalkerVisitor):
         super().visit(description)
 
     def visitContainer(self, description: MAContainer):
-        print(f"{self._c_prefix}Object described by {description.name} ({description.__class__.__name__}): {self.current_context.model}")
+        print(f"{self._c_prefix}Object described by {description.name} ({description.__class__.__name__}): "
+              f"{self.current_context.model}")
         super().visitContainer(description)
 
     def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
@@ -192,7 +213,8 @@ class MAReferencedDataPrinter(MADescriptionWalkerVisitor):
 
     def visitElementDescription(self, description: MAElementDescription):
         super().visitElementDescription(description)
-        print(f"{self._e_prefix}{description.__class__.__name__}: {description.name}: {self.current_context.elements[-1][1]}")
+        print(f"{self._e_prefix}{description.__class__.__name__}: {description.name}: "
+              f"{self.current_context.elements[-1][1]}")
 
 
 class MAReferencedDataHumanReadableSerializer(MADescriptionWalkerVisitor):
@@ -206,8 +228,15 @@ class MAReferencedDataHumanReadableSerializer(MADescriptionWalkerVisitor):
         except CyclicReferenceError as e:
             return e.ctx.model_key
 
+    def _shouldProcessDescription(self, description: MADescription):
+        if not description.isVisible():
+            return False
+        if (isinstance(description.accessor, MAPluggableAccessor)
+                and not description.accessor.canRead(None)):  # MAPluggableAccessor canRead does not depend on model
+            return False
+        return True
+
     def visitContainer(self, description: MAContainer):
-        logger.debug(f"{self.__class__.__name__}.visitContainer {description.name} of kind {description.kind}")
         super().visitContainer(description)
         obj_dict = {
             "-x-magritte-class": self.current_context.model.__class__.__name__,
@@ -217,19 +246,25 @@ class MAReferencedDataHumanReadableSerializer(MADescriptionWalkerVisitor):
         self.current_context.result = obj_dict
 
     def visitElementDescription(self, description: MAElementDescription):
-        logger.debug(f"{self.__class__.__name__}.visitElementDescription(): description {description.name} ({description.__class__.__name__})")
+        logger.debug(f"{self.__class__.__name__}.visitElementDescription(): "
+                     f"description {description.name} ({description.__class__.__name__})")
         value = MAModel.readUsingWrapper(self.current_context.model, description)
-        self.current_context.elements.append((description, value))
-        # self.current_context.elements.append((description, self._json_writer.write_json(self.current_context.model, description)))
+        if value == description.undefinedValue:
+            return None
+        json_value = self._json_writer.write_json(self.current_context.model, description)
+        self.current_context.elements.append((description, json_value))
+        self.current_context.result = json_value
 
     def dumpHumanReadable(self, model, description):
-        logger.debug(f"{self.__class__.__name__}.dumpHumanReadable(): description {description.name} ({description.__class__.__name__})")
+        logger.debug(f"{self.__class__.__name__}.dumpHumanReadable(): "
+                     f"description {description.name} ({description.__class__.__name__})")
         self.reset()
         return self.walkDescription(model, description)
 
-    def serializeHumanReadable(self, model, description):
-        logger.debug(f"{self.__class__.__name__}.serializeHumanReadable(): description {description.name} ({description.__class__.__name__})")
-        return json.dumps(self.dumpHumanReadable(model, description), indent=2)
+    def serializeHumanReadable(self, model, description, indent=None):
+        logger.debug(f"{self.__class__.__name__}.serializeHumanReadable(): "
+                     f"description {description.name} ({description.__class__.__name__})")
+        return json.dumps(self.dumpHumanReadable(model, description), indent=indent)
 
 # Test examples
 if __name__ == "__main__":
@@ -240,20 +275,25 @@ if __name__ == "__main__":
     from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
     
     desc_provider = TestModelDescriptorProvider()
-    # org = Organization.random_organization()
-    # user = User.random_user(organization=org)
+    org = Organization.random_organization()
+    user = org.listusers[0]
     host = Host.random_host()
     host.ports = host.ports[:2]
-    host.software = []
+    # host.software = []
     host_desc = desc_provider.description_for("Host")
     
     port_desc = desc_provider.description_for("Port")
     host_ports_desc = copy(host_desc['ports'])
     host_ports_desc.accessor = MAIdentityAccessor()
+    port_host_desc = copy(port_desc['host'])
+    port_host_desc.accessor = MAIdentityAccessor()
     user_desc = desc_provider.description_for("User")
+    user_dob_desc = copy(user_desc['dateofbirth'])
+    user_dob_desc.accessor = MAIdentityAccessor()
 
     class Parent:
         def __init__(self, name):
+            self.id = 0
             self.name = name
             self.children = []
 
@@ -271,18 +311,28 @@ if __name__ == "__main__":
     parent_desc = MAContainer(name="Parent", kind=Parent)
     child_desc = MAContainer(name="Child", kind=Child)
     parent_desc.setChildren([
+            MAIntDescription(name="id", accessor=MAAttrAccessor("id"), visible=False),
             MAStringDescription(name="name", accessor=MAAttrAccessor("name")),
             MAToManyRelationDescription(name="children", accessor=MAAttrAccessor("children"), reference=child_desc)
         ])
     child_desc.setChildren([
-            MAStringDescription(name="nick", accessor=MAAttrAccessor("nick")),
-            MAToOneRelationDescription(name="parent", accessor=MAAttrAccessor("parent"), reference=parent_desc)
+            MAStringDescription(name="nick", accessor=MAAttrAccessor("nick"), undefinedValue=""),
+            MAToOneRelationDescription(name="parent", accessor=MAAttrAccessor("parent"), reference=parent_desc),
+            # MASingleOptionDescription(name="parent", accessor=MAAttrAccessor("parent"), reference=parent_desc)
         ])
+
+    # print(f"child_desc[nick].undefinedValue: {child_desc['nick'].undefinedValue!r}")
+    child_parent_desc = copy(child_desc['parent'])
+    child_parent_desc.accessor = MAIdentityAccessor()
 
     parent = Parent("John")
     child = Child("Johnny")
     parent.children = [child]
     child.parent = parent
+
+    child2 = Child("Jenny")
+    child3 = Child("")
+    child3.parent = parent
 
     printer = MAReferencedDataPrinter()
     # printer.print(host, host_desc)
@@ -292,13 +342,25 @@ if __name__ == "__main__":
     # printer.print(user, user_desc)
 
     serializer = MAReferencedDataHumanReadableSerializer()
-    # print(serializer.dumpHumanReadable(parent, parent_desc))
-    # print(serializer.dumpHumanReadable(child, child_desc))
-    # print(serializer.serializeHumanReadable(parent, parent_desc))
-    # print(serializer.serializeHumanReadable(child, child_desc))
     # print(serializer.dumpHumanReadable(host, host_desc))
-    print(serializer.serializeHumanReadable(host, host_desc))
+    # print(serializer.serializeHumanReadable(host, host_desc))
     # print(serializer.dumpHumanReadable(host.ports[0], port_desc))
     # print(serializer.serializeHumanReadable(host.ports[0], port_desc))
     # print(serializer.dumpHumanReadable(host.ports, host_ports_desc))
     # print(serializer.serializeHumanReadable(host.ports, host_ports_desc))
+    # print(serializer.dumpHumanReadable(host.ports[0].host, port_host_desc))
+    # print(serializer.serializeHumanReadable(host.ports[0].host, port_host_desc))
+    # print(serializer.dumpHumanReadable(user, user_desc))
+    # print(serializer.serializeHumanReadable(user, user_desc))
+    # print(serializer.dumpHumanReadable(user.dateofbirth, user_dob_desc))
+    # print(serializer.serializeHumanReadable(user.dateofbirth, user_dob_desc))
+    # print(serializer.dumpHumanReadable(parent, parent_desc))
+    # print(serializer.dumpHumanReadable(child, child_desc))
+    # print(serializer.serializeHumanReadable(parent, parent_desc))
+    # print(serializer.serializeHumanReadable(child, child_desc))
+    # print(serializer.dumpHumanReadable(child2, child_desc))
+    # print(serializer.serializeHumanReadable(child2, child_desc))
+    # print(serializer.dumpHumanReadable(child3, child_desc))
+    # print(serializer.serializeHumanReadable(child3, child_desc, indent=2))
+    print(serializer.dumpHumanReadable(child.parent, child_parent_desc))
+    print(serializer.serializeHumanReadable(child.parent, child_parent_desc, indent=2))
