@@ -1,7 +1,11 @@
+from copy import copy
 from unittest import TestCase
 from json import dumps, loads
 
-from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
+from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+# from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer
+from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableDeserializer
+from Magritte.visitors.MADescriptionWalkerVisitor import MAReferencedDataHumanReadableSerializer
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider, Host, Port, Account, User, Organization, SubscriptionPlan
@@ -23,9 +27,11 @@ class MAReferencedDataWriterVisitorTestBase(TestCase):
     def findDescription(self, class_name, name):
         container = self.descriptors.description_for(class_name)
         self.assertIsNotNone(container)
-        descriptor = next(filter(lambda description: description.name == name, container.children), None)
+        descriptor = container[name]
         self.assertIsNotNone(descriptor)
-        return descriptor
+        res_desc = copy(descriptor)
+        res_desc.accessor = MAIdentityAccessor()
+        return res_desc
 
     def findDescriptionByName(self, cls, name):
         class_name = cls.__name__
