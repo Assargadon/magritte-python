@@ -1,6 +1,7 @@
 import json
 from copy import copy
 import logging
+from typing import Any
 
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
@@ -10,7 +11,8 @@ from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
-from Magritte.visitors.MAJson_visitors import MAValueJsonWriter
+from Magritte.errors.MAKindError import MAKindError
+from Magritte.visitors.MAJson_visitors import MAValueJsonWriter, MAValueJsonReader
 from Magritte.visitors.MAVisitor_class import MAVisitor
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAElementDescription_class import MAElementDescription
@@ -22,6 +24,12 @@ logger = logging.getLogger(__name__)
 
 
 class CyclicReferenceError(Exception):
+    def __init__(self, ctx, message):
+        self.ctx = ctx
+        super().__init__(message)
+
+
+class DuplicateViewError(Exception):
     def __init__(self, ctx, message):
         self.ctx = ctx
         super().__init__(message)
@@ -175,6 +183,160 @@ class ModelReaderWalkerVisitor(MAVisitor):
         self.current_context.view = value  # return only the view, in case it is the root model
 
 
+class ModelWriterWalkerVisitor(MAVisitor):
+
+    class Context:
+        def __init__(self, view, description, model_key=None, elements=None, processed=False, model=None):
+            self.model = model
+            self.description = description
+            self.model_key = model_key
+            self.elements = elements or []
+            self.processed = processed
+            self.view = view
+
+        def __repr__(self):
+            return (f"Context(model={self.model}, description={self.description}, model_key={self.model_key}, "
+                   f"elements={self.elements}, processed={self.processed}, view={self.view})")
+
+    def __init__(self):
+        super().__init__()
+        self.visited_contexts = {}
+        self.context_stack = []
+        self._model_key = 0
+        self.current_context = None
+        self._dto_factory = None
+
+    def reset(self):
+        self.visited_contexts.clear()
+        self.context_stack.clear()
+        self._model_key = 0
+        self.current_context = None
+        self._dto_factory = None
+
+    def _process_duplicate_view(self, ctx_new, ctx_old):
+        raise DuplicateViewError(ctx_new, f"Duplicate view detected: {ctx_new} has same model_key as {ctx_old}")
+
+    def walkDescription(self, view, description):
+        logger.info(f"{self.__class__.__name__}.walkDescription() called: "
+                    f"view = {view.__class__.__name__} ({hex(id(view))}), "
+                    f"description = {description.name} ({description.__class__.__name__})")
+        if description is None:
+            raise ValueError("Description cannot be None")
+
+        context = self.Context(view, description)
+
+        logger.info(f"{self.__class__.__name__}.walkDescription(): Adding new context to context_stack: {context}")
+        self.context_stack.append(context)
+        self.current_context = self.context_stack[-1]
+        self.visit(description)
+        updated_context = self.context_stack.pop()
+        updated_context.processed = True
+        self.current_context = self.context_stack[-1] if self.context_stack else None
+
+        model_key = updated_context.model_key
+
+        if model_key is not None:
+            if model_key in self.visited_contexts:
+                logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                            f"model with key {model_key} was already visited")
+                updated_context = self._process_duplicate_view(updated_context, self.visited_contexts[model_key])
+            self.visited_contexts[model_key] = updated_context
+
+        logger.info(f"{self.__class__.__name__}.walkDescription(): "
+                    f"model with key {model_key}. Returning model: {updated_context.model}")
+        return updated_context.model
+
+    def _shouldProcessDescription(self, description: MADescription):
+        return True
+
+    @staticmethod
+    def default_dto_factory(description):
+        c = description.kind
+        if c is None:
+            raise MAKindError(description, 'Kind is not defined to make an instance of the described entity')
+        return c()
+
+    def _get_model_by_key(self, key):
+        # try to find the model by key, if not found raise KeyError
+        if key in self.visited_contexts:
+            return self.visited_contexts[key].model
+        for ctx in self.context_stack:
+            if ctx.model_key == key:
+                return ctx.model
+        raise KeyError(f"Model with key {key} not found in visited_contexts")
+
+    def _get_element_view(self, description) -> Any:
+        return next(
+            filter(lambda x: x[0] == description, self.current_context.elements),
+            (description, description.undefinedValue)
+            )[1]
+
+    def _transform_container(self, source, description) -> Any:
+        return source
+
+    def _transform_element(self, source, description) -> Any:
+        return source
+
+    def visit(self, description: MADescription):
+        logger.debug(f"{self.__class__.__name__}.visit() called with "
+                     f"description = {description.name} ({description.__class__.__name__})")
+        logger.debug(f"{self.__class__.__name__}.visit(): self.current_context: {self.current_context}")
+        if self._shouldProcessDescription(description):
+            super().visit(description)
+        logger.debug(f"{self.__class__.__name__}.visit returning results for description "
+                     f"= {description.name} ({description.__class__.__name__}): {self.current_context}")
+
+    def visitContainer(self, description: MAContainer):
+        logger.debug(f"{self.__class__.__name__}.visitContainer() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
+        dto_factory = self._dto_factory if self._dto_factory else self.default_dto_factory
+        self.current_context.model = dto_factory(description)
+        self.current_context.elements = self._transform_container(self.current_context.view, description)
+        self.visitAll(description.children)
+
+    def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
+        logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
+        related_view = self._get_element_view(description)
+        if related_view == description.undefinedValue:
+            related_obj = description.undefinedValue
+        else:
+            related_obj = self.walkDescription(related_view, description.reference)
+        MAModel.writeUsingWrapper(self.current_context.model, description, related_obj)
+
+    def visitToManyRelationDescription(self, description: MAToManyRelationDescription):
+        logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
+        related_views = self._get_element_view(description)
+        if related_views == description.undefinedValue:
+            related_objs = description.undefinedValue
+        elif related_views is None:
+            related_objs = None
+        else:
+            related_objs = []
+            for view in related_views:
+                related_objs.append(self.walkDescription(view, description.reference))
+        MAModel.writeUsingWrapper(self.current_context.model, description, related_objs)
+
+    def visitSingleOptionDescription(self, description: MASingleOptionDescription):
+        logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
+        reference = description.reference
+        if isinstance(reference, MAContainer):
+            self.visitToOneRelationDescription(description)
+        elif isinstance(reference, MAElementDescription) and not isinstance(reference, MAReferenceDescription):
+            self.visitElementDescription(description)
+        else:
+            raise TypeError(f"Unsupported reference type in SingleOptionDescription: {type(reference)}")
+
+    def visitElementDescription(self, description: MAElementDescription):
+        logger.debug(f"{self.__class__.__name__}.visitElementDescription() called with "
+                     f"description {description.name} ({description.__class__.__name__})")
+        element_view = self._get_element_view(description)
+        element_value = self._transform_element(element_view, description)
+        MAModel.writeUsingWrapper(self.current_context.model, description, element_value)
+
+
 class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
     def __init__(self):
         super().__init__()
@@ -264,6 +426,53 @@ class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
                      f"description {description.name} ({description.__class__.__name__})")
         return json.dumps(self.dumpHumanReadable(model, description), indent=indent)
 
+
+class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
+    def __init__(self):
+        super().__init__()
+        self._dto_factory = None
+        self._json_reader = MAValueJsonReader()
+
+    def _shouldProcessDescription(self, description: MADescription):
+        if not description.isVisible() or description.isReadOnly():
+            return False
+        if (isinstance(description.accessor, MAPluggableAccessor)
+                and not description.accessor.canWrite(None)):  # MAPluggableAccessor canWrite does not depend on model
+            return False
+        return True
+
+    def _transform_container(self, source, description) -> Any:
+        elements = []
+        for elem_desc in description.children:
+            elem_name = elem_desc.name
+            elem_value = source.get(elem_name)
+            if elem_value is not None:
+                elements.append((elem_desc, elem_value))
+        return elements
+
+    def _transform_element(self, source, description) -> Any:
+        return self._json_reader.read_json(None, source, description)
+
+    def visitContainer(self, description: MAContainer):
+        if not isinstance(self.current_context.view, dict):
+            self.current_context.model = self._get_model_by_key(self.current_context.view)
+            return
+        if '-x-magritte-key' not in self.current_context.view:
+            raise ValueError(f"'-x-magritte-key' not found in view: {self.current_context.view}")
+        self.current_context.model_key = self.current_context.view['-x-magritte-key']
+        super().visitContainer(description)
+
+    def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory=None) -> Any:
+        if dto_factory is None:
+            self._dto_factory = self.default_dto_factory
+        model = self.walkDescription(dump, description)
+        return model
+
+    def deserializeHumanReadable(self, serialized_str: str, description: MADescription, dto_factory=None) -> Any:
+        dump = json.loads(serialized_str)
+        return self.instantiateHumanReadable(dump, description, dto_factory)
+
+
 # Test examples
 if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING, format='%(message)s\n')
@@ -290,7 +499,7 @@ if __name__ == "__main__":
     user_dob_desc.accessor = MAIdentityAccessor()
 
     class Parent:
-        def __init__(self, name):
+        def __init__(self, name=None):
             self.id = 0
             self.name = name
             self.children = []
@@ -299,7 +508,7 @@ if __name__ == "__main__":
             return f"Parent({self.name})"
 
     class Child:
-        def __init__(self, nick):
+        def __init__(self, nick=''):
             self.nick = nick
             self.parent = None
 
@@ -328,7 +537,11 @@ if __name__ == "__main__":
     parent.children = [child]
     child.parent = parent
 
+    parent2 = Parent("Jane")
+
     child2 = Child("Jenny")
+    child2.parent = parent2
+
     child3 = Child("")
     child3.parent = parent
 
@@ -343,7 +556,7 @@ if __name__ == "__main__":
     # print(serializer.dumpHumanReadable(host, host_desc))
     # print(serializer.serializeHumanReadable(host, host_desc))
     # print(serializer.dumpHumanReadable(host.ports[0], port_desc))
-    print(serializer.serializeHumanReadable(host.ports[0], port_desc))
+    # print(serializer.serializeHumanReadable(host.ports[0], port_desc))
     # print(serializer.dumpHumanReadable(host.ports, host_ports_desc))
     # print(serializer.serializeHumanReadable(host.ports, host_ports_desc))
     # print(serializer.dumpHumanReadable(host.ports[0].host, port_host_desc))
@@ -362,3 +575,33 @@ if __name__ == "__main__":
     # print(serializer.serializeHumanReadable(child3, child_desc, indent=2))
     # print(serializer.dumpHumanReadable(child.parent, child_parent_desc))
     # print(serializer.serializeHumanReadable(child.parent, child_parent_desc, indent=2))
+
+    # reader = ModelReaderWalkerVisitor()
+    # writer = ModelWriterWalkerVisitor()
+    # child_view = reader.walkDescription(child2, child_desc)
+    # print(child_view)
+    # new_child = writer.walkDescription(child_view, child_desc)
+    # print(new_child)
+    # print(new_child.parent)
+
+    deserializer = MAReferencedDataHumanReadableDeserializer()
+
+    # child_dict = {'-x-magritte-key': 0, 'nick': 'Jacky', 'parent': {'-x-magritte-key': 1, 'name': 'Jack', 'children': []}}
+    # new_child = deserializer.instantiateHumanReadable(child_dict, child_desc)
+    # print(new_child)
+    # print(new_child.parent)
+    # print(new_child.parent.children)
+
+    print(host)
+    # host_dict = serializer.dumpHumanReadable(host, host_desc)
+    # print(host_dict)
+    # new_host = deserializer.instantiateHumanReadable(host_dict, host_desc)
+    # print(new_host)
+    # new_host_dict = serializer.dumpHumanReadable(new_host, host_desc)
+    # print(new_host_dict)
+    host_str = serializer.serializeHumanReadable(host, host_desc)
+    print(host_str)
+    new_host = deserializer.deserializeHumanReadable(host_str, host_desc)
+    print(new_host)
+    new_host_str = serializer.serializeHumanReadable(new_host, host_desc)
+    print(new_host_str)

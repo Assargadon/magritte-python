@@ -135,6 +135,12 @@ class MAValueJsonReader(MAVisitor):
             self._decoded_value = datetime.strptime(self._json_value, "%H:%M:%S").time()
         self._write_to_model(description)
 
+    def visitSingleOptionDescription(self, description: MADescription):
+        if isinstance(description.reference, MAContainer):
+            self.visitToOneRelationDescription(description)
+        else:
+            self.visitElementDescription(description)
+
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
             "MAValueJsonReader cannot decode using reference description."
