@@ -297,17 +297,26 @@ class ModelWriterWalkerVisitor(MAVisitor):
     def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        related_view = self._get_element_view(description)
+        if self.current_context.model is not None:
+            related_view = self._get_element_view(description)
+        else:  # parse and return only the element, in case it is the root view
+            related_view = self.current_context.view
         if related_view == description.undefinedValue:
             related_obj = description.undefinedValue
         else:
             related_obj = self.walkDescription(related_view, description.reference)
-        MAModel.writeUsingWrapper(self.current_context.model, description, related_obj)
+        if self.current_context.model is not None:
+            MAModel.writeUsingWrapper(self.current_context.model, description, related_obj)
+        else:
+            self.current_context.model = related_obj  # return only the element, in case it is the root view
 
     def visitToManyRelationDescription(self, description: MAToManyRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        related_views = self._get_element_view(description)
+        if self.current_context.model is not None:
+            related_views = self._get_element_view(description)
+        else:  # parse and return only the element, in case it is the root view
+            related_views = self.current_context.view
         if related_views == description.undefinedValue:
             related_objs = description.undefinedValue
         elif related_views is None:
@@ -316,7 +325,10 @@ class ModelWriterWalkerVisitor(MAVisitor):
             related_objs = []
             for view in related_views:
                 related_objs.append(self.walkDescription(view, description.reference))
-        MAModel.writeUsingWrapper(self.current_context.model, description, related_objs)
+        if self.current_context.model is not None:
+            MAModel.writeUsingWrapper(self.current_context.model, description, related_objs)
+        else:
+            self.current_context.model = related_objs  # return only the elements, in case it is the root view
 
     def visitSingleOptionDescription(self, description: MASingleOptionDescription):
         logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription() called with "
@@ -332,9 +344,14 @@ class ModelWriterWalkerVisitor(MAVisitor):
     def visitElementDescription(self, description: MAElementDescription):
         logger.debug(f"{self.__class__.__name__}.visitElementDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        element_view = self._get_element_view(description)
-        element_value = self._transform_element(element_view, description)
-        MAModel.writeUsingWrapper(self.current_context.model, description, element_value)
+        if self.current_context.model is not None:
+            element_view = self._get_element_view(description)
+            element_value = self._transform_element(element_view, description)
+            MAModel.writeUsingWrapper(self.current_context.model, description, element_value)
+        else:
+            # parse and return only the element, in case it is the root view
+            element_value = self._transform_element(self.current_context.view, description)
+            self.current_context.model = element_value
 
 
 class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
@@ -592,16 +609,35 @@ if __name__ == "__main__":
     # print(new_child.parent)
     # print(new_child.parent.children)
 
-    print(host)
+    # child_nick = 'Jacky'
+    # child_dict = {'-x-magritte-key': 0, 'nick': 'Jacky', 'parent': {'-x-magritte-key': 1, 'name': 'Jack', 'children': []}}
+    # nick_desc = child_desc['nick']
+    # str_instantiated = deserializer.instantiateHumanReadable('Jacky', nick_desc)
+    # print(str_instantiated)
+
+    # parent_desc = child_desc['parent']
+    # parent_dict = {'-x-magritte-key': 1, 'name': 'Jack', 'children': []}
+    # parent_instantiated = deserializer.instantiateHumanReadable(parent_dict, parent_desc)
+    # print(parent_instantiated)
+    # print(parent_instantiated.children)
+
+    children_desc = parent_desc['children']
+    children_dict = [{'-x-magritte-key': 0, 'nick': 'Jacky', 'parent': {'-x-magritte-key': 1, 'name': 'Jack', 'children': [0]}}]
+    children_instantiated = deserializer.instantiateHumanReadable(children_dict, children_desc)
+    print(children_instantiated)
+    print(children_instantiated[0])
+    print(children_instantiated[0].parent)
+
+    # print(host)
     # host_dict = serializer.dumpHumanReadable(host, host_desc)
     # print(host_dict)
     # new_host = deserializer.instantiateHumanReadable(host_dict, host_desc)
     # print(new_host)
     # new_host_dict = serializer.dumpHumanReadable(new_host, host_desc)
     # print(new_host_dict)
-    host_str = serializer.serializeHumanReadable(host, host_desc)
-    print(host_str)
-    new_host = deserializer.deserializeHumanReadable(host_str, host_desc)
-    print(new_host)
-    new_host_str = serializer.serializeHumanReadable(new_host, host_desc)
-    print(new_host_str)
+    # host_str = serializer.serializeHumanReadable(host, host_desc)
+    # print(host_str)
+    # new_host = deserializer.deserializeHumanReadable(host_str, host_desc)
+    # print(new_host)
+    # new_host_str = serializer.serializeHumanReadable(new_host, host_desc)
+    # print(new_host_str)
