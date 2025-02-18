@@ -4,8 +4,8 @@ from json import dumps, loads
 
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
 # from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer
-from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableDeserializer
-from Magritte.visitors.MADescriptionWalkerVisitor import MAReferencedDataHumanReadableSerializer
+# from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableDeserializer
+from Magritte.visitors.MADescriptionWalkerVisitor import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider, Host, Port, Account, User, Organization, SubscriptionPlan

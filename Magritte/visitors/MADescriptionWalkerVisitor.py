@@ -71,6 +71,9 @@ class ModelReaderWalkerVisitor(MAVisitor):
     def _process_cyclic_reference(self, ctx):
         raise CyclicReferenceError(ctx, f"Cyclic reference detected: {ctx}")
 
+    def _process_duplicate_model(self, ctx):
+        return ctx.view
+
     def walkDescription(self, model, description):
         logger.info(f"{self.__class__.__name__}.walkDescription() called: "
                     f"model = {model.__class__.__name__} ({hex(id(model))}), "
@@ -95,7 +98,7 @@ class ModelReaderWalkerVisitor(MAVisitor):
                     logger.info(f"{self.__class__.__name__}.walkDescription(): "
                                 f"model = {model.__class__.__name__} ({hex(id(model))}) was already visited "
                                 f"and processed")
-                    return ctx.view
+                    return self._process_duplicate_model(ctx)
                 else:
                     logger.info(f"{self.__class__.__name__}.walkDescription(): "
                                 f"model = {model.__class__.__name__} ({hex(id(model))}): cyclic reference detected")
@@ -403,6 +406,9 @@ class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
         self._json_writer = MAValueJsonWriter()
 
     def _process_cyclic_reference(self, ctx):
+        return ctx.model_key
+
+    def _process_duplicate_model(self, ctx):
         return ctx.model_key
 
     def _shouldProcessDescription(self, description: MADescription):
