@@ -52,16 +52,16 @@ class MADescriptionWalkerVisitor(MAVisitor):
 
     def __init__(self):
         super().__init__()
-        self.visited_contexts = {}
-        self.context_stack = []
+        self._visited_contexts = {}
+        self._context_stack = []
         self._model_key = 0
-        self.current_context = None
+        self._current_context = None
 
     def reset(self):
-        self.visited_contexts.clear()
-        self.context_stack.clear()
+        self._visited_contexts.clear()
+        self._context_stack.clear()
         self._model_key = 0
-        self.current_context = None
+        self._current_context = None
 
     def _shouldProcessDescription(self, description: MADescription):
         return True
@@ -104,15 +104,15 @@ class ModelReaderWalkerVisitor(MADescriptionWalkerVisitor):
             return None
 
         model_id = id(model)
-        if model_id in self.visited_contexts:
+        if model_id in self._visited_contexts:
             logger.info(f"{self.__class__.__name__}.walkDescription(): "
                         f"model = {model.__class__.__name__} ({hex(id(model))}) was already visited")
-            if len(self.visited_contexts) == 1:
+            if len(self._visited_contexts) == 1:
                 logger.info(f"{self.__class__.__name__}.walkDescription(): "
                             f"model = {model.__class__.__name__} ({hex(id(model))}) is the root model being visited "
                             f"via a to-one or single-option reference. We are good to go.")
             else:
-                ctx = self.visited_contexts[model_id]
+                ctx = self._visited_contexts[model_id]
                 if ctx.processed:
                     # if model was previously visited and processed - duplicate model reference
                     logger.info(f"{self.__class__.__name__}.walkDescription(): "
@@ -128,14 +128,14 @@ class ModelReaderWalkerVisitor(MADescriptionWalkerVisitor):
         logger.info(f"{self.__class__.__name__}.walkDescription(): "
                     f"model = {model.__class__.__name__} ({hex(id(model))}) was not visited before. Creating context.")
         context = self.Context(model=model, description=description, model_key=self.get_model_key())
-        self.visited_contexts[model_id] = context
+        self._visited_contexts[model_id] = context
         logger.info(f"{self.__class__.__name__}.walkDescription(): Adding new context to context_stack: {context}")
-        self.context_stack.append(context)
-        self.current_context = self.context_stack[-1]
+        self._context_stack.append(context)
+        self._current_context = self._context_stack[-1]
         self.visit(description)
-        updated_context = self.context_stack.pop()
+        updated_context = self._context_stack.pop()
         updated_context.processed = True
-        self.current_context = self.context_stack[-1] if self.context_stack else None
+        self._current_context = self._context_stack[-1] if self._context_stack else None
         logger.info(f"{self.__class__.__name__}.walkDescription(): "
                     f"model = {model.__class__.__name__} ({hex(id(model))}). Returning view: {updated_context.view}")
         return updated_context.view
@@ -143,44 +143,44 @@ class ModelReaderWalkerVisitor(MADescriptionWalkerVisitor):
     def visit(self, description: MADescription):
         logger.debug(f"{self.__class__.__name__}.visit() called with "
                      f"description = {description.name} ({description.__class__.__name__})")
-        logger.debug(f"{self.__class__.__name__}.visit(): self.current_context: {self.current_context}")
+        logger.debug(f"{self.__class__.__name__}.visit(): self._current_context: {self._current_context}")
         if self._shouldProcessDescription(description):
             super().visit(description)
         logger.debug(f"{self.__class__.__name__}.visit returning results for description "
-                     f"= {description.name} ({description.__class__.__name__}): {self.current_context}")
+                     f"= {description.name} ({description.__class__.__name__}): {self._current_context}")
 
     def visitContainer(self, description: MAContainer):
         logger.debug(f"{self.__class__.__name__}.visitContainer() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        self.current_context.elements = []
+        self._current_context.elements = []
         self.visitAll(description.children)
-        self.current_context.view = self._transform_container(self.current_context.elements, description)
+        self._current_context.view = self._transform_container(self._current_context.elements, description)
 
     def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        related_obj = MAModel.readUsingWrapper(self.current_context.model, description)
+        related_obj = MAModel.readUsingWrapper(self._current_context.model, description)
         if related_obj == description.undefinedValue:
             return None
         if related_obj is not None:
             ref_view = self.walkDescription(related_obj, description.reference)
         else:
             ref_view = None
-        self.current_context.elements.append((description, ref_view))
-        self.current_context.view = ref_view  # return only the view, in case it is the root model
+        self._current_context.elements.append((description, ref_view))
+        self._current_context.view = ref_view  # return only the view, in case it is the root model
 
     def visitToManyRelationDescription(self, description: MAToManyRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        related_objs = MAModel.readUsingWrapper(self.current_context.model, description)
+        related_objs = MAModel.readUsingWrapper(self._current_context.model, description)
         if related_objs == description.undefinedValue:
             return None
         if related_objs is not None:
             ref_views = []
             for obj in related_objs:
                 ref_views.append(self.walkDescription(obj, description.reference))
-            self.current_context.elements.append((description, ref_views))
-            self.current_context.view = ref_views  # return only the views, in case it is the root model
+            self._current_context.elements.append((description, ref_views))
+            self._current_context.view = ref_views  # return only the views, in case it is the root model
 
     def visitSingleOptionDescription(self, description: MASingleOptionDescription):
         logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription() called with "
@@ -196,12 +196,12 @@ class ModelReaderWalkerVisitor(MADescriptionWalkerVisitor):
     def visitElementDescription(self, description: MAElementDescription):
         logger.debug(f"{self.__class__.__name__}.visitElementDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        value = MAModel.readUsingWrapper(self.current_context.model, description)
+        value = MAModel.readUsingWrapper(self._current_context.model, description)
         if value == description.undefinedValue:
             return None
         element_view = self._transform_element(value, description)
-        self.current_context.elements.append((description, element_view))
-        self.current_context.view = element_view  # return only the view, in case it is the root model
+        self._current_context.elements.append((description, element_view))
+        self._current_context.view = element_view  # return only the view, in case it is the root model
 
 
 class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
@@ -232,21 +232,21 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
         context = self.Context(view=view, description=description)
 
         logger.info(f"{self.__class__.__name__}.walkDescription(): Adding new context to context_stack: {context}")
-        self.context_stack.append(context)
-        self.current_context = self.context_stack[-1]
+        self._context_stack.append(context)
+        self._current_context = self._context_stack[-1]
         self.visit(description)
-        updated_context = self.context_stack.pop()
+        updated_context = self._context_stack.pop()
         updated_context.processed = True
-        self.current_context = self.context_stack[-1] if self.context_stack else None
+        self._current_context = self._context_stack[-1] if self._context_stack else None
 
         model_key = updated_context.model_key
 
         if model_key is not None:
-            if model_key in self.visited_contexts:
+            if model_key in self._visited_contexts:
                 logger.info(f"{self.__class__.__name__}.walkDescription(): "
                             f"model with key {model_key} was already visited")
-                updated_context = self._process_duplicate_view(updated_context, self.visited_contexts[model_key])
-            self.visited_contexts[model_key] = updated_context
+                updated_context = self._process_duplicate_view(updated_context, self._visited_contexts[model_key])
+            self._visited_contexts[model_key] = updated_context
 
         logger.info(f"{self.__class__.__name__}.walkDescription(): "
                     f"model with key {model_key}. Returning model: {updated_context.model}")
@@ -261,59 +261,59 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
 
     def _get_model_by_key(self, key):
         # try to find the model by key, if not found raise KeyError
-        if key in self.visited_contexts:
-            return self.visited_contexts[key].model
-        for ctx in self.context_stack:
+        if key in self._visited_contexts:
+            return self._visited_contexts[key].model
+        for ctx in self._context_stack:
             if ctx.model_key == key:
                 return ctx.model
         raise KeyError(f"Model with key {key} not found in visited_contexts")
 
     def _get_element_view(self, description) -> Any:
         return next(
-            filter(lambda x: x[0] == description, self.current_context.elements),
+            filter(lambda x: x[0] == description, self._current_context.elements),
             (description, description.undefinedValue)
             )[1]
 
     def visit(self, description: MADescription):
         logger.debug(f"{self.__class__.__name__}.visit() called with "
                      f"description = {description.name} ({description.__class__.__name__})")
-        logger.debug(f"{self.__class__.__name__}.visit(): self.current_context: {self.current_context}")
+        logger.debug(f"{self.__class__.__name__}.visit(): self._current_context: {self._current_context}")
         if self._shouldProcessDescription(description):
             super().visit(description)
         logger.debug(f"{self.__class__.__name__}.visit returning results for description "
-                     f"= {description.name} ({description.__class__.__name__}): {self.current_context}")
+                     f"= {description.name} ({description.__class__.__name__}): {self._current_context}")
 
     def visitContainer(self, description: MAContainer):
         logger.debug(f"{self.__class__.__name__}.visitContainer() called with "
                      f"description {description.name} ({description.__class__.__name__})")
         dto_factory = self._dto_factory if self._dto_factory else self.default_dto_factory
-        self.current_context.model = dto_factory(description)
-        self.current_context.elements = self._transform_container(self.current_context.view, description)
+        self._current_context.model = dto_factory(description)
+        self._current_context.elements = self._transform_container(self._current_context.view, description)
         self.visitAll(description.children)
 
     def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToOneRelationDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        if self.current_context.model is not None:
+        if self._current_context.model is not None:
             related_view = self._get_element_view(description)
         else:  # parse and return only the element, in case it is the root view
-            related_view = self.current_context.view
+            related_view = self._current_context.view
         if related_view == description.undefinedValue:
             related_obj = description.undefinedValue
         else:
             related_obj = self.walkDescription(related_view, description.reference)
-        if self.current_context.model is not None:
-            MAModel.writeUsingWrapper(self.current_context.model, description, related_obj)
+        if self._current_context.model is not None:
+            MAModel.writeUsingWrapper(self._current_context.model, description, related_obj)
         else:
-            self.current_context.model = related_obj  # return only the element, in case it is the root view
+            self._current_context.model = related_obj  # return only the element, in case it is the root view
 
     def visitToManyRelationDescription(self, description: MAToManyRelationDescription):
         logger.debug(f"{self.__class__.__name__}.visitToManyRelationDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        if self.current_context.model is not None:
+        if self._current_context.model is not None:
             related_views = self._get_element_view(description)
         else:  # parse and return only the element, in case it is the root view
-            related_views = self.current_context.view
+            related_views = self._current_context.view
         if related_views == description.undefinedValue:
             related_objs = description.undefinedValue
         elif related_views is None:
@@ -322,10 +322,10 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
             related_objs = []
             for view in related_views:
                 related_objs.append(self.walkDescription(view, description.reference))
-        if self.current_context.model is not None:
-            MAModel.writeUsingWrapper(self.current_context.model, description, related_objs)
+        if self._current_context.model is not None:
+            MAModel.writeUsingWrapper(self._current_context.model, description, related_objs)
         else:
-            self.current_context.model = related_objs  # return only the elements, in case it is the root view
+            self._current_context.model = related_objs  # return only the elements, in case it is the root view
 
     def visitSingleOptionDescription(self, description: MASingleOptionDescription):
         logger.debug(f"{self.__class__.__name__}.visitSingleOptionDescription() called with "
@@ -341,14 +341,14 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
     def visitElementDescription(self, description: MAElementDescription):
         logger.debug(f"{self.__class__.__name__}.visitElementDescription() called with "
                      f"description {description.name} ({description.__class__.__name__})")
-        if self.current_context.model is not None:
+        if self._current_context.model is not None:
             element_view = self._get_element_view(description)
             element_value = self._transform_element(element_view, description)
-            MAModel.writeUsingWrapper(self.current_context.model, description, element_value)
+            MAModel.writeUsingWrapper(self._current_context.model, description, element_value)
         else:
             # parse and return only the element, in case it is the root view
-            element_value = self._transform_element(self.current_context.view, description)
-            self.current_context.model = element_value
+            element_value = self._transform_element(self._current_context.view, description)
+            self._current_context.model = element_value
 
 
 class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
@@ -370,14 +370,14 @@ class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
         print("======================================================")
 
     def visit(self, description: MADescription):
-        self._level_prefix = self._indent * len(self.context_stack)
+        self._level_prefix = self._indent * len(self._context_stack)
         self._c_prefix = self._level_prefix
         self._e_prefix = self._level_prefix + self._elem_prefix
         super().visit(description)
 
     def visitContainer(self, description: MAContainer):
         print(f"{self._c_prefix}Object described by {description.name} ({description.__class__.__name__}): "
-              f"{self.current_context.model}")
+              f"{self._current_context.model}")
         super().visitContainer(description)
 
     def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
@@ -391,7 +391,7 @@ class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
     def visitElementDescription(self, description: MAElementDescription):
         super().visitElementDescription(description)
         print(f"{self._e_prefix}{description.__class__.__name__}: {description.name}: "
-              f"{self.current_context.elements[-1][1]}")
+              f"{self._current_context.elements[-1][1]}")
 
 
 class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
@@ -415,14 +415,14 @@ class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
 
     def _transform_container(self, source, description) -> Any:
         obj_dict = {
-            "-x-magritte-class": self.current_context.model.__class__.__name__,
-            "-x-magritte-key": self.current_context.model_key,
+            "-x-magritte-class": self._current_context.model.__class__.__name__,
+            "-x-magritte-key": self._current_context.model_key,
         }
         obj_dict.update({desc.name: value for desc, value in source})
         return obj_dict
 
     def _transform_element(self, source, description) -> Any:
-        return self._json_writer.write_json(self.current_context.model, description)
+        return self._json_writer.write_json(self._current_context.model, description)
 
     def dumpHumanReadable(self, model, description):
         logger.debug(f"{self.__class__.__name__}.dumpHumanReadable(): "
@@ -465,12 +465,12 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
         return self._json_reader.read_json(None, source, description)
 
     def visitContainer(self, description: MAContainer):
-        if not isinstance(self.current_context.view, dict):
-            self.current_context.model = self._get_model_by_key(self.current_context.view)
+        if not isinstance(self._current_context.view, dict):
+            self._current_context.model = self._get_model_by_key(self._current_context.view)
             return
-        if '-x-magritte-key' not in self.current_context.view:
-            raise ValueError(f"'-x-magritte-key' not found in view: {self.current_context.view}")
-        self.current_context.model_key = self.current_context.view['-x-magritte-key']
+        if '-x-magritte-key' not in self._current_context.view:
+            raise ValueError(f"'-x-magritte-key' not found in view: {self._current_context.view}")
+        self._current_context.model_key = self._current_context.view['-x-magritte-key']
         super().visitContainer(description)
 
     def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory=None) -> Any:
