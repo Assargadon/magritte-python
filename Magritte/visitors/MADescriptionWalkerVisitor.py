@@ -63,16 +63,16 @@ class MADescriptionWalkerVisitor(MAVisitor):
         self._model_key = 0
         self._current_context = None
 
-    def _shouldProcessDescription(self, description: MADescription):
+    def _shouldProcessDescription(self, description: MADescription) -> bool:
         return True
 
-    def _transform_container(self, source, description) -> Any:
+    def _transform_container(self, source: Any, description: MAContainer) -> Any:
         return source
 
-    def _transform_element(self, source, description) -> Any:
+    def _transform_element(self, source: Any, description: MAElementDescription) -> Any:
         return source
 
-    def walkDescription(self, model, description):
+    def walkDescription(self, model: Any, description: MADescription) -> Any:
         raise NotImplementedError
 
 
@@ -83,18 +83,18 @@ class ModelReaderWalkerVisitor(MADescriptionWalkerVisitor):
             super().__init__(model=model, description=description, model_key=model_key, elements=elements,
                              processed=processed, view=view)
 
-    def get_model_key(self):
+    def get_model_key(self) -> int:  # technically key can be not int, but any hashable
         res = self._model_key
         self._model_key += 1
         return res
 
-    def _process_cyclic_reference(self, ctx):
+    def _process_cyclic_reference(self, ctx: Context) -> Any:
         raise CyclicReferenceError(ctx, f"Cyclic reference detected: {ctx}")
 
-    def _process_duplicate_model(self, ctx):
+    def _process_duplicate_model(self, ctx: Context) -> Any:
         return ctx.view
 
-    def walkDescription(self, model, description):
+    def walkDescription(self, model: Any, description: MADescription) -> Any:
         logger.info(f"{self.__class__.__name__}.walkDescription() called: "
                     f"model = {model.__class__.__name__} ({hex(id(model))}), "
                     f"description = {description.name} ({description.__class__.__name__})")
@@ -219,10 +219,10 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
         super().reset()
         self._dto_factory = None
 
-    def _process_duplicate_view(self, ctx_new, ctx_old):
+    def _process_duplicate_view(self, ctx_new: Context, ctx_old: Context) -> Any:
         raise DuplicateViewError(ctx_new, f"Duplicate view detected: {ctx_new} has same model_key as {ctx_old}")
 
-    def walkDescription(self, view, description):
+    def walkDescription(self, view: Any, description: MADescription) -> Any:
         logger.info(f"{self.__class__.__name__}.walkDescription() called: "
                     f"view = {view.__class__.__name__} ({hex(id(view))}), "
                     f"description = {description.name} ({description.__class__.__name__})")
@@ -253,13 +253,13 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
         return updated_context.model
 
     @staticmethod
-    def default_dto_factory(description):
+    def default_dto_factory(description: MAContainer) -> Any:
         c = description.kind
         if c is None:
             raise MAKindError(description, 'Kind is not defined to make an instance of the described entity')
         return c()
 
-    def _get_model_by_key(self, key):
+    def _get_model_by_key(self, key: int) -> Any:  # symmetrically to ModelReaderWalkerVisitor - key is int
         # try to find the model by key, if not found raise KeyError
         if key in self._visited_contexts:
             return self._visited_contexts[key].model
@@ -268,7 +268,7 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
                 return ctx.model
         raise KeyError(f"Model with key {key} not found in visited_contexts")
 
-    def _get_element_view(self, description) -> Any:
+    def _get_element_view(self, description: MAElementDescription) -> Any:
         return next(
             filter(lambda x: x[0] == description, self._current_context.elements),
             (description, description.undefinedValue)
@@ -399,13 +399,13 @@ class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
         super().__init__()
         self._json_writer = MAValueJsonWriter()
 
-    def _process_cyclic_reference(self, ctx):
+    def _process_cyclic_reference(self, ctx: ModelReaderWalkerVisitor.Context) -> Any:
         return ctx.model_key
 
-    def _process_duplicate_model(self, ctx):
+    def _process_duplicate_model(self, ctx: ModelReaderWalkerVisitor.Context) -> Any:
         return ctx.model_key
 
-    def _shouldProcessDescription(self, description: MADescription):
+    def _shouldProcessDescription(self, description: MADescription) -> bool:
         if not description.isVisible():
             return False
         if (isinstance(description.accessor, MAPluggableAccessor)
@@ -413,7 +413,7 @@ class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
             return False
         return True
 
-    def _transform_container(self, source, description) -> Any:
+    def _transform_container(self, source: Any, description: MAContainer) -> Any:
         obj_dict = {
             "-x-magritte-class": self._current_context.model.__class__.__name__,
             "-x-magritte-key": self._current_context.model_key,
@@ -421,17 +421,17 @@ class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
         obj_dict.update({desc.name: value for desc, value in source})
         return obj_dict
 
-    def _transform_element(self, source, description) -> Any:
+    def _transform_element(self, source: Any, description: MAElementDescription) -> Any:
         return self._json_writer.write_json(self._current_context.model, description)
 
-    def dumpHumanReadable(self, model, description):
+    def dumpHumanReadable(self, model: Any, description: MADescription):
         logger.debug(f"{self.__class__.__name__}.dumpHumanReadable(): "
                      f"model {model.__class__.__name__} ({hex(id(model))}), "
                      f"description {description.name} ({description.__class__.__name__})")
         self.reset()
         return self.walkDescription(model, description)
 
-    def serializeHumanReadable(self, model, description, indent=None):
+    def serializeHumanReadable(self, model: Any, description: MADescription, indent=None):
         logger.debug(f"{self.__class__.__name__}.serializeHumanReadable(): "
                      f"model {model.__class__.__name__} ({hex(id(model))}), "
                      f"description {description.name} ({description.__class__.__name__})")
@@ -444,7 +444,7 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
         self._dto_factory = None
         self._json_reader = MAValueJsonReader()
 
-    def _shouldProcessDescription(self, description: MADescription):
+    def _shouldProcessDescription(self, description: MADescription) -> bool:
         if not description.isVisible() or description.isReadOnly():
             return False
         if (isinstance(description.accessor, MAPluggableAccessor)
@@ -452,7 +452,7 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
             return False
         return True
 
-    def _transform_container(self, source, description) -> Any:
+    def _transform_container(self, source: Any, description: MAContainer) -> Any:
         elements = []
         for elem_desc in description.children:
             elem_name = elem_desc.name
@@ -461,7 +461,7 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
                 elements.append((elem_desc, elem_value))
         return elements
 
-    def _transform_element(self, source, description) -> Any:
+    def _transform_element(self, source: Any, description: MAElementDescription) -> Any:
         return self._json_reader.read_json(None, source, description)
 
     def visitContainer(self, description: MAContainer):
@@ -473,7 +473,7 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
         self._current_context.model_key = self._current_context.view['-x-magritte-key']
         super().visitContainer(description)
 
-    def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory=None) -> Any:
+    def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory: callable=None) -> Any:
         logger.debug(f"{self.__class__.__name__}.instantiateHumanReadable(): "
                      f"dump {dump}, description {description.name} ({description.__class__.__name__})")
         if dto_factory is None:
@@ -481,7 +481,7 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
         model = self.walkDescription(dump, description)
         return model
 
-    def deserializeHumanReadable(self, serialized_str: str, description: MADescription, dto_factory=None) -> Any:
+    def deserializeHumanReadable(self, serialized_str: str, description: MADescription, dto_factory: callable=None) -> Any:
         logger.debug(f"{self.__class__.__name__}.deserializeHumanReadable(): "
                      f"serialized_str {serialized_str}, "
                      f"description {description.name} ({description.__class__.__name__})")
