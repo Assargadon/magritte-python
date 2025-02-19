@@ -351,49 +351,6 @@ class ModelWriterWalkerVisitor(MADescriptionWalkerVisitor):
             self._current_context.model = element_value
 
 
-class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
-    def __init__(self):
-        super().__init__()
-        self._indent = '= '
-        self._level_prefix = ''
-        self._elem_prefix = '- '
-        self._c_prefix = ''
-        self._e_prefix = ''
-
-    def _process_cyclic_reference(self, ctx):
-        return None
-
-    def print(self, model, description):
-        self.reset()
-        print("======================================================")
-        self.walkDescription(model, description)
-        print("======================================================")
-
-    def visit(self, description: MADescription):
-        self._level_prefix = self._indent * len(self._context_stack)
-        self._c_prefix = self._level_prefix
-        self._e_prefix = self._level_prefix + self._elem_prefix
-        super().visit(description)
-
-    def visitContainer(self, description: MAContainer):
-        print(f"{self._c_prefix}Object described by {description.name} ({description.__class__.__name__}): "
-              f"{self._current_context.model}")
-        super().visitContainer(description)
-
-    def visitToOneRelationDescription(self, description: MAToOneRelationDescription):
-        print(f"{self._e_prefix}{description.__class__.__name__}: {description.name}")
-        super().visitToOneRelationDescription(description)
-
-    def visitToManyRelationDescription(self, description: MAToManyRelationDescription):
-        print(f"{self._e_prefix}{description.__class__.__name__}: {description.name}")
-        super().visitToManyRelationDescription(description)
-
-    def visitElementDescription(self, description: MAElementDescription):
-        super().visitElementDescription(description)
-        print(f"{self._e_prefix}{description.__class__.__name__}: {description.name}: "
-              f"{self._current_context.elements[-1][1]}")
-
-
 class MAReferencedDataHumanReadableSerializer(ModelReaderWalkerVisitor):
     def __init__(self):
         super().__init__()
@@ -489,6 +446,45 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
         return self.instantiateHumanReadable(dump, description, dto_factory)
 
 
+class MAReferencedDataPrinter(ModelReaderWalkerVisitor):
+    def __init__(self):
+        super().__init__()
+        self._indent = '= '
+        self._level_prefix = ''
+        self._elem_prefix = '- '
+        self._c_prefix = ''
+        self._e_prefix = ''
+
+    def _process_cyclic_reference(self, ctx: ModelReaderWalkerVisitor.Context) -> Any:
+        return f"<cyclic ref>"
+
+    def print(self, model: Any, description: MADescription):
+        self.reset()
+        res = self.walkDescription(model, description)
+        print("======================================================")
+        print(res)
+        print("======================================================")
+
+    def _transform_container(self, source: Any, description: MAContainer) -> Any:
+        self._level_prefix = self._indent * len(self._context_stack)
+        self._c_prefix = self._level_prefix
+        self._e_prefix = self._level_prefix + self._elem_prefix
+        header = f"{self._c_prefix}Object described by {description.name} ({description.__class__.__name__}): "
+        res = []
+        for elem_desc, elem_value in source:
+            if isinstance(elem_value, list):
+                res.append(f"{self._e_prefix}{elem_desc.name}:")
+                for elem in elem_value:
+                    if elem == "<cyclic ref>":
+                        elem_res = f"{self._c_prefix + self._indent}{elem}"
+                    else:
+                        elem_res = f"{elem}"
+                    res.append(elem_res)
+            else:
+                res.append(f"{self._e_prefix}{elem_desc.name}: {elem_value}")
+        return header + "\n" +  "\n".join(res)
+
+
 # Test examples
 if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING, format='%(message)s\n')
@@ -562,9 +558,9 @@ if __name__ == "__main__":
     child3.parent = parent
 
     printer = MAReferencedDataPrinter()
-    # printer.print(host, host_desc)
-    # printer.print(parent, parent_desc)
-    # printer.print(host.ports[0], port_desc)
+    printer.print(host, host_desc)
+    printer.print(parent, parent_desc)
+    printer.print(host.ports[0], port_desc)
     # printer.print(host.ports, host_ports_desc)
     # printer.print(user, user_desc)
 
@@ -620,12 +616,12 @@ if __name__ == "__main__":
     # print(parent_instantiated)
     # print(parent_instantiated.children)
 
-    children_desc = parent_desc['children']
-    children_dict = [{'-x-magritte-key': 0, 'nick': 'Jacky', 'parent': {'-x-magritte-key': 1, 'name': 'Jack', 'children': [0]}}]
-    children_instantiated = deserializer.instantiateHumanReadable(children_dict, children_desc)
-    print(children_instantiated)
-    print(children_instantiated[0])
-    print(children_instantiated[0].parent)
+    # children_desc = parent_desc['children']
+    # children_dict = [{'-x-magritte-key': 0, 'nick': 'Jacky', 'parent': {'-x-magritte-key': 1, 'name': 'Jack', 'children': [0]}}]
+    # children_instantiated = deserializer.instantiateHumanReadable(children_dict, children_desc)
+    # print(children_instantiated)
+    # print(children_instantiated[0])
+    # print(children_instantiated[0].parent)
 
     # print(host)
     # host_dict = serializer.dumpHumanReadable(host, host_desc)
