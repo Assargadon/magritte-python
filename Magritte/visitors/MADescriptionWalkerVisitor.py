@@ -413,9 +413,8 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
         elements = []
         for elem_desc in description.children:
             elem_name = elem_desc.name
-            elem_value = source.get(elem_name)
-            if elem_value is not None:
-                elements.append((elem_desc, elem_value))
+            elem_value = source.get(elem_name, elem_desc.undefinedValue)
+            elements.append((elem_desc, elem_value))
         return elements
 
     def _transform_element(self, source: Any, description: MAElementDescription) -> Any:
@@ -558,9 +557,9 @@ if __name__ == "__main__":
     child3.parent = parent
 
     printer = MAReferencedDataPrinter()
-    printer.print(host, host_desc)
-    printer.print(parent, parent_desc)
-    printer.print(host.ports[0], port_desc)
+    # printer.print(host, host_desc)
+    # printer.print(parent, parent_desc)
+    # printer.print(host.ports[0], port_desc)
     # printer.print(host.ports, host_ports_desc)
     # printer.print(user, user_desc)
 
@@ -636,3 +635,8 @@ if __name__ == "__main__":
     # print(new_host)
     # new_host_str = serializer.serializeHumanReadable(new_host, host_desc)
     # print(new_host_str)
+
+    subscriptionPlanDescription = desc_provider.description_for("SubscriptionPlan")
+    subscriptionPlanWithoutPriceJson = '{"-x-magritte-key": 1, "name": "Free"}'
+    subscriptionPlanWithoutPriceDeserialized = deserializer.deserializeHumanReadable(subscriptionPlanWithoutPriceJson, subscriptionPlanDescription)
+    print(subscriptionPlanWithoutPriceDeserialized.price)

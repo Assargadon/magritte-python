@@ -102,8 +102,7 @@ class MAValueJsonReader(MAVisitor):
             description.accessor.write(self._model, self._decoded_value)
 
     def visit(self, description: MADescription):
-        if self._json_value != description.undefinedValue:
-            super().visit(description)
+        super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
         self._decoded_value = self._json_value
