@@ -1,3 +1,4 @@
+import logging
 from copy import copy
 from unittest import TestCase
 from json import dumps, loads
@@ -26,6 +27,13 @@ class MAReferencedDataWriterVisitorTestBase(TestCase):
         self.userDescription = self.descriptors.description_for(User.__name__)
         self.software = provider.hosts[0].software[0]
         self.softwareDescription = self.descriptors.description_for(SoftwarePackage.__name__)
+        self.subscriptionPlan = provider.subscription_plans[1]
+        self.subscriptionPlanDescription = self.descriptors.description_for(SubscriptionPlan.__name__)
+        self.accountWithoutNTLM = provider.accounts[0]
+        self.assertIsNone(self.accountDescription['ntlm'].undefinedValue)
+        self.accountWithoutNTLM.ntlm = self.accountDescription['ntlm'].undefinedValue
+        self.subscriptionPlanWithoutPrice = provider.subscription_plans[0]
+        self.subscriptionPlanWithoutPrice.price = self.subscriptionPlanDescription['price'].undefinedValue
 
     def findDescription(self, class_name, name):
         container = self.descriptors.description_for(class_name)
@@ -126,6 +134,14 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         softwareDumped = self.serializer.dumpHumanReadable(self.host.software[0], self.softwareDescription)
         self.assertNotIn(softwareCodeDescription.name, softwareDumped, "Invisible properties should not be included in the dumped form")
 
+    def testSkipDefaultUndefinedValue(self):
+        accountWithoutNTLMDumped = self.serializer.dumpHumanReadable(self.accountWithoutNTLM, self.accountDescription)
+        self.assertNotIn('ntlm', accountWithoutNTLMDumped, "Properties with default undefined value should not be included in the dumped form")
+
+    def testSkipCustomUndefinedValue(self):
+        subscriptionPlanWithoutPriceDumped = self.serializer.dumpHumanReadable(self.subscriptionPlanWithoutPrice, self.subscriptionPlanDescription)
+        self.assertNotIn('price', subscriptionPlanWithoutPriceDumped, "Properties with custom undefined value should not be included in the dumped form")
+
     def testDistinctKeys(self):
         allKeys = set()
         def traverseList(l):
@@ -200,6 +216,20 @@ class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
         softwareJson = '{"-x-magritte-key": 1, "name": "Red Technology Database", "version": "1.2.3"}'
         softwareDeserialized = self.deserializer.deserializeHumanReadable(softwareJson, self.softwareDescription)
         self.assertEqual(softwareDeserialized.code, self.softwareDescription.undefinedValue, "Invisible properties should not be included in the deserialized form")
+
+    def testSkipDefaultUndefinedValue(self):
+        accountWithoutNTLMJson = '''
+        {"-x-magritte-key": 1, "login": "john.doe", "password": "123", "reg_timestamp": "2020-01-01T00:00:00", "days": 30,
+        "port": {"-x-magritte-key": 2, "portnum": 80, "status": "open",
+        "host": {"-x-magritte-key": 3, "ip": "192.168.0.1", "ports": [2]}}}
+        '''
+        accountWithoutNTLMDeserialized = self.deserializer.deserializeHumanReadable(accountWithoutNTLMJson, self.accountDescription)
+        self.assertEqual(accountWithoutNTLMDeserialized.ntlm, self.accountDescription['ntlm'].undefinedValue, "Properties with default undefined value should not be included in the deserialized form")
+
+    def testSkipCustomUndefinedValue(self):
+        subscriptionPlanWithoutPriceJson = '{"-x-magritte-key": 1, "name": "Free"}'
+        subscriptionPlanWithoutPriceDeserialized = self.deserializer.deserializeHumanReadable(subscriptionPlanWithoutPriceJson, self.subscriptionPlanDescription)
+        self.assertEqual(subscriptionPlanWithoutPriceDeserialized.price, self.subscriptionPlanDescription['price'].undefinedValue, "Properties absent from dumped form should be set to undefined value")
 
 
 class MAReferencedDataWriterReaderVisitorPassthroughTest(MAReferencedDataWriterVisitorTestBase):
