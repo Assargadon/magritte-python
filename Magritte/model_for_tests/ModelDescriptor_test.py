@@ -61,6 +61,7 @@ class TestModelDescriptorProvider(MADescriptionProvider):
                 ),
                 MAIntDescription(
                     name='price', label='Price (per month)', required=True, accessor=MAAttrAccessor('price'),
+                    undefinedValue=0,
 
                 ),
                 MAStringDescription(
