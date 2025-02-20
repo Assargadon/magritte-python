@@ -76,6 +76,14 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         noneJson = dumps(None)
         self.assertEqual(ntlmSerialized,  noneJson, f"MAElementDescription of None in a serialized form should result in json null, got {ntlmSerialized}")
 
+    def testToOneRelationDescription(self):
+        organizationDescription = self.findDescriptionByProperty(User.organization)
+        organizationDumped = self.serializer.dumpHumanReadable(self.user.organization, organizationDescription)
+        self.assertIsInstance(organizationDumped, dict, f"MAToOneRelationDescription in a dumped form should result in a dict, got {organizationDumped}")
+        organizationSerialized = self.serializer.serializeHumanReadable(self.user.organization, organizationDescription)
+        organizationFromJson = loads(organizationSerialized)
+        self.assertIsInstance(organizationFromJson, dict, "MAToOneRelationDescription in a serialized form should result in a json object")
+
     def testToManyRelationDescription(self):
         portsDescription = self.findDescriptionByProperty(Host.ports)
         portsDumped = self.serializer.dumpHumanReadable(self.host.ports, portsDescription)
@@ -163,6 +171,12 @@ class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
         noneJson = dumps(None)
         ntlmDeserialized = self.deserializer.deserializeHumanReadable(noneJson, ntlmDescription)
         self.assertIsNone(ntlmDeserialized, f"MAElementDescription of None in a deserialized form should result in None, got {ntlmDeserialized}")
+
+    def testToOneRelationDescription(self):
+        hostDescription = self.findDescriptionByProperty(Port.host)
+        hostJson = '{"-x-magritte-key": 1, "ip": "192.168.0.1", "ports": []}'
+        hostDeserialized = self.deserializer.deserializeHumanReadable(hostJson, hostDescription)
+        self.assertIsInstance(hostDeserialized, Host, f"MAToOneRelationDescription in a deserialized form should result in a Host instance, got {hostDeserialized}")
 
     def testToManyRelationDescription(self):
         portsDescription = self.findDescriptionByProperty(Host.ports)
