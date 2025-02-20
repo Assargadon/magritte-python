@@ -3,6 +3,7 @@ from unittest import TestCase
 from json import dumps, loads
 
 from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.model_for_tests import SoftwarePackage
 # from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer
 # from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableDeserializer
 from Magritte.visitors.MADescriptionWalkerVisitor import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
@@ -23,6 +24,8 @@ class MAReferencedDataWriterVisitorTestBase(TestCase):
         self.accountDescription = self.descriptors.description_for(Account.__name__)
         self.user = provider.users[1]
         self.userDescription = self.descriptors.description_for(User.__name__)
+        self.software = provider.hosts[0].software[0]
+        self.softwareDescription = self.descriptors.description_for(SoftwarePackage.__name__)
 
     def findDescription(self, class_name, name):
         container = self.descriptors.description_for(class_name)
@@ -117,11 +120,11 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         self.assertEqual(userPlanDumped['name'], self.user.plan.name, f"MASingleOptionDecription of MAContainer in a dumped form should have properties from the referenced object")
         self.assertEqual(userPlanDumped['price'], self.user.plan.price, f"MASingleOptionDecription of MAContainer in a dumped form should have properties from the referenced object")
 
-    #def testIgnoreReadonly(self):
-    #    portLabelDescription = self.findDescriptionByProperty(Port.label)
-    #    self.assertTrue(portLabelDescription.isReadOnly(), "Initial condition is not met, Port.label should be described as read-only")
-    #    portDumped = self.serializer.dumpHumanReadable(self.port, self.portDescription)
-    #    self.assertNotIn(portLabelDescription.name, portDumped, f"Read-only value should not exist in a dump")
+    def testIgnoreInvisible(self):
+        softwareCodeDescription = self.findDescriptionByName(SoftwarePackage, 'code')
+        self.assertFalse(softwareCodeDescription.isVisible(), "Initial condition is not met. 'code' property should be invisible")
+        softwareDumped = self.serializer.dumpHumanReadable(self.host.software[0], self.softwareDescription)
+        self.assertNotIn(softwareCodeDescription.name, softwareDumped, "Invisible properties should not be included in the dumped form")
 
     def testDistinctKeys(self):
         allKeys = set()
@@ -190,6 +193,13 @@ class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
         portStatusDeserialized = self.deserializer.deserializeHumanReadable(portStatusJson, portStatusDescription)
         self.assertIsInstance(portStatusDeserialized, str, f"MASingleOptionDecription of MAStringDescription in a deserialized form should result in a str, got {portStatusDeserialized}")
         self.assertEqual(self.port.status, portStatusDeserialized, "MASingleOptionDecription of MAStringDescription in a deserialized form should be equal to the source string")
+
+    def testIgnoreInvisible(self):
+        softwareCodeDescription = self.findDescriptionByName(SoftwarePackage, 'code')
+        self.assertFalse(softwareCodeDescription.isVisible(), "Initial condition is not met. 'code' property should be invisible")
+        softwareJson = '{"-x-magritte-key": 1, "name": "Red Technology Database", "version": "1.2.3"}'
+        softwareDeserialized = self.deserializer.deserializeHumanReadable(softwareJson, self.softwareDescription)
+        self.assertEqual(softwareDeserialized.code, self.softwareDescription.undefinedValue, "Invisible properties should not be included in the deserialized form")
 
 
 class MAReferencedDataWriterReaderVisitorPassthroughTest(MAReferencedDataWriterVisitorTestBase):

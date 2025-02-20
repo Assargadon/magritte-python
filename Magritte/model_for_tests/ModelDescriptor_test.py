@@ -44,6 +44,9 @@ class TestModelDescriptorProvider(MADescriptionProvider):
                 MAStringDescription(
                     name='version', label='Version', required=True, accessor=MAAttrAccessor('version')
                 ),
+                MAStringDescription(
+                    name='code', label='Code', accessor=MAAttrAccessor('code'), visible=False
+                ),
             ]
         )
 
