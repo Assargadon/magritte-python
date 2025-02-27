@@ -424,9 +424,10 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
         if not isinstance(self._current_context.view, dict):
             self._current_context.model = self._get_model_by_key(self._current_context.view)
             return
-        if '-x-magritte-key' not in self._current_context.view:
-            raise ValueError(f"'-x-magritte-key' not found in view: {self._current_context.view}")
-        self._current_context.model_key = self._current_context.view['-x-magritte-key']
+        if self._current_context.view:
+            if '-x-magritte-key' not in self._current_context.view:
+                raise ValueError(f"'-x-magritte-key' not found in view: {self._current_context.view}")
+            self._current_context.model_key = self._current_context.view['-x-magritte-key']
         super().visitContainer(description)
 
     def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory: callable=None) -> Any:
