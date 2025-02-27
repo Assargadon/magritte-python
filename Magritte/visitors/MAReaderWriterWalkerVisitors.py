@@ -433,6 +433,7 @@ class MAReferencedDataHumanReadableDeserializer(ModelWriterWalkerVisitor):
     def instantiateHumanReadable(self, dump: Any, description: MADescription, dto_factory: callable=None) -> Any:
         logger.debug(f"{self.__class__.__name__}.instantiateHumanReadable(): "
                      f"dump {dump}, description {description.name} ({description.__class__.__name__})")
+        self.reset()
         if dto_factory is None:
             self._dto_factory = self.default_dto_factory
         model = self.walkDescription(dump, description)
