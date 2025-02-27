@@ -2,8 +2,8 @@
 from copy import copy
 from typing import ClassVar
 from inspect import signature
-from Magritte.visitors.MAReferencedDataWriterReader_visitors import \
-    MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
+from Magritte.visitors.MAReaderWriterWalkerVisitors import (
+    MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer)
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from pydantic import JsonValue, BaseModel, Field, create_model
 from fastapi import Request, Depends, Query
