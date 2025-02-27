@@ -1,7 +1,13 @@
+import logging
+from copy import copy
 from unittest import TestCase
 from json import dumps, loads
 
-from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
+from Magritte.accessors.MAIdentityAccessor_class import MAIdentityAccessor
+from Magritte.model_for_tests import SoftwarePackage
+# from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer
+# from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableDeserializer
+from Magritte.visitors.MAReaderWriterWalkerVisitors import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider, Host, Port, Account, User, Organization, SubscriptionPlan
@@ -19,13 +25,29 @@ class MAReferencedDataWriterVisitorTestBase(TestCase):
         self.accountDescription = self.descriptors.description_for(Account.__name__)
         self.user = provider.users[1]
         self.userDescription = self.descriptors.description_for(User.__name__)
+        self.software = provider.hosts[0].software[0]
+        self.softwareDescription = self.descriptors.description_for(SoftwarePackage.__name__)
+        self.subscriptionPlan = provider.subscription_plans[1]
+        self.subscriptionPlanDescription = self.descriptors.description_for(SubscriptionPlan.__name__)
+        self.accountWithoutNTLM = provider.accounts[0]
+        self.assertIsNone(self.accountDescription['ntlm'].undefinedValue)
+        self.accountWithoutNTLM.ntlm = self.accountDescription['ntlm'].undefinedValue
+        self.subscriptionPlanWithZeroPrice = provider.subscription_plans[0]
+        self.assertEqual(self.subscriptionPlanWithZeroPrice.price, 0, "Initial condition is not met. Subscription plan should have zero price")
+        self.subscriptionPlanWithoutPrice = SubscriptionPlan.subscriptionPlan(
+            "Unknown",
+            self.subscriptionPlanDescription['price'].undefinedValue,
+            "Unknown plan with undefined price"
+            )
 
     def findDescription(self, class_name, name):
         container = self.descriptors.description_for(class_name)
         self.assertIsNotNone(container)
-        descriptor = next(filter(lambda description: description.name == name, container.children), None)
+        descriptor = container[name]
         self.assertIsNotNone(descriptor)
-        return descriptor
+        res_desc = copy(descriptor)
+        res_desc.accessor = MAIdentityAccessor()
+        return res_desc
 
     def findDescriptionByName(self, cls, name):
         class_name = cls.__name__
@@ -70,6 +92,14 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         noneJson = dumps(None)
         self.assertEqual(ntlmSerialized,  noneJson, f"MAElementDescription of None in a serialized form should result in json null, got {ntlmSerialized}")
 
+    def testToOneRelationDescription(self):
+        organizationDescription = self.findDescriptionByProperty(User.organization)
+        organizationDumped = self.serializer.dumpHumanReadable(self.user.organization, organizationDescription)
+        self.assertIsInstance(organizationDumped, dict, f"MAToOneRelationDescription in a dumped form should result in a dict, got {organizationDumped}")
+        organizationSerialized = self.serializer.serializeHumanReadable(self.user.organization, organizationDescription)
+        organizationFromJson = loads(organizationSerialized)
+        self.assertIsInstance(organizationFromJson, dict, "MAToOneRelationDescription in a serialized form should result in a json object")
+
     def testToManyRelationDescription(self):
         portsDescription = self.findDescriptionByProperty(Host.ports)
         portsDumped = self.serializer.dumpHumanReadable(self.host.ports, portsDescription)
@@ -103,11 +133,25 @@ class MAReferencedDataWriterVisitorTest(MAReferencedDataWriterVisitorTestBase):
         self.assertEqual(userPlanDumped['name'], self.user.plan.name, f"MASingleOptionDecription of MAContainer in a dumped form should have properties from the referenced object")
         self.assertEqual(userPlanDumped['price'], self.user.plan.price, f"MASingleOptionDecription of MAContainer in a dumped form should have properties from the referenced object")
 
-    #def testIgnoreReadonly(self):
-    #    portLabelDescription = self.findDescriptionByProperty(Port.label)
-    #    self.assertTrue(portLabelDescription.isReadOnly(), "Initial condition is not met, Port.label should be described as read-only")
-    #    portDumped = self.serializer.dumpHumanReadable(self.port, self.portDescription)
-    #    self.assertNotIn(portLabelDescription.name, portDumped, f"Read-only value should not exist in a dump")
+    def testZeroValuesNotUndefinedDescription(self):
+        FreePlanDumped = self.serializer.dumpHumanReadable(self.subscriptionPlanWithZeroPrice, self.subscriptionPlanDescription)
+        self.assertIsInstance(FreePlanDumped, dict, f"MAContainer in a dumped form should result in a dict, got {FreePlanDumped}")
+        self.assertEqual(FreePlanDumped['name'], self.subscriptionPlanWithZeroPrice.name, f"MAContainer in a dumped form should have properties from the referenced object")
+        self.assertEqual(FreePlanDumped['price'], self.subscriptionPlanWithZeroPrice.price, f"MAContainer in a dumped form should have properties from the referenced object")
+
+    def testIgnoreInvisible(self):
+        softwareCodeDescription = self.findDescriptionByName(SoftwarePackage, 'code')
+        self.assertFalse(softwareCodeDescription.isVisible(), "Initial condition is not met. 'code' property should be invisible")
+        softwareDumped = self.serializer.dumpHumanReadable(self.host.software[0], self.softwareDescription)
+        self.assertNotIn(softwareCodeDescription.name, softwareDumped, "Invisible properties should not be included in the dumped form")
+
+    def testSkipDefaultUndefinedValue(self):
+        accountWithoutNTLMDumped = self.serializer.dumpHumanReadable(self.accountWithoutNTLM, self.accountDescription)
+        self.assertNotIn('ntlm', accountWithoutNTLMDumped, "Properties with default undefined value should not be included in the dumped form")
+
+    def testSkipCustomUndefinedValue(self):
+        subscriptionPlanWithoutPriceDumped = self.serializer.dumpHumanReadable(self.subscriptionPlanWithoutPrice, self.subscriptionPlanDescription)
+        self.assertNotIn('price', subscriptionPlanWithoutPriceDumped, "Properties with custom undefined value should not be included in the dumped form")
 
     def testDistinctKeys(self):
         allKeys = set()
@@ -158,6 +202,12 @@ class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
         ntlmDeserialized = self.deserializer.deserializeHumanReadable(noneJson, ntlmDescription)
         self.assertIsNone(ntlmDeserialized, f"MAElementDescription of None in a deserialized form should result in None, got {ntlmDeserialized}")
 
+    def testToOneRelationDescription(self):
+        hostDescription = self.findDescriptionByProperty(Port.host)
+        hostJson = '{"-x-magritte-key": 1, "ip": "192.168.0.1", "ports": []}'
+        hostDeserialized = self.deserializer.deserializeHumanReadable(hostJson, hostDescription)
+        self.assertIsInstance(hostDeserialized, Host, f"MAToOneRelationDescription in a deserialized form should result in a Host instance, got {hostDeserialized}")
+
     def testToManyRelationDescription(self):
         portsDescription = self.findDescriptionByProperty(Host.ports)
         portsJson = dumps([])
@@ -170,6 +220,27 @@ class MAReferencedDataReaderVisitorTest(MAReferencedDataWriterVisitorTestBase):
         portStatusDeserialized = self.deserializer.deserializeHumanReadable(portStatusJson, portStatusDescription)
         self.assertIsInstance(portStatusDeserialized, str, f"MASingleOptionDecription of MAStringDescription in a deserialized form should result in a str, got {portStatusDeserialized}")
         self.assertEqual(self.port.status, portStatusDeserialized, "MASingleOptionDecription of MAStringDescription in a deserialized form should be equal to the source string")
+
+    def testIgnoreInvisible(self):
+        softwareCodeDescription = self.findDescriptionByName(SoftwarePackage, 'code')
+        self.assertFalse(softwareCodeDescription.isVisible(), "Initial condition is not met. 'code' property should be invisible")
+        softwareJson = '{"-x-magritte-key": 1, "name": "Red Technology Database", "version": "1.2.3"}'
+        softwareDeserialized = self.deserializer.deserializeHumanReadable(softwareJson, self.softwareDescription)
+        self.assertEqual(softwareDeserialized.code, self.softwareDescription.undefinedValue, "Invisible properties should not be included in the deserialized form")
+
+    def testSkipDefaultUndefinedValue(self):
+        accountWithoutNTLMJson = '''
+        {"-x-magritte-key": 1, "login": "john.doe", "password": "123", "reg_timestamp": "2020-01-01T00:00:00", "days": 30,
+        "port": {"-x-magritte-key": 2, "portnum": 80, "status": "open",
+        "host": {"-x-magritte-key": 3, "ip": "192.168.0.1", "ports": [2]}}}
+        '''
+        accountWithoutNTLMDeserialized = self.deserializer.deserializeHumanReadable(accountWithoutNTLMJson, self.accountDescription)
+        self.assertEqual(accountWithoutNTLMDeserialized.ntlm, self.accountDescription['ntlm'].undefinedValue, "Properties with default undefined value should not be included in the deserialized form")
+
+    def testSkipCustomUndefinedValue(self):
+        subscriptionPlanWithoutPriceJson = '{"-x-magritte-key": 1, "name": "Free"}'
+        subscriptionPlanWithoutPriceDeserialized = self.deserializer.deserializeHumanReadable(subscriptionPlanWithoutPriceJson, self.subscriptionPlanDescription)
+        self.assertEqual(subscriptionPlanWithoutPriceDeserialized.price, self.subscriptionPlanDescription['price'].undefinedValue, "Properties absent from dumped form should be set to undefined value")
 
 
 class MAReferencedDataWriterReaderVisitorPassthroughTest(MAReferencedDataWriterVisitorTestBase):
