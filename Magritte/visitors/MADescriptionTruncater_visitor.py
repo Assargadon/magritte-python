@@ -6,8 +6,8 @@ from Magritte.descriptions.MADescription_class import MADescription
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
 from Magritte.MAModel_class import MAModel
 from Magritte.visitors.MAVisitor_class import MAVisitor
-from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, \
-    MAReferencedDataHumanReadableDeserializer
+from Magritte.visitors.MAReaderWriterWalkerVisitors import (MAReferencedDataHumanReadableSerializer,
+    MAReferencedDataHumanReadableDeserializer)
 
 
 class MADescriptionTruncater(MAVisitor):
@@ -89,7 +89,6 @@ class MADescriptionTruncater(MAVisitor):
 if __name__ == '__main__':
     from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
     from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
-    from Magritte.visitors.MAReferencedDataWriterReader_visitors import MAReferencedDataHumanReadableSerializer, MAReferencedDataHumanReadableDeserializer
 
     descriptors = TestModelDescriptorProvider()
     environment = TestEnvironmentProvider()
@@ -116,6 +115,6 @@ if __name__ == '__main__':
 
     print(host_deserialized)
 
-
-
-
+    host_truncated = truncater.truncateModel(host, hostDescriptor, ['.ports.host', '.ports.numofport', '.ports.status'])
+    host_truncated_serialized = s.serializeHumanReadable(host_truncated, hostDescriptor_truncated)
+    print(host_truncated_serialized)

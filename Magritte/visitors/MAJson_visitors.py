@@ -63,6 +63,12 @@ class MAValueJsonWriter(MAVisitor):
         value_jsonable = value.strftime('%H:%M:%S')
         self._json = self._test_jsonable(value_jsonable)
 
+    def visitSingleOptionDescription(self, description: MADescription):
+        if isinstance(description.reference, MAContainer):
+            self.visitToOneRelationDescription(description)
+        else:
+            self.visitElementDescription(description)
+
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
             "MAValueJsonWriter cannot encode using reference description."
@@ -96,8 +102,7 @@ class MAValueJsonReader(MAVisitor):
             description.accessor.write(self._model, self._decoded_value)
 
     def visit(self, description: MADescription):
-        if self._json_value != description.undefinedValue:
-            super().visit(description)
+        super().visit(description)
 
     def visitElementDescription(self, description: MADescription):
         self._decoded_value = self._json_value
@@ -128,6 +133,12 @@ class MAValueJsonReader(MAVisitor):
         else:
             self._decoded_value = datetime.strptime(self._json_value, "%H:%M:%S").time()
         self._write_to_model(description)
+
+    def visitSingleOptionDescription(self, description: MADescription):
+        if isinstance(description.reference, MAContainer):
+            self.visitToOneRelationDescription(description)
+        else:
+            self.visitElementDescription(description)
 
     def visitReferenceDescription(self, description: MAReferenceDescription):
         raise TypeError(
