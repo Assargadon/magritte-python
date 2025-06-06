@@ -8,7 +8,7 @@ class MAPluggableAccessor(MAAccessor):
         self._writeFunc = aWriteFunc
 
     def __eq__(self, other):
-        return self._readFunc == other._readFunc and self._writeFunc == other._writeFunc
+        return type(self) == type(other) and self._readFunc == other._readFunc and self._writeFunc == other._writeFunc
 
     def __hash__(self):
         h1 = 0 if self._readFunc is None else hash(self._readFunc)
