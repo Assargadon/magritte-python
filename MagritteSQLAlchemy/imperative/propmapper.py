@@ -26,6 +26,7 @@ class PropMapper(MAVisitor):
         self._table = None
         self._registered_tables = None
         self._properties_to_map = None
+        self._table_prefix = ''
 
     @staticmethod
     def _find_backref_desc(myKind, ref_desc: MAContainer):
@@ -93,7 +94,7 @@ class PropMapper(MAVisitor):
 
         return fkey_columns
 
-    def map(self, description: MAContainer, registered_tables: dict) -> dict:
+    def map(self, description: MAContainer, registered_tables: dict, schema: str=None) -> dict:
         if not isinstance(description, MAContainer):
             raise ValueError(f'{description} is not a container')
         if registered_tables is None:
@@ -101,7 +102,8 @@ class PropMapper(MAVisitor):
 
         self._root_desc = description
         self._registered_tables = registered_tables
-        self._table = registered_tables[description.sa_tableName]
+        self._table_prefix = f"{schema}." if schema else ""
+        self._table = registered_tables[f"{self._table_prefix}{description.sa_tableName}"]
         self._properties_to_map = {}
 
         self.visit(description)
@@ -134,7 +136,7 @@ class PropMapper(MAVisitor):
                 )
             self._properties_to_map[description.sa_attrName] = self._table.c[description.sa_fieldName]
         else:
-            target_table = self._registered_tables[description.reference.sa_tableName]
+            target_table = self._registered_tables[f"{self._table_prefix}{description.reference.sa_tableName}"]
             foreign_keys = self._append_fkey(description.name, self._table, target_table)
             backref = self._find_backref_desc(self._root_desc.kind, reference)
             back_populates = backref.sa_attrName if backref else None
@@ -154,7 +156,7 @@ class PropMapper(MAVisitor):
         # logger.debug(f'visitToOneRelationDescription {description.name}')
         if not isinstance(description.reference, MAContainer):
             raise ValueError('Reference is not a container')
-        target_table = self._registered_tables[description.reference.sa_tableName]
+        target_table = self._registered_tables[f"{self._table_prefix}{description.reference.sa_tableName}"]
         foreign_keys = self._append_fkey(description.name, self._table, target_table)
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
@@ -177,7 +179,7 @@ class PropMapper(MAVisitor):
         # logger.debug(f'visitToManyRelationDescription {description.name}')
         if not isinstance(description.reference, MAContainer):
             raise ValueError('Reference is not a container')
-        source_table = self._registered_tables[description.reference.sa_tableName]
+        source_table = self._registered_tables[f"{self._table_prefix}{description.reference.sa_tableName}"]
         backref = self._find_backref_desc(self._root_desc.kind, description.reference)
         back_populates = backref.sa_attrName if backref else None
         # cascade = "save-update, merge, delete-orphan" if backref and backref.required else "save-update, merge"

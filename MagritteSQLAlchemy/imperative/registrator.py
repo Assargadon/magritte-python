@@ -16,7 +16,7 @@ def add_missing_primary_keys(table: Table) -> Table:
         table.append_column(Column("id", Integer, primary_key=True))
     return table
 
-def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_registry:
+def register(*descriptors: MAContainer, registry: sa_registry = None, schema = None) -> sa_registry:
 
     if not registry:
         registry = sa_registry()
@@ -28,6 +28,7 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         table = Table(
             descriptor.sa_tableName,
             registry.metadata,
+            schema=schema,
             )
 
         # map scalar fields
@@ -45,17 +46,19 @@ def register(*descriptors: MAContainer, registry: sa_registry = None) -> sa_regi
         logger.debug(f' ================= > Mapping properties for {descriptor.name} ...')
 
         logger.debug(f' ----------------- > Constructing properties and foreign keys...')
-        properties_to_map = prop_mapper.map(descriptor, registry.metadata.tables)
+        properties_to_map = prop_mapper.map(descriptor, registry.metadata.tables, schema=schema)
         logger.debug(f' Properties to map: {properties_to_map}')
         table_props[descriptor.sa_tableName] = properties_to_map
 
         logger.debug(f' ================= > Mapped properties for {descriptor.name} ...')
 
+    table_prefix = f"{schema}." if schema else ""
+
     for descriptor in descriptors:
         logger.debug(f' ================= > Mapping tables for {descriptor.name} ...')
         registry.map_imperatively(
             descriptor.kind,
-            registry.metadata.tables[descriptor.sa_tableName],
+            registry.metadata.tables[f"{table_prefix}{descriptor.sa_tableName}"],
             properties=table_props[descriptor.sa_tableName],
             )
 
