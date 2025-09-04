@@ -64,5 +64,21 @@ class MARelationDescription(MAReferenceDescription):
     def defaultReference(cls):
         return MAPriorityContainer()
 
+    @classmethod
+    def defaultRelationship(cls):
+        return None
+
+    @property
+    def relationship(self):
+        try:
+            return self._relationship
+        except AttributeError:
+            self._relationship = self.defaultRelationship()
+            return self._relationship
+
+    @relationship.setter
+    def relationship(self, aStr):
+        self._relationship = aStr
+
     def acceptMagritte(self, aVisitor):
         aVisitor.visitRelationDescription(self)
