@@ -6,7 +6,7 @@ from Magritte.model_for_tests.SubscriptionPlan import SubscriptionPlan
 
 
 class TestEnvironmentProvider:
-    def __init__(self, num_hosts=3, num_ports_per_host=12, num_accounts=3, num_users=3):
+    def __init__(self, num_hosts=3, num_ports_per_host=12, num_accounts=3, num_users=20):
         self._hosts = [Host.random_host(num_ports=num_ports_per_host) for _ in range(num_hosts)]
         self._ports = [port for host in self._hosts for port in host.ports]
         self._organization = Organization.random_organization(num_users)
@@ -14,6 +14,7 @@ class TestEnvironmentProvider:
         self._users = self._organization.listusers
         for user in self._users:
             user.setofaccounts = [Account.random_account(self._ports[_]) for _ in range(num_accounts)]
+        self._board = self._organization.board
         self._accounts = [account for user in self._users for account in user.setofaccounts]
         self._software = [software for host in self._hosts for software in host.software]
         self._subscription_plans = SubscriptionPlan.entries()
@@ -38,6 +39,10 @@ class TestEnvironmentProvider:
     @property
     def users(self):
         return self._users
+
+    @property
+    def board(self):
+        return self._board
 
     @property
     def software(self):
@@ -70,6 +75,10 @@ def main():
     print("\nUsers")
     for user in provider.users:
         print(f"RegNum: {user.regnum}, FIO: {user.fio} [{user.organization.name}] - {user.plan}, Date of Birth: {user.dateofbirth}, Date of Admission: {user.dateofadmission}, Date of Departure: {user.dateofdeparture}, Work: {user.is_works_now()}")
+
+    print("\nBoard")
+    for user in provider.board:
+        print(f"RegNum: {user.regnum}, FIO: {user.fio} [{user.organization.name}]")
 
 if __name__ == "__main__":
     main()

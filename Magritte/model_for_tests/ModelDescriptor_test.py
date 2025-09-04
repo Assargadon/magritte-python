@@ -95,8 +95,13 @@ class TestModelDescriptorProvider(MADescriptionProvider):
                 MAToOneRelationDescription(
                     name='organization', label='Organization', required=True,
                     accessor=MAAttrAccessor('organization'), classes=[Organization],
-                    reference=org_desc_container,
+                    reference=org_desc_container, relationship='org-users'
                 ),
+                MAToOneRelationDescription(
+                    name='board_member', label='Board Member of', required=False,
+                    accessor=MAAttrAccessor('organization'), classes=[Organization],
+                    reference=org_desc_container, relationship='org-board'
+                    ),
                 MADateDescription(
                     name='dateofadmission', label='DateOfAdmission',
                     required=True, accessor=MAAttrAccessor('dateofadmission'), sa_attrName='_dateofadmission',
@@ -143,13 +148,18 @@ class TestModelDescriptorProvider(MADescriptionProvider):
                 MAToManyRelationDescription(
                     name='listusers', label='List of Users', required=True,
                     accessor=MAAttrAccessor('listusers'), classes=[User],
-                    reference=user_desc_container,
+                    reference=user_desc_container, relationship='org-users'
                 ),
                 MAToManyRelationDescription(
                     name='listcomp', label='List of Computers', required=True,
                     accessor=MAAttrAccessor('listcomp'), classes=[Host],
                     reference=host_desc_container,
                 ),
+                MAToManyRelationDescription(
+                    name='board', label='Board of Directors', required=True,
+                    accessor=MAAttrAccessor('board'), classes=[User],
+                    reference=user_desc_container, relationship='org-board'
+                    ),
             ]
         )
 

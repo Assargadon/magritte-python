@@ -15,6 +15,7 @@ class User(MAModel):
         self._dateofbirth = None
         self._gender = None
         self._organization = None
+        self._board_member = None
         self._dateofadmission = None
         self._dateofdeparture = None
         self._setofaccounts = []
@@ -179,3 +180,12 @@ class User(MAModel):
     def setofaccounts(self, new_setofaccounts):
         assert new_setofaccounts is not None and isinstance(new_setofaccounts, list) and all(isinstance(account, Account) for account in new_setofaccounts), "SetOfAccounts must be a list of Account instances"
         self._setofaccounts = new_setofaccounts
+
+    @property
+    def board_member(self):
+        return self._board_member
+
+    @board_member.setter
+    def board_member(self, new_org):
+        assert new_org == self._organization, "Can be a board member only of the original organization"
+        self._board_member = new_org

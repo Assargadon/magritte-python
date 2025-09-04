@@ -11,6 +11,7 @@ class Organization(MAModel):
         self._active = None
         self._dictusers = []
         self._dictcomp = []
+        self._board = []
 
     @staticmethod
     def generate_name():
@@ -49,6 +50,7 @@ class Organization(MAModel):
         new_organization.listcomp = listComps
         listUsers = [User.random_user(new_organization) for _ in range(numofsusers)]
         new_organization._dictusers = listUsers
+        new_organization.board = random.choices(listUsers, k=max(1, numofsusers // 10))
         return new_organization
 
     def amount_users(self):
@@ -111,3 +113,16 @@ class Organization(MAModel):
         from Magritte.model_for_tests.Host import Host
         assert new_listcomp is not None and isinstance(new_listcomp, list) and all(isinstance(comp, Host) for comp in new_listcomp), "ListComp must be a list of Host instances"
         self._dictcomp = new_listcomp
+
+    @property
+    def board(self):
+        return self._board
+
+    @board.setter
+    def board(self, new_board):
+        from Magritte.model_for_tests.User import User
+        assert new_board is not None and isinstance(new_board, list) and all(isinstance(user, User) for user in new_board), "Board must be a list of User instances"
+        assert set(new_board) <= set(self._dictusers), "Board must be a subset of organization users"
+        for user in new_board:
+            user.board_member = user.organization
+        self._board = new_board
