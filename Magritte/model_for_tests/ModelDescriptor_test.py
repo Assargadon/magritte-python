@@ -95,7 +95,7 @@ class TestModelDescriptorProvider(MADescriptionProvider):
                 MAToOneRelationDescription(
                     name='organization', label='Organization', required=True,
                     accessor=MAAttrAccessor('organization'), classes=[Organization],
-                    reference=org_desc_container, relationship='org-users'
+                    reference=org_desc_container, # relationship='org-users'
                 ),
                 MAToOneRelationDescription(
                     name='board_member', label='Board Member of', required=False,
@@ -148,7 +148,7 @@ class TestModelDescriptorProvider(MADescriptionProvider):
                 MAToManyRelationDescription(
                     name='listusers', label='List of Users', required=True,
                     accessor=MAAttrAccessor('listusers'), classes=[User],
-                    reference=user_desc_container, relationship='org-users'
+                    reference=user_desc_container, # relationship='org-users'
                 ),
                 MAToManyRelationDescription(
                     name='listcomp', label='List of Computers', required=True,
