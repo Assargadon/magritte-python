@@ -54,6 +54,7 @@ class TestRegistratorExample(TestCase):
         self.account_logins = [account.login for account in self.env.accounts]
         self.software_names = [software.name for software in self.env.software]
         self.subscription_plan_names = [sp.name for sp in self.env.subscription_plans]
+        self.board_regnums = [user.regnum for user in self.env.board]
 
     def tearDown(self):
         self.registry.metadata.drop_all(engine)
@@ -120,6 +121,8 @@ class TestRegistratorExample(TestCase):
             self.assertEqual(software.name, self.software_names[0])
             subscription_plans = session.query(SubscriptionPlan).filter(SubscriptionPlan.name == self.subscription_plan_names[0]).first()
             self.assertEqual(subscription_plans.name, self.subscription_plan_names[0])
+            self.assertEqual(len(org.board), len(self.board_regnums))
+            self.assertEqual(set(user.regnum for user in org.board), set(self.board_regnums))
 
     '''
     # Removal is not yet supported by ORM: removal attempt leads to FK violation
@@ -214,6 +217,7 @@ class TestRegistratorExampleWithSchema(TestCase):
         self.account_logins = [account.login for account in self.env.accounts]
         self.software_names = [software.name for software in self.env.software]
         self.subscription_plan_names = [sp.name for sp in self.env.subscription_plans]
+        self.board_regnums = [user.regnum for user in self.env.board]
 
     def tearDown(self):
         self.registry.metadata.drop_all(engine)
@@ -280,6 +284,8 @@ class TestRegistratorExampleWithSchema(TestCase):
             self.assertEqual(software.name, self.software_names[0])
             subscription_plans = session.query(SubscriptionPlan).filter(SubscriptionPlan.name == self.subscription_plan_names[0]).first()
             self.assertEqual(subscription_plans.name, self.subscription_plan_names[0])
+            self.assertEqual(len(org.board), len(self.board_regnums))
+            self.assertEqual(set(user.regnum for user in org.board), set(self.board_regnums))
 
 
 if __name__ == '__main__':

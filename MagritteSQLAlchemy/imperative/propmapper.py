@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAReferenceDescription_class import MAReferenceDescription
+from Magritte.descriptions.MARelationDescription_class import MARelationDescription
 from Magritte.visitors.MAVisitor_class import MAVisitor
 
 logger = logging.getLogger(__name__)
@@ -29,10 +30,18 @@ class PropMapper(MAVisitor):
         self._table_prefix = ''
 
     @staticmethod
-    def _find_backref_desc(myKind, ref_desc: MAContainer):
-        for desc in ref_desc.children:
-            if isinstance(desc, MAReferenceDescription) and desc.reference.kind == myKind:
-                return desc
+    def _find_backref_desc(root_desc: MAContainer, ref: MAReferenceDescription):
+        ref_desc = ref.reference
+        relationship_id = ref.relationship if isinstance(ref, MARelationDescription) else None
+        if relationship_id is not None:
+            for desc in ref_desc.children:
+                if (isinstance(desc, MARelationDescription) and desc.reference.kind == root_desc.kind
+                        and desc.relationship == relationship_id):
+                    return desc
+        else:
+            for desc in ref_desc.children:
+                if isinstance(desc, MAReferenceDescription) and desc.reference.kind == root_desc.kind:
+                    return desc
         return None
 
     def _fkey_already_exists(self, source_table: Table, property_name: str, target_table: Table):
@@ -48,21 +57,22 @@ class PropMapper(MAVisitor):
                             f'Foreign key from {source_table.name} for property name {property_name}'
                             f' to {target_table.name} found: {fkey}'
                             )
-                        return True
+                        return fkey
         logger.debug(
             f'Foreign key from {source_table.name} for property name {property_name}'
             f' to {target_table.name} does not exist.'
             )
-        return False
+        return None
 
     def _append_fkey(self, property_name: str, source_table: Table, target_table: Table) -> List[Column] | None:
         logger.debug(
             f'Adding foreign key from {source_table.name} for property name {property_name} to {target_table.name}'
             )
         # if self.is_fkey_already_exists(source_table, property_name, target_table):
-        if self._fkey_already_exists(source_table, property_name, target_table):
+        existing_fkey = self._fkey_already_exists(source_table, property_name, target_table)
+        if existing_fkey is not None:
             logger.debug(f'Foreign key from {source_table.name} to {target_table.name} already exists')
-            return
+            return existing_fkey.constraint
 
         # first, let's add all the columns to the source_table that are part of the foreign key
         primary_keys_of_target = target_table.primary_key
@@ -138,7 +148,7 @@ class PropMapper(MAVisitor):
         else:
             target_table = self._registered_tables[f"{self._table_prefix}{description.reference.sa_tableName}"]
             foreign_keys = self._append_fkey(description.name, self._table, target_table)
-            backref = self._find_backref_desc(self._root_desc.kind, reference)
+            backref = self._find_backref_desc(self._root_desc, description)
             back_populates = backref.sa_attrName if backref else None
             logger.debug(
                 f"Mapping SINGLE OPTION to-object attribute '{description.sa_attrName}' "
@@ -154,22 +164,23 @@ class PropMapper(MAVisitor):
 
     def visitToOneRelationDescription(self, description):
         # logger.debug(f'visitToOneRelationDescription {description.name}')
-        if not isinstance(description.reference, MAContainer):
+        reference = description.reference
+        if not isinstance(reference, MAContainer):
             raise ValueError('Reference is not a container')
-        target_table = self._registered_tables[f"{self._table_prefix}{description.reference.sa_tableName}"]
+        target_table = self._registered_tables[f"{self._table_prefix}{reference.sa_tableName}"]
         foreign_keys = self._append_fkey(description.name, self._table, target_table)
-        backref = self._find_backref_desc(self._root_desc.kind, description.reference)
+        backref = self._find_backref_desc(self._root_desc, description)
         back_populates = backref.sa_attrName if backref else None
         cascade = "save-update, merge"
         logger.debug(
             f"Mapping TO ONE attribute '{description.sa_attrName}' "
-            f"as relationship to '{description.reference.kind}' "
+            f"as relationship to '{reference.kind}' "
             f"with back_populates = '{back_populates}' "
             f"foreign_keys = '{foreign_keys}' "
             f"and cascade = {cascade}"
             )
         self._properties_to_map[description.sa_attrName] = relationship(
-            description.reference.kind,
+            reference.kind,
             back_populates=back_populates,
             foreign_keys=foreign_keys,
             cascade=cascade
@@ -180,7 +191,7 @@ class PropMapper(MAVisitor):
         if not isinstance(description.reference, MAContainer):
             raise ValueError('Reference is not a container')
         source_table = self._registered_tables[f"{self._table_prefix}{description.reference.sa_tableName}"]
-        backref = self._find_backref_desc(self._root_desc.kind, description.reference)
+        backref = self._find_backref_desc(self._root_desc, description)
         back_populates = backref.sa_attrName if backref else None
         # cascade = "save-update, merge, delete-orphan" if backref and backref.required else "save-update, merge"
         cascade = "save-update, delete-orphan" if backref and backref.required else "save-update"
