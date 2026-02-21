@@ -11,6 +11,8 @@ from Magritte.visitors.MAVisitor_class import MAVisitor
 logger = logging.getLogger(__name__)
 
 
+LAZY_STRAT = 'raise_on_sql'
+
 class PropMapper(MAVisitor):
     """Properties Mapper.
     Maps properties of a model descriptor to SQLAlchemy table columns and relationships.
@@ -149,7 +151,8 @@ class PropMapper(MAVisitor):
             self._properties_to_map[description.sa_attrName] = relationship(
                 reference.kind,
                 back_populates=back_populates,
-                foreign_keys=foreign_keys
+                foreign_keys=foreign_keys,
+                lazy=LAZY_STRAT,
                 )
 
     def visitToOneRelationDescription(self, description):
@@ -172,7 +175,8 @@ class PropMapper(MAVisitor):
             description.reference.kind,
             back_populates=back_populates,
             foreign_keys=foreign_keys,
-            cascade=cascade
+            cascade=cascade,
+            lazy=LAZY_STRAT,
             )
 
     def visitToManyRelationDescription(self, description):
@@ -197,5 +201,6 @@ class PropMapper(MAVisitor):
             description.reference.kind,
             # back_populates=back_populates,
             foreign_keys=foreign_keys,
-            cascade=cascade
+            cascade=cascade,
+            lazy=LAZY_STRAT,
             )
