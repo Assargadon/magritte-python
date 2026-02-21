@@ -153,6 +153,7 @@ class PropMapper(MAVisitor):
                 back_populates=back_populates,
                 foreign_keys=foreign_keys,
                 lazy=LAZY_STRAT,
+                join_depth=5,
                 )
 
     def visitToOneRelationDescription(self, description):
@@ -177,6 +178,7 @@ class PropMapper(MAVisitor):
             foreign_keys=foreign_keys,
             cascade=cascade,
             lazy=LAZY_STRAT,
+            join_depth=5,
             )
 
     def visitToManyRelationDescription(self, description):
@@ -203,4 +205,5 @@ class PropMapper(MAVisitor):
             foreign_keys=foreign_keys,
             cascade=cascade,
             lazy=LAZY_STRAT,
+            join_depth=5,
             )
