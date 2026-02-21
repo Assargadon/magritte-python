@@ -11,7 +11,7 @@ from Magritte.visitors.MAVisitor_class import MAVisitor
 logger = logging.getLogger(__name__)
 
 
-LAZY_STRAT = 'raise_on_sql'
+LAZY_STRAT = 'selectin'
 
 class PropMapper(MAVisitor):
     """Properties Mapper.
