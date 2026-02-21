@@ -16,12 +16,26 @@ def add_missing_primary_keys(table: Table) -> Table:
         table.append_column(Column("id", Integer, primary_key=True))
     return table
 
-def register(*descriptors: MAContainer, registry: sa_registry = None, schema = None) -> sa_registry:
+def register(
+    *descriptors: MAContainer,
+    registry: sa_registry = None,
+    schema=None,
+    fields_mapper: FieldsMapper = None,
+    prop_mapper: PropMapper = None,
+    ) -> sa_registry:
+    """Register model descriptors with SQLAlchemy registry.
+
+    schema is an optional parameter to specify the database schema for the tables. If not provided, defaults to None (no schema).
+
+    Optionally accepts custom FieldsMapper and PropMapper instances to control
+    field and relationship mapping behavior. If not provided, defaults are used.
+    """
 
     if not registry:
         registry = sa_registry()
 
-    fields_mapper = FieldsMapper()
+    if fields_mapper is None:
+        fields_mapper = FieldsMapper()
     for descriptor in descriptors:
         logger.debug(f' ================= > Creating table for {descriptor.name} ...')
         # table stub
@@ -40,7 +54,8 @@ def register(*descriptors: MAContainer, registry: sa_registry = None, schema = N
         logger.debug(f'Table columns for {descriptor.name}: {table.c}')
         logger.debug(f' ================= > Created table for {descriptor.name} ...')
 
-    prop_mapper = PropMapper()
+    if prop_mapper is None:
+        prop_mapper = PropMapper()
     table_props = {}
     for descriptor in descriptors:
         logger.debug(f' ================= > Mapping properties for {descriptor.name} ...')
