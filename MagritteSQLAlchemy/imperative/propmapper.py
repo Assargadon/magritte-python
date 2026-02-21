@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import Callable, Dict, List, Optional
 
 from sqlalchemy import Table, ForeignKeyConstraint, Column
 from sqlalchemy.orm import relationship
@@ -11,24 +11,33 @@ from Magritte.visitors.MAVisitor_class import MAVisitor
 logger = logging.getLogger(__name__)
 
 
-LAZY_STRAT = 'selectin'
-
 class PropMapper(MAVisitor):
     """Properties Mapper.
     Maps properties of a model descriptor to SQLAlchemy table columns and relationships.
     For reference fields, it creates foreign keys and relationships.
+    The optional reference_strategy_builder can be passed to __init__ to customize
+    relationship keyword arguments. It receives the reference description object and
+    returns a dict of kwargs that will be expanded into relationship(...). Returning
+    an empty dict preserves SQLAlchemy defaults.
     ForeignKey naming convention:
     - for to-one relations: <description.name>_<target_table_PK_name>
     - for to-many relations: look for back reference
         - if found, use <backref's description.name>_<target_table_PK_name>
         - if not found, use <description.name>_<root_description.name>_<target_table_PK_name>
     """
-    def __init__(self):
+    def __init__(self, reference_strategy_builder: Optional[Callable[[object], Dict]]=None):
         self._root_desc = None
         self._table = None
         self._registered_tables = None
         self._properties_to_map = None
         self._table_prefix = ''
+        self._reference_strategy_builder = (
+            reference_strategy_builder or self._default_reference_strategy_builder
+            )
+
+    @staticmethod
+    def _default_reference_strategy_builder(description):
+        return {}
 
     @staticmethod
     def _find_backref_desc(myKind, ref_desc: MAContainer):
@@ -148,12 +157,12 @@ class PropMapper(MAVisitor):
                 f"with back_populates = '{back_populates}'"
                 f"and foreign_keys = '{foreign_keys}'"
                 )
+            relationship_kwargs = self._reference_strategy_builder(description)
             self._properties_to_map[description.sa_attrName] = relationship(
                 reference.kind,
                 back_populates=back_populates,
                 foreign_keys=foreign_keys,
-                lazy=LAZY_STRAT,
-                join_depth=5,
+                **relationship_kwargs,
                 )
 
     def visitToOneRelationDescription(self, description):
@@ -172,13 +181,13 @@ class PropMapper(MAVisitor):
             f"foreign_keys = '{foreign_keys}' "
             f"and cascade = {cascade}"
             )
+        relationship_kwargs = self._reference_strategy_builder(description)
         self._properties_to_map[description.sa_attrName] = relationship(
             description.reference.kind,
             back_populates=back_populates,
             foreign_keys=foreign_keys,
             cascade=cascade,
-            lazy=LAZY_STRAT,
-            join_depth=5,
+            **relationship_kwargs,
             )
 
     def visitToManyRelationDescription(self, description):
@@ -199,11 +208,10 @@ class PropMapper(MAVisitor):
             f"foreign_keys = '{foreign_keys}' "
             f"and cascade = {cascade}"
             )
+        relationship_kwargs = self._reference_strategy_builder(description)
         self._properties_to_map[description.sa_attrName] = relationship(
             description.reference.kind,
-            # back_populates=back_populates,
             foreign_keys=foreign_keys,
             cascade=cascade,
-            lazy=LAZY_STRAT,
-            join_depth=5,
+            **relationship_kwargs,
             )
