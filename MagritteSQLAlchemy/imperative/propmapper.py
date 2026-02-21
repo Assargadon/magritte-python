@@ -11,7 +11,7 @@ from Magritte.visitors.MAVisitor_class import MAVisitor
 logger = logging.getLogger(__name__)
 
 
-LAZY_STRAT = 'selectin'
+LAZY_STRAT = 'immediate'
 
 class PropMapper(MAVisitor):
     """Properties Mapper.
