@@ -55,7 +55,7 @@ class FieldsMapper(MAVisitor):
     def visitDateAndTimeDescription(self, description):
         logger.debug(f'visitDateAndTimeDescription {description.name}')
         self.table.append_column(Column(
-            description.sa_fieldName, DateTime,
+            description.sa_fieldName, DateTime(timezone=True),
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
             ))
 
