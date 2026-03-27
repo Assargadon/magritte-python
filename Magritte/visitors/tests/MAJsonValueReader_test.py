@@ -46,6 +46,14 @@ class MAJsonReader_Test(TestCase):
         self.json_reader.read_json(self.holder, json_value, desc)
         self.assertEqual(self.holder.value, actual_value)
 
+    def test_Float_decoding_from_int(self):
+        desc = MAFloatDescription(accessor="value")
+        json_value = 5
+
+        self.json_reader.read_json(self.holder, json_value, desc)
+        self.assertEqual(self.holder.value, 5.0)
+        self.assertIsInstance(self.holder.value, float)
+
     def test_String_decoding(self):
         desc = MAStringDescription(accessor = "value")
         actual_value = 13666

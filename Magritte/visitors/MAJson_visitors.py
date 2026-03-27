@@ -3,6 +3,7 @@ from datetime import timezone
 from typing import Dict, Any, Union, List
 
 from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAFloatDescription_class import MAFloatDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.descriptions.MAMagnitudeDescription_class import MAMagnitudeDescription
 from Magritte.descriptions.MAContainer_class import MAContainer
@@ -106,6 +107,15 @@ class MAValueJsonReader(MAVisitor):
 
     def visitElementDescription(self, description: MADescription):
         self._decoded_value = self._json_value
+        self._write_to_model(description)
+
+    def visitFloatDescription(self, description: MAFloatDescription):
+        if self._json_value is None:
+            self._decoded_value = description.undefinedValue
+        elif isinstance(self._json_value, (int, float)) and not isinstance(self._json_value, bool):
+            self._decoded_value = float(self._json_value)
+        else:
+            self._decoded_value = self._json_value
         self._write_to_model(description)
 
     def visitDateAndTimeDescription(self, description: MADescription):
