@@ -61,7 +61,12 @@ host_desc.name = "Host"
 host_desc.kind = Host
 host_desc.setChildren(
     [
-        MAStringDescription(name="ip", accessor=MAAttrAccessor("ip"), required=True),
+        MAStringDescription(
+            name="ip",
+            accessor=MAAttrAccessor("ip"),
+            required=True,
+            sa_isPrimaryKey=True,
+        ),
         MAToManyRelationDescription(
             name="users",
             accessor=MAAttrAccessor("users"),
@@ -81,7 +86,12 @@ user_desc.name = "User"
 user_desc.kind = User
 user_desc.setChildren(
     [
-        MAStringDescription(name="name", accessor=MAAttrAccessor("name"), required=True),
+        MAStringDescription(
+            name="name",
+            accessor=MAAttrAccessor("name"),
+            required=True,
+            sa_isPrimaryKey=True,
+        ),
         ]
     )
 
