@@ -8,6 +8,8 @@ from unittest import TestCase
 
 from sqlalchemy.sql.ddl import CreateSchema
 
+from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MAStringDescription_class import MAStringDescription
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, SoftwarePackage, )
@@ -35,6 +37,27 @@ descriptions = {k: v for k, v in ((x, descriptors.description_for(x)) for x in m
 # engine = create_engine("sqlite://", echo=False)
 conn_str = f"{os.getenv('CONN_STR_BASE', 'postgresql://postgres:secret@localhost')}/registrator_test"
 engine = create_engine(conn_str, echo=True)
+
+
+class NoPkModel:
+    pass
+
+
+class TestRegistratorPrimaryKeyValidation(TestCase):
+
+    def test_register_raises_when_no_primary_key_is_defined(self):
+        descriptor = MAContainer()
+        descriptor.kind = NoPkModel
+        descriptor.name = "NoPkModel"
+        descriptor.setChildren(
+            [
+                MAStringDescription(name="name", required=True),
+            ]
+        )
+
+        with self.assertRaisesRegex(ValueError, "does not have primary keys"):
+            registrator.register(descriptor)
+
 
 class TestRegistratorExample(TestCase):
 
