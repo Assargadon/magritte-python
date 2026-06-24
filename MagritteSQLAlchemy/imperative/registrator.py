@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import Table, Column, Integer
+from sqlalchemy import Table
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from sqlalchemy.orm import registry as sa_registry
@@ -9,12 +9,6 @@ from MagritteSQLAlchemy.imperative.propmapper import PropMapper
 
 logger = logging.getLogger(__name__)
 
-
-def add_missing_primary_keys(table: Table) -> Table:
-    if(len(table.primary_key) == 0):
-        logger.debug(f'Adding ID as default primary key to table {table.name} ({table.primary_key})')
-        table.append_column(Column("id", Integer, primary_key=True))
-    return table
 
 def register(
     *descriptors: MAContainer,
@@ -48,8 +42,8 @@ def register(
         # map scalar fields
         fields_mapper.map(descriptor, table)
 
-        # add missing primary keys
-        table = add_missing_primary_keys(table)
+        if len(table.primary_key) == 0:
+            raise ValueError(f'Table {table.name} does not have primary keys')
 
         logger.debug(f'Table columns for {descriptor.name}: {table.c}')
         logger.debug(f' ================= > Created table for {descriptor.name} ...')
