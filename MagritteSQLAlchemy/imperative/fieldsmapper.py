@@ -34,6 +34,8 @@ class FieldsMapper(MAVisitor):
                     description.name,
                     len(self.table.primary_key),
                 )
+            if len(self.table.primary_key) == 0:
+                raise ValueError(f'Table {self.table.name} does not have primary keys')
         finally:
             self._container_description = previous_container
 
