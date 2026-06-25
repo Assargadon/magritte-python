@@ -39,10 +39,12 @@ class TestModelDescriptorProvider(MADescriptionProvider):
         soft_desc_container.setChildren(
             [
                 MAStringDescription(
-                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name')
+                    name='name', label='Name', required=True, accessor=MAAttrAccessor('name'),
+                    sa_isPrimaryKey=True,
                 ),
                 MAStringDescription(
-                    name='version', label='Version', required=True, accessor=MAAttrAccessor('version')
+                    name='version', label='Version', required=True, accessor=MAAttrAccessor('version'),
+                    sa_isPrimaryKey=True,
                 ),
                 MAStringDescription(
                     name='code', label='Code', accessor=MAAttrAccessor('code'), visible=False
@@ -344,4 +346,3 @@ if __name__ == "__main__":
             print(f"Validation failed with {err}: {err.description.name}, {err.message}")
     print("Validation complete.")
     print(f"Software packages: {soft}")
-
