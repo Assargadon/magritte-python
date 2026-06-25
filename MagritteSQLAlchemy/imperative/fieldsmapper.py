@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime, Text, Float
+from sqlalchemy import Table, Column, Integer, String, Date, Boolean, DateTime, Text, Float, Identity
 
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.visitors.MAVisitor_class import MAVisitor
@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 class FieldsMapper(MAVisitor):
     def __init__(self):
         self.table = None
+        # Needed to access container-level description flags while visiting child fields.
+        self._container_description = None
 
     def map(self, description: MAContainer, table: Table) -> Table:
         self.table = table
@@ -22,17 +24,49 @@ class FieldsMapper(MAVisitor):
 
     def visitContainer(self, description):
         logger.debug(f'visitContainer {description.name}')
-        self.visitAll(filter(lambda x: x.sa_storable, description.children))
+        previous_container = self._container_description
+        self._container_description = description
+        try:
+            self.visitAll(filter(lambda x: x.sa_storable, description.children))
+            if description.sa_shouldGeneratePrimaryKey and len(self.table.primary_key) > 1:
+                logger.warning(
+                    "Table %s has more than one (%d) primary key fields marked for DB generation",
+                    description.name,
+                    len(self.table.primary_key),
+                )
+        finally:
+            self._container_description = previous_container
+
+
+    def _raise_if_primary_key_generation_requested(self, description):
+        if (
+            self._container_description is not None
+            and self._container_description.sa_shouldGeneratePrimaryKey
+            and description.sa_isPrimaryKey
+        ):
+            raise ValueError(
+                f"Table {self.table.name} cannot auto-generate primary key field(s): "
+                f"{description.name} ({description.type})."
+            )
 
     def visitIntDescription(self, description):
         logger.debug(f'visitIntDescription {description.name}')
+        if (
+            self._container_description is not None
+            and self._container_description.sa_shouldGeneratePrimaryKey
+            and description.sa_isPrimaryKey
+        ):
+            column_args = [Identity()]
+        else:
+            column_args = []
         self.table.append_column(Column(
-            description.sa_fieldName, Integer,
+            description.sa_fieldName, Integer, *column_args,
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
             ))
 
     def visitStringDescription(self, description):
         logger.debug(f'visitStringDescription {description.name}')
+        self._raise_if_primary_key_generation_requested(description)
         self.table.append_column(Column(
             description.sa_fieldName, Text,
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
@@ -40,6 +74,7 @@ class FieldsMapper(MAVisitor):
 
     def visitFloatDescription(self, description):
         logger.debug(f'visitFloatDescription {description.name}')
+        self._raise_if_primary_key_generation_requested(description)
         self.table.append_column(Column(
             description.sa_fieldName, Float,
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
@@ -47,6 +82,7 @@ class FieldsMapper(MAVisitor):
 
     def visitDateDescription(self, description):
         logger.debug(f'visitDateDescription {description.name}')
+        self._raise_if_primary_key_generation_requested(description)
         self.table.append_column(Column(
             description.sa_fieldName, Date,
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
@@ -54,6 +90,7 @@ class FieldsMapper(MAVisitor):
 
     def visitDateAndTimeDescription(self, description):
         logger.debug(f'visitDateAndTimeDescription {description.name}')
+        self._raise_if_primary_key_generation_requested(description)
         self.table.append_column(Column(
             description.sa_fieldName, DateTime(timezone=True),
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
@@ -61,6 +98,7 @@ class FieldsMapper(MAVisitor):
 
     def visitBooleanDescription(self, description):
         logger.debug(f'visitBooleanDescription {description.name}')
+        self._raise_if_primary_key_generation_requested(description)
         self.table.append_column(Column(
             description.sa_fieldName, Boolean,
             primary_key=description.sa_isPrimaryKey, nullable=(not description.required)
