@@ -1,5 +1,6 @@
 from sys import intern
 
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
 from Magritte.accessors.MAAttrAccessor_class import MAAttrAccessor
 from Magritte.descriptions.MAContainer_class import MAContainer
 from Magritte.descriptions.MAToManyRelationDescription_class import MAToManyRelationDescription
@@ -31,5 +32,14 @@ def magritteDescription(self, parentDescription):
     )
 
     desc += ancestor_desc
+
+    desc += MABooleanDescription(
+        name=intern('sa_shouldGeneratePrimaryKey'),
+        label="DB-generated Primary Key",
+        comment="If True, the database will generate a primary key for this object. If False, the primary key must be set manually.",
+        priority=1000,
+        default=self.sa_defaultShouldGeneratePrimaryKey(),
+        accessor=MAAttrAccessor('sa_shouldGeneratePrimaryKey')
+    )
     
     return desc

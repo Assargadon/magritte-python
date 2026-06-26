@@ -1,5 +1,6 @@
 import logging
 import os
+from unittest.mock import patch
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -9,7 +10,10 @@ from unittest import TestCase
 from sqlalchemy.sql.ddl import CreateSchema
 
 from Magritte.descriptions.MAContainer_class import MAContainer
+from Magritte.descriptions.MABooleanDescription_class import MABooleanDescription
+from Magritte.descriptions.MAIntDescription_class import MAIntDescription
 from Magritte.descriptions.MAStringDescription_class import MAStringDescription
+from Magritte.descriptions.MASingleOptionDescription_class import MASingleOptionDescription
 from Magritte.model_for_tests.ModelDescriptor_test import TestModelDescriptorProvider
 from Magritte.model_for_tests.EnvironmentProvider_test import TestEnvironmentProvider
 from Magritte.model_for_tests import (Organization, Host, User, Port, Account, SubscriptionPlan, SoftwarePackage, )
@@ -43,6 +47,18 @@ class NoPkModel:
     pass
 
 
+def _make_model_class(name):
+    return type(name, (), {})
+
+
+def _make_descriptor(name, kind, children, should_generate_pk=True):
+    descriptor = MAContainer(name=name)
+    descriptor.kind = kind
+    descriptor.sa_shouldGeneratePrimaryKey = should_generate_pk
+    descriptor.setChildren(children)
+    return descriptor
+
+
 class TestRegistratorPrimaryKeyValidation(TestCase):
 
     def test_register_raises_when_no_primary_key_is_defined(self):
@@ -57,6 +73,99 @@ class TestRegistratorPrimaryKeyValidation(TestCase):
 
         with self.assertRaisesRegex(ValueError, "does not have primary keys"):
             registrator.register(descriptor)
+
+
+class TestRegistratorPrimaryKeyGenerationRules(TestCase):
+
+    def test_register_enables_db_generation_for_int_primary_key(self):
+        kind = _make_model_class("GeneratedIntModel")
+        descriptor = _make_descriptor(
+            "GeneratedIntModel",
+            kind,
+            [
+                MAIntDescription(
+                    name="id",
+                    required=True,
+                    sa_isPrimaryKey=True,
+                )
+            ],
+        )
+
+        registry = registrator.register(descriptor)
+        table = registry.metadata.tables["GeneratedIntModel"]
+
+        self.assertIsNotNone(table.c.id.identity)
+
+    def test_register_enables_db_generation_for_scalar_single_option_int_primary_key(self):
+        kind = _make_model_class("GeneratedOptionModel")
+        descriptor = _make_descriptor(
+            "GeneratedOptionModel",
+            kind,
+            [
+                MASingleOptionDescription(
+                    name="status",
+                    required=True,
+                    sa_isPrimaryKey=True,
+                    reference=MAIntDescription(name="status_code", required=True),
+                )
+            ],
+        )
+
+        registry = registrator.register(descriptor)
+        table = registry.metadata.tables["GeneratedOptionModel"]
+
+        self.assertIsNotNone(table.c.status.identity)
+
+    def test_register_rejects_primary_keys_that_cannot_be_generated(self):
+        cases = [
+            (
+                "string",
+                MAStringDescription(name="name", required=True, sa_isPrimaryKey=True),
+            ),
+            (
+                "boolean",
+                MABooleanDescription(name="enabled", required=True, sa_isPrimaryKey=True),
+            ),
+        ]
+
+        for case_name, pk_description in cases:
+            with self.subTest(case_name=case_name):
+                kind = _make_model_class(f"Generated{case_name.title()}PkModel")
+                descriptor = _make_descriptor(
+                    f"Generated{case_name.title()}PkModel",
+                    kind,
+                    [pk_description],
+                )
+
+                with self.assertRaisesRegex(ValueError, "cannot auto-generate primary key"):
+                    registrator.register(descriptor)
+
+    def test_register_logs_warning_when_multiple_primary_keys_are_marked(self):
+        kind = _make_model_class("GeneratedCompositeModel")
+        descriptor = _make_descriptor(
+            "GeneratedCompositeModel",
+            kind,
+            [
+                MAIntDescription(
+                    name="left_id",
+                    required=True,
+                    sa_isPrimaryKey=True,
+                ),
+                MAIntDescription(
+                    name="right_id",
+                    required=True,
+                    sa_isPrimaryKey=True,
+                ),
+            ],
+        )
+
+        with patch("MagritteSQLAlchemy.imperative.fieldsmapper.logger.warning") as warning_mock:
+            registry = registrator.register(descriptor)
+
+        table = registry.metadata.tables["GeneratedCompositeModel"]
+        self.assertIsNotNone(table.c.left_id.identity)
+        self.assertIsNotNone(table.c.right_id.identity)
+        warning_mock.assert_called_once()
 
 
 class TestRegistratorExample(TestCase):

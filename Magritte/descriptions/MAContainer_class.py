@@ -96,6 +96,20 @@ class MAContainer(MADescription):
         return self.name
 
     @property
+    def sa_shouldGeneratePrimaryKey(self):
+        try:
+            return self._sa_shouldGeneratePrimaryKey
+        except AttributeError:
+            return self.sa_defaultShouldGeneratePrimaryKey()
+
+    @sa_shouldGeneratePrimaryKey.setter
+    def sa_shouldGeneratePrimaryKey(self, aBool):
+        self._sa_shouldGeneratePrimaryKey = aBool
+
+    def sa_defaultShouldGeneratePrimaryKey(self):
+        return False
+
+    @property
     def ancestor(self):
         try:
             return self._ancestor

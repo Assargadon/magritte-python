@@ -50,6 +50,19 @@ class MAContainerTest(TestCase):
     def test_defaultAccessor(self):
         self.assertEqual(isinstance(MAContainer.defaultAccessor(), MAIdentityAccessor), True)
 
+    def test_sa_shouldGeneratePrimaryKey_default(self):
+        self.assertFalse(self.inst1.sa_shouldGeneratePrimaryKey)
+
+    def test_sa_shouldGeneratePrimaryKey_read_write(self):
+        self.inst1.sa_shouldGeneratePrimaryKey = True
+        self.assertTrue(self.inst1.sa_shouldGeneratePrimaryKey)
+        self.inst1.sa_shouldGeneratePrimaryKey = False
+        self.assertFalse(self.inst1.sa_shouldGeneratePrimaryKey)
+
+    def test_sa_shouldGeneratePrimaryKey_constructor(self):
+        desc = MAContainer(sa_shouldGeneratePrimaryKey=True)
+        self.assertTrue(desc.sa_shouldGeneratePrimaryKey)
+
     def test_getChildren(self):
         self.assertEqual(self.inst1.children, [])
 

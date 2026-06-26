@@ -42,9 +42,6 @@ def register(
         # map scalar fields
         fields_mapper.map(descriptor, table)
 
-        if len(table.primary_key) == 0:
-            raise ValueError(f'Table {table.name} does not have primary keys')
-
         logger.debug(f'Table columns for {descriptor.name}: {table.c}')
         logger.debug(f' ================= > Created table for {descriptor.name} ...')
 
